@@ -26,7 +26,19 @@ namespace XDOErrorDetector
                         {
                             Console.WriteLine("table column 수 = {0} 개", reader.FieldCount);
 
-                            
+                            while (reader.Read())
+                            {
+                                var data = new string[] {
+                                    reader["name"].ToString(),
+                                    reader["imageError"].ToString()
+                                };
+                                
+                                foreach(var x in data)
+                                {
+                                    Console.Write(x + "\t");
+                                }
+                                Console.WriteLine();
+                            }
                         }
                     }
                 }
