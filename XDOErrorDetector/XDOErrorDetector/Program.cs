@@ -9,8 +9,21 @@ namespace XDOErrorDetector
 {
     class Program
     {
+        public static String baseURL = @"C:\APM_Setup\htdocs\etri\js\test";
         static void Main(string[] args)
         {
+            // Search xdo file from baseURL
+            var xdoFileReader = new xdoFileReader(baseURL);
+            List<String> xdoFileList = xdoFileReader.run();
+            foreach(string name in xdoFileList)
+            {
+                Console.WriteLine(name);
+            }
+
+            // 
+
+            // DB connect & write
+
             var info = new DB();
             using (var conn = new NpgsqlConnection("Host=" + info.Host + ";Username=" + info.Username + ";Password=" + info.Password + ";Database=" + info.Database))
             {
@@ -20,7 +33,7 @@ namespace XDOErrorDetector
                     using(var cmd = new NpgsqlCommand())
                     {
                         cmd.Connection = conn;
-                        cmd.CommandText = "select * from xdo";
+                        cmd.CommandText = "select * from " + info.Table;
 
                         using(var reader = cmd.ExecuteReader())
                         {
@@ -58,5 +71,6 @@ namespace XDOErrorDetector
         public String Username = "postgres";
         public String Password = "root";
         public String Database = "mydata";
+        public String Table = "xdo";
     }
 }
