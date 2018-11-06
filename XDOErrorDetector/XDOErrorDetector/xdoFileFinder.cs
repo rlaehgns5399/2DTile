@@ -7,11 +7,11 @@ using System.IO;
 
 namespace XDOErrorDetector
 {
-    class xdoFileReader
+    class xdoFileFinder
     {
         private String url;
         public List<String> fileList = new List<String>();
-        public xdoFileReader(String url)
+        public xdoFileFinder(String url)
         {
             this.url = url;
         }

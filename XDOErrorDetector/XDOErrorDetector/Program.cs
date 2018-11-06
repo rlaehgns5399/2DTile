@@ -20,7 +20,11 @@ namespace XDOErrorDetector
                 Console.WriteLine(name);
             }
 
-            // 
+            // XDO Read
+            foreach(String xdoFile in xdoFileList)
+            {
+                XDO xdo = new XDO(xdoFile);
+            }
 
             // DB connect & write
 
