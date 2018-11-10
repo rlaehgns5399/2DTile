@@ -28,7 +28,6 @@ namespace XDOErrorDetector
 
             // type
             this.XDOType = br.ReadByte();
-            Console.WriteLine(this.XDOType);
             // ObjectID
             this.ObjectID = br.ReadUInt32();
             // KeyLen
@@ -62,13 +61,13 @@ namespace XDOErrorDetector
 
             if(temp == 0)
             {
-                Console.WriteLine("XDO version 3.0.0.1");
+                // Console.WriteLine("XDO version 3.0.0.1");
                 br.BaseStream.Position -= 5;
                 this.mesh.Add(new XDOMesh(br));
             }
             else
             {
-                Console.WriteLine("XDO version 3.0.0.2");
+                // Console.WriteLine("XDO version 3.0.0.2");
                 br.BaseStream.Position -= 4;
                 for (int i = 0; i < this.faceNum; i++)
                 {

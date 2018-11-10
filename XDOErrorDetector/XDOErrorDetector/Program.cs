@@ -24,10 +24,43 @@ namespace XDOErrorDetector
                 XDO xdo = new XDO(xdoFile);
                 String fullURL = xdo.url;
                 String baseDirectory = new FileInfo(fullURL).Directory.FullName;
+
+                List<String> imageFileList = new List<String>();
+
+                foreach(String file in Directory.GetFiles(baseDirectory))  imageFileList.Add(file);
                 String fileName = Path.GetFileName(fullURL);
+
+                
                 foreach (XDOMesh mesh in xdo.mesh)
                 {
                     String imageName = mesh.imageName;
+                    int status = 0;
+                    foreach (String fullPath in imageFileList)
+                    {
+                        if(fullPath.Equals(baseDirectory + "\\" + imageName))
+                        {
+                            status = 1;
+                            break;
+                        } else if (fullPath.ToLower().Equals( (baseDirectory + "\\" + imageName).ToLower() ))
+                        {
+                            status = 2;
+                            break;
+                        }
+                    }
+
+                    switch (status)
+                    {
+                        case 0:
+                            Console.WriteLine(baseDirectory + "\\" + imageName + ": image is not exist");
+                            break;
+                        case 1:
+                            Console.WriteLine(baseDirectory + "\\" + imageName + ": image is exist");
+                            break;
+                        case 2:
+                            Console.WriteLine(baseDirectory + "\\" + imageName + ": image is exist but there is a warning about UPPER/LOWER case");
+                            break;
+                    }
+
                 }
             }
 
