@@ -13,18 +13,24 @@ namespace XDOErrorDetector
         static void Main(string[] args)
         {
             // Search xdo file from baseURL
-            var xdoFileReader = new xdoFileReader(baseURL);
+            var xdoFileReader = new xdoFileFinder(baseURL);
             List<String> xdoFileList = xdoFileReader.run();
             foreach(string name in xdoFileList)
             {
                 Console.WriteLine(name);
             }
 
-            // XDO Read
+            // XDO(v3.0.0.2) Read
             foreach(String xdoFile in xdoFileList)
             {
                 XDO xdo = new XDO(xdoFile);
+                foreach(XDOMesh mesh in xdo.mesh)
+                {
+                    // do something
+                }
+
             }
+
 
             // DB connect & write
 

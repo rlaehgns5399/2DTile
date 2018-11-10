@@ -10,7 +10,7 @@ namespace XDOErrorDetector
 {
     class XDO
     {
-        private List<XDOMesh> mesh = new List<XDOMesh>();
+        public List<XDOMesh> mesh = new List<XDOMesh>();
 
         public byte XDOType;
         public uint ObjectID;
