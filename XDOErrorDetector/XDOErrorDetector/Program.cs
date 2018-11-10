@@ -80,6 +80,12 @@ namespace XDOErrorDetector
                 try
                 {
                     conn.Open();
+                    using (var cmd = new NpgsqlCommand())
+                    {
+                        cmd.Connection = conn;
+                        cmd.CommandText = "delete from " + info.Table;
+                        cmd.ExecuteNonQuery();
+                    }
                     foreach (KeyValuePair<String, DBItem> key in hashMap)
                     {
                         using (var cmd = new NpgsqlCommand())
@@ -87,7 +93,7 @@ namespace XDOErrorDetector
                             // Console.WriteLine(key.Key + "\n(" + key.Value.status_correct + ", " + key.Value.status_warning + ", " + key.Value.status_error + ")");
 
                             cmd.Connection = conn;
-
+                            
                             cmd.CommandText = "insert into " + info.Table + "(\"name\",\"imageError\",\"imageSuccess\",\"imageWarning\") values(@name, @error, @success, @warning)";
                             cmd.Parameters.AddWithValue("name", key.Key);
                             cmd.Parameters.AddWithValue("error", key.Value.status_error);
