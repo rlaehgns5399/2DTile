@@ -11,7 +11,7 @@ namespace XDOErrorDetector
     class XDO
     {
         public List<XDOMesh> mesh = new List<XDOMesh>();
-
+        public String url;
         public byte XDOType;
         public uint ObjectID;
         public byte KeyLen;
@@ -22,11 +22,13 @@ namespace XDOErrorDetector
 
         public XDO(string url)
         {
-            BinaryReader br = new BinaryReader(File.Open(url, FileMode.Open));
+            this.url = url;
+            BinaryReader br = new BinaryReader(File.Open(this.url, FileMode.Open));
 
 
             // type
             this.XDOType = br.ReadByte();
+            Console.WriteLine(this.XDOType);
             // ObjectID
             this.ObjectID = br.ReadUInt32();
             // KeyLen
@@ -45,9 +47,33 @@ namespace XDOErrorDetector
             // faceNum
             this.faceNum = br.ReadByte();
 
-            for(int i = 0; i < this.faceNum; i++)
+            byte[] versionChecker = br.ReadBytes(4);
+            int isZero = (int)versionChecker[3];
+
+            int temp = 0;
+            if (isZero == 0)
             {
+                temp = 1;
+            }
+            else
+            {
+                this.faceNum = 0;
+            }
+
+            if(temp == 0)
+            {
+                Console.WriteLine("XDO version 3.0.0.1");
+                br.BaseStream.Position -= 5;
                 this.mesh.Add(new XDOMesh(br));
+            }
+            else
+            {
+                Console.WriteLine("XDO version 3.0.0.2");
+                br.BaseStream.Position -= 4;
+                for (int i = 0; i < this.faceNum; i++)
+                {
+                    this.mesh.Add(new XDOMesh(br));
+                }
             }
 
             br.Close();
@@ -67,6 +93,7 @@ namespace XDOErrorDetector
         public String imageName;
 
         public List<ushort> indexed = new List<ushort>();
+
         public XDOMesh(BinaryReader br)
         {
             // vertexCount
@@ -99,6 +126,9 @@ namespace XDOErrorDetector
             if(this.ImageNameLen > 0)
             {
                 this.imageName = Encoding.UTF8.GetString(br.ReadBytes(this.ImageNameLen));
+                // for what?
+                var nailLen = br.ReadUInt32();
+                var image = br.ReadBytes((int)nailLen);
             }
             else
             {

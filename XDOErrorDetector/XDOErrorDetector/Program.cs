@@ -3,32 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 using Npgsql;
 
 namespace XDOErrorDetector
 {
     class Program
     {
-        public static String baseURL = @"C:\APM_Setup\htdocs\etri\js\test";
+        //public static String baseURL = @"C:\APM_Setup\htdocs\etri\js\test";
+        public static String baseURL = @"C:\Users\KimDoHoon\Desktop\C++_Project\data";
         static void Main(string[] args)
         {
             // Search xdo file from baseURL
             var xdoFileReader = new xdoFileFinder(baseURL);
             List<String> xdoFileList = xdoFileReader.run();
-            foreach(string name in xdoFileList)
-            {
-                Console.WriteLine(name);
-            }
 
             // XDO(v3.0.0.2) Read
-            foreach(String xdoFile in xdoFileList)
+            foreach (String xdoFile in xdoFileList)
             {
                 XDO xdo = new XDO(xdoFile);
-                foreach(XDOMesh mesh in xdo.mesh)
+                String fullURL = xdo.url;
+                String baseDirectory = new FileInfo(fullURL).Directory.FullName;
+                String fileName = Path.GetFileName(fullURL);
+                foreach (XDOMesh mesh in xdo.mesh)
                 {
-                    // do something
+                    String imageName = mesh.imageName;
                 }
-
             }
 
 
