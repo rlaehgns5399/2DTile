@@ -37,7 +37,7 @@ namespace XDOErrorDetectorUI
                                 item.status_correct = int.Parse(reader["imageSuccess"].ToString());
                                 item.status_warning = int.Parse(reader["imageWarning"].ToString());
 
-                                string header = reader["name"].ToString().Replace(item.fileName, "");
+                                string header = reader["name"].ToString().Replace(baseURL + @"\", "");
                                 dic.Add(header, item);
                             }
                         }

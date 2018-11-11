@@ -32,12 +32,14 @@ namespace XDOErrorDetectorUI
         private void button_update_Click(object sender, RoutedEventArgs e)
         {
             sql.update();
+            label1.Content = "DB가 업데이트 되었습니다.";
         }
 
         private void button_check_Click(object sender, RoutedEventArgs e)
         {
+            listView1.Items.Clear();
             Dictionary<String, DBItem> dic = sql.check();
-
+            label1.Content = "데이터 개수: " + dic.Count;
             foreach (KeyValuePair<String, DBItem> key in dic)
             {
                 listView1.Items.Add(new myItem { File = key.Key, Success = key.Value.status_correct, Warning = key.Value.status_warning, Error = key.Value.status_error });

@@ -5,13 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:XDOErrorDetectorUI"
         mc:Ignorable="d"
-        Title="XDOErrorDetectorUI" Height="351.708" Width="445.694">
-    <Grid Margin="0,0,0,0">
+        Title="XDOErrorDetectorUI" Height="381.508" Width="445.694">
+    <Grid Margin="0,0,0,0
+          ">
         <Button x:Name="button_update" Content="Update" HorizontalAlignment="Right" Height="25
                 " Margin="0,11,102.2,0" VerticalAlignment="Top" Width="88" RenderTransformOrigin="-0.017,-0.442" Click="button_update_Click">
         </Button>
         <Button x:Name="button_check" Content="Check" HorizontalAlignment="Left" Height="25" Margin="342,11,0,0" VerticalAlignment="Top" Width="88" RenderTransformOrigin="-0.017,-0.442" Click="button_check_Click"/>
-        <Label x:Name="label" Content="Label" HorizontalAlignment="Left" Height="25" Margin="10,10,0,0" VerticalAlignment="Top" Width="234"/>
+        <Label x:Name="label" Content="Label" HorizontalAlignment="Left" Height="25" Margin="10,10,0,0" VerticalAlignment="Top" Width="234" FontSize="10"/>
         <ListView x:Name="listView1" Height="261" Margin="10,51,10.2,0" VerticalAlignment="Top" SelectionChanged="listView_SelectionChanged">
             <ListView.View>
                 <GridView>
@@ -22,6 +23,7 @@
                 </GridView>
             </ListView.View>
         </ListView>
+        <Label x:Name="label1" Content="Label" HorizontalAlignment="Left" Height="34" Margin="10,317,0,0" VerticalAlignment="Top" Width="419"/>
 
     </Grid>
 </Window>
