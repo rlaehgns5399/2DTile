@@ -12,6 +12,47 @@ namespace XDOErrorDetectorUI
     {
         //public static String baseURL = @"C:\APM_Setup\htdocs\etri\js\test";
         public String baseURL = @"C:\Users\KimDoHoon\Desktop\C++_Project\data";
+        public Dictionary<String, DBItem> check()
+        {
+            Dictionary<String, DBItem> dic = new Dictionary<string, DBItem>();
+
+            var info = new DB();
+            using (var conn = new NpgsqlConnection("Host=" + info.Host + ";Username=" + info.Username + ";Password=" + info.Password + ";Database=" + info.Database))
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new NpgsqlCommand())
+                    {
+                        cmd.Connection = conn;
+                        cmd.CommandText = "select * from " + info.Table;
+                        
+                        using(var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                DBItem item = new DBItem();
+                                item.fileName = reader["name"].ToString();
+                                item.status_error = int.Parse(reader["imageError"].ToString());
+                                item.status_correct = int.Parse(reader["imageSuccess"].ToString());
+                                item.status_warning = int.Parse(reader["imageWarning"].ToString());
+
+                                string header = reader["name"].ToString().Replace(item.fileName, "");
+                                dic.Add(header, item);
+                            }
+                        }
+                    }
+                    
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+            
+
+            return dic;
+        }
         public void update()
         {
             // Search xdo file from baseURL
@@ -109,8 +150,7 @@ namespace XDOErrorDetectorUI
                     Console.WriteLine(ex);
                 }
             }
-
-            Console.ReadLine();
+            
         }
     }
 
@@ -127,7 +167,10 @@ namespace XDOErrorDetectorUI
     {
         public String fileName;
         public int status_correct, status_warning, status_error;
+        public DBItem()
+        {
 
+        }
         public DBItem(String name)
         {
             this.fileName = name;

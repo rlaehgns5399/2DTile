@@ -26,10 +26,7 @@ namespace XDOErrorDetectorUI
             InitializeComponent();
             sql = new postgreSQL();
             label.Content = sql.baseURL;
-
             
-            listView1.Items.Add(new myItem { File = "ddd", Success = 1, Warning = 1, Error = 1 });
-            listView1.Items.Add(new myItem { File = "hh", Success = 1, Warning = 2, Error = 1 });
         }
 
         private void button_update_Click(object sender, RoutedEventArgs e)
@@ -39,7 +36,12 @@ namespace XDOErrorDetectorUI
 
         private void button_check_Click(object sender, RoutedEventArgs e)
         {
-            sql.check();
+            Dictionary<String, DBItem> dic = sql.check();
+
+            foreach (KeyValuePair<String, DBItem> key in dic)
+            {
+                listView1.Items.Add(new myItem { File = key.Key, Success = key.Value.status_correct, Warning = key.Value.status_warning, Error = key.Value.status_error });
+            }
         }
 
         private void listView_SelectionChanged(object sender, SelectionChangedEventArgs e)
