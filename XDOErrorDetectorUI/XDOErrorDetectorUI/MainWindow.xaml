@@ -12,7 +12,16 @@
         </Button>
         <Button x:Name="button_check" Content="Check" HorizontalAlignment="Left" Height="25" Margin="342,11,0,0" VerticalAlignment="Top" Width="88" RenderTransformOrigin="-0.017,-0.442" Click="button_check_Click"/>
         <Label x:Name="label" Content="Label" HorizontalAlignment="Left" Height="25" Margin="10,10,0,0" VerticalAlignment="Top" Width="234"/>
-        <ScrollViewer HorizontalAlignment="Left" Height="265" Margin="10,41,0,0" VerticalAlignment="Top" Width="420"/>
+        <ListView x:Name="listView1" Height="261" Margin="10,51,10.2,0" VerticalAlignment="Top" SelectionChanged="listView_SelectionChanged">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="File" DisplayMemberBinding="{Binding File}"/>
+                    <GridViewColumn Header="Success" DisplayMemberBinding="{Binding Success}"/>
+                    <GridViewColumn Header="Warning" DisplayMemberBinding="{Binding Warning}"/>
+                    <GridViewColumn Header="Error" DisplayMemberBinding="{Binding Error}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
 
     </Grid>
 </Window>
