@@ -2,7 +2,7 @@
 
 When the shape is given, I want to know which tile this shape belongs to
 
-## basic concept of this problem.
+## Problem description
 
 `level 0` has 50 tiles(5 x 10), and level is up to **15**.
 
@@ -16,6 +16,16 @@ if the shape doesnt cover tile perfectly, it can be divide into 4 tiles(increasi
 
 and compare until shape covers perfectly a tile.
 
+return the sets of tile's x,y(like `level_n_x_y`)
+
+### how to check how many tile cover
+
+I will use straight equation and points of intersection(limited scope) 
+
+## Reference
+
+- [flood fill](https://ko.wikipedia.org/wiki/%ED%94%8C%EB%9F%AC%EB%93%9C_%ED%95%84) (i think this is not good for this problem)
+- [QuadTree](https://en.wikipedia.org/wiki/Quadtree)
 
 
 # XDOErrorDectectorUI
