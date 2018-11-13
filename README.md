@@ -2,7 +2,7 @@
 
 When the shape is given, I want to know which tile this shape belongs to
 
-basic concept of this problem.
+## basic concept of this problem.
 
 `level 0` has 50 tiles(5 x 10), and level is up to **15**.
 
@@ -10,9 +10,9 @@ As the  level increases, each tile is divided into **`4`** smaller tiles. (i.e, 
 
 When the point set is given, it will compose a shape.
 
-When `level 0`, the shape can cover a tile perfectly. write somewhere with correct format.
+When `level 0`, the shape can cover a tile perfectly, I will write somewhere with correct format.
 
-if the shape doesnt cover tile perfectly, it can be divide into 4 tiles(increasing to `level 1`). 
+if the shape doesnt cover tile perfectly, it can be divide into 4 tiles(increasing **1** level). 
 
 and compare until shape covers perfectly a tile.
 
