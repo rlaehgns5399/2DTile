@@ -64,7 +64,7 @@ and compare until shape covers perfectly a tile.
 
 return the sets of tile's x,y(like `level_n_x_y`)
 
-### how to check how many tile cover
+### How to determine how many tiles the shape covers
 
 I will use straight equation and points of intersection(limited scope) 
 
@@ -72,7 +72,8 @@ I will use straight equation and points of intersection(limited scope)
 
 - [flood fill](https://ko.wikipedia.org/wiki/%ED%94%8C%EB%9F%AC%EB%93%9C_%ED%95%84) (i think this is not good for this problem)
 - [QuadTree](https://en.wikipedia.org/wiki/Quadtree)
-
+- [Ray casting algorithm(Detect point in polygon)](https://en.wikipedia.org/wiki/Point_in_polygon)
+- [Convex hull](https://en.wikipedia.org/wiki/Convex_hull_algorithms)
 
 # XDOErrorDectectorUI
 
