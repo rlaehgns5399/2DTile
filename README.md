@@ -2,6 +2,22 @@
 
 When the shape is given, I want to know which tile this shape belongs to
 
+basic concept of this problem.
+
+`level 0` has 50 tiles(5 x 10), and level is up to **15**.
+
+As the  level increases, each tile is divided into **`4`** smaller tiles. (i.e, lv1 has 5x10x4 tiles, lv2 has 5x10x4^2)
+
+When the point set is given, it will compose a shape.
+
+When `level 0`, the shape can cover a tile perfectly. write somewhere with correct format.
+
+if the shape doesnt cover tile perfectly, it can be divide into 4 tiles(increasing to `level 1`). 
+
+and compare until shape covers perfectly a tile.
+
+
+
 # XDOErrorDectectorUI
 
 ![Something](https://user-images.githubusercontent.com/26527826/48317753-20591200-e63a-11e8-891f-295913eb85b9.png)
