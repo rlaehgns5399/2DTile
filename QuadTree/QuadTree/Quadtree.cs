@@ -8,6 +8,9 @@ namespace QuadTree
 {
     class Quadtree
     {
+        private static double RATIO = 1;
+        private double UNIT = 1 * RATIO / Math.Pow(2, 15);
+
         // defines boundary
         Point topRight;
         Point bottomLeft;
@@ -28,7 +31,7 @@ namespace QuadTree
 
             topLeftTree = topRightTree = bottomLeftTree = bottomRightTree = null;
         }
-        public Quadtree(Point tr, Point bl)
+        public Quadtree(Point bl, Point tr)
         {
             this.topRight = tr;
             this.bottomLeft = bl;
@@ -37,24 +40,118 @@ namespace QuadTree
 
             topLeftTree = topRightTree = bottomLeftTree = bottomRightTree = null;
         }
-        public void insert(Node n)
+        public void insert(Node node)
         {
+            if (node == null) return;
 
+            // this quadtree cannot adapt this node
+            if (!inBoundary(node.pos)) return;
+
+            // if Minimum unit is reached, stop dividing
+            if (Math.Abs(bottomLeft.x - topRight.x) <= UNIT && Math.Abs(bottomLeft.y - topRight.y) <= UNIT) {
+                if (node == null)
+                    this.n = node;
+                return;
+            }
+
+            if( (bottomLeft.x + topRight.x) / 2 >= node.pos.x)
+            {
+                if( (bottomLeft.y + topRight.y) / 2 >= node.pos.y)
+                {
+                    if( bottomLeftTree == null)
+                    {
+                        bottomLeftTree = new Quadtree(
+                            new Point(bottomLeft.x, bottomLeft.y),
+                            new Point((bottomLeft.x + topRight.x) / 2, (bottomLeft.y + topRight.y) / 2)
+                        );
+                        bottomLeftTree.insert(node);
+                    }
+                }
+                else
+                {
+                    if (topLeftTree == null)
+                    {
+                        topLeftTree = new Quadtree(
+                            new Point(bottomLeft.x, (bottomLeft.y + topRight.y) / 2),
+                            new Point((bottomLeft.x + topRight.x) / 2, (bottomLeft.y + topRight.y) / 2)
+                        );
+                        topLeftTree.insert(node);
+                    }
+                }
+            }
+            else
+            {
+                if ((bottomLeft.y + topRight.y) / 2 >= node.pos.y)
+                {
+                    if (bottomRightTree == null)
+                    {
+                        bottomRightTree = new Quadtree(
+                            new Point((bottomLeft.x + topRight.x) / 2, bottomLeft.y),
+                            new Point(topRight.x, (bottomLeft.y + topRight.y) / 2)
+                        );
+                        bottomRightTree.insert(node);
+                    }
+                }
+                else
+                {
+                    if (topRightTree == null)
+                    {
+                        topRightTree = new Quadtree(
+                            new Point((bottomLeft.x + topRight.x) / 2, (bottomLeft.y + topRight.y) / 2),
+                            new Point(topRight.x, topRight.y)
+                        );
+                        topRightTree.insert(node);
+                    }
+                }
+            }
         }
         public Node search(Point p)
         {
-            return null;
+            if (!inBoundary(p)) return null;
+
+            if (this.n != null) return this.n;
+
+            if((bottomLeft.x + topRight.x) / 2 >= p.x)
+            {
+                if ((bottomLeft.y + topRight.y) / 2 >= p.y)
+                {
+                    if (bottomLeftTree == null)
+                        return null;
+                    return bottomLeftTree.search(p);
+                }
+                else
+                {
+                    if (topLeftTree == null)
+                        return null;
+                    return topLeftTree.search(p);
+                }
+            }
+            else
+            {
+                if ((bottomLeft.y + topRight.y) / 2 >= p.y)
+                {
+                    if (bottomRightTree == null)
+                        return null;
+                    return bottomRightTree.search(p);
+                }
+                else
+                {
+                    if (topRightTree == null)
+                        return null;
+                    return topRightTree.search(p);
+                }
+            }
         }
-        public bool isBoundary(Point p)
+        public bool inBoundary(Point p)
         {
-            return false;
+            return (p.x >= bottomLeft.x && p.x <= topRight.x && p.y >= bottomLeft.y && p.y <= topRight.y);
         }
     }
 
     class Node
     {
-        Point pos;
-        int data;
+        public Point pos;
+        public int data;
         public Node(Point pos, int data)
         {
             this.pos = pos;
@@ -69,5 +166,6 @@ namespace QuadTree
             this.x = x;
             this.y = y;
         }
+        
     }
 }

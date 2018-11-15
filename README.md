@@ -12,7 +12,7 @@ Let's say zero from the bottom left.
 2(0,1)	3(1,1)
 0(0,0)	1(1,0)
 </pre>
-[level 0 with shapes(points of set]
+[level 0 with shapes(set of points)]
 
 ![image](https://user-images.githubusercontent.com/26527826/48423325-bc525d00-e7a3-11e8-8c60-b0ac9d5390d9.png)
 

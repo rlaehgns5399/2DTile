@@ -14,17 +14,27 @@ namespace QuadTree
         public const int COL = 10;
         private const int RANDOM_CONST = 1000;
 
+        public static double minX = Double.MaxValue;
+        public static double minY = Double.MaxValue;
+        public static double maxX = Double.MinValue;
+        public static double maxY = Double.MinValue;
         public Quadtree[,] tile = new Quadtree[ROW, COL];
 
         static void Main(string[] args)
         {
-            MakePoint(point_set, 10);
+            MakePoint(point_set, 20);
             MakeLine(point_set);
             
             foreach(Line s in line_set)
             {
                 Console.WriteLine("(" + s.first.x + ", " + s.first.y + ") ~ (" + s.second.x + ", " + s.second.y + ")");
             }
+
+            Quadtree tree = new Quadtree(
+                new Point(minX, minY),
+                new Point(maxX, maxY)
+            );
+
             Console.ReadKey();
         }
 
@@ -34,6 +44,10 @@ namespace QuadTree
             {
                 double x = new Random(Guid.NewGuid().GetHashCode()).NextDouble() * RANDOM_CONST;
                 double y = new Random(Guid.NewGuid().GetHashCode()).NextDouble() * RANDOM_CONST;
+                if (x <= minX) minX = x;
+                if (x >= maxX) maxX = x;
+                if (y <= minY) minY = y;
+                if (y >= maxY) maxY = y;
                 set.Add(new QuadTree.Point(x, y));
             }
         }
