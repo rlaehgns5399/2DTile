@@ -15,29 +15,37 @@ namespace QuadTree
         private const int RANDOM_CONST = 1000;
         static void Main(string[] args)
         {
-            MakePoint(500);
-            MakeLine();
+            MakePoint(point_set, 10);
+            MakeLine(point_set);
+            
+            foreach(Line s in line_set)
+            {
+                Console.WriteLine("(" + s.first.x + ", " + s.first.y + ") ~ (" + s.second.x + ", " + s.second.y + ")");
+            }
+            Console.ReadKey();
         }
 
-        private static void MakePoint(int n)
+        private static void MakePoint(List<Point> set, int n)
         {
             for(int i = 0; i < n; i++)
             {
-                point_set.Add(new QuadTree.Point(new Random().NextDouble() * RANDOM_CONST, new Random().NextDouble() * RANDOM_CONST));   
+                double x = new Random(Guid.NewGuid().GetHashCode()).NextDouble() * RANDOM_CONST;
+                double y = new Random(Guid.NewGuid().GetHashCode()).NextDouble() * RANDOM_CONST;
+                set.Add(new QuadTree.Point(x, y));
             }
         }
 
-        private static void MakeLine()
+        private static void MakeLine(List<Point> set)
         {
-            for(int i = 0; i < point_set.Count; i++)
+            for(int i = 0; i < set.Count; i++)
             {
-                if (i != point_set.Count - 1) {
-                    line_set.Add(new Line(point_set[i], point_set[i + 1]));
+                if (i != set.Count - 1) {
+                    line_set.Add(new Line(set[i], set[i + 1]));
                 }
                 // make circular
                 else 
                 {
-                    line_set.Add(new Line(point_set[i], point_set[0]));
+                    line_set.Add(new Line(set[i], set[0]));
                 }
             }
         }
