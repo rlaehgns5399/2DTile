@@ -10,9 +10,12 @@ namespace QuadTree
     {
         private static List<Point> point_set = new List<Point>();
         private static List<Line> line_set = new List<Line>();
-        private const int ROW = 5;
-        private const int COL = 10;
+        public const int ROW = 5;
+        public const int COL = 10;
         private const int RANDOM_CONST = 1000;
+
+        public Quadtree[,] tile = new Quadtree[ROW, COL];
+
         static void Main(string[] args)
         {
             MakePoint(point_set, 10);
@@ -51,15 +54,7 @@ namespace QuadTree
         }
     }
 
-    class Point
-    {
-        public double x, y;
-        public Point(double x, double y)
-        {
-            this.x = x;
-            this.y = y;
-        }
-    }
+    
 
     class Line
     {
