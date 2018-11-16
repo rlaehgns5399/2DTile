@@ -18,22 +18,29 @@ namespace QuadTree
         public static double minY = Double.MaxValue;
         public static double maxX = Double.MinValue;
         public static double maxY = Double.MinValue;
-        public Quadtree[,] tile = new Quadtree[ROW, COL];
+        public static Quadtree[,] tile = new Quadtree[ROW, COL];
 
         static void Main(string[] args)
         {
             MakePoint(point_set, 20);
             MakeLine(point_set);
-            
+            for(int i = 0; i < ROW; i++)
+            {
+                for(int j = 0; j < COL; j++)
+                {
+                    tile[i,j] = new Quadtree(new Point(i, j), new Point(i+1, j+1));
+                }
+            }
+
             foreach(Line s in line_set)
             {
                 Console.WriteLine("(" + s.first.x + ", " + s.first.y + ") ~ (" + s.second.x + ", " + s.second.y + ")");
             }
 
-            Quadtree tree = new Quadtree(
-                new Point(minX, minY),
-                new Point(maxX, maxY)
-            );
+            //Quadtree tree = new Quadtree(
+            //    new Point(minX, minY),
+            //    new Point(maxX, maxY)
+            //);
 
             Console.ReadKey();
         }
