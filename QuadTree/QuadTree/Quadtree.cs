@@ -60,7 +60,7 @@ namespace QuadTree
                 {
                     if( bottomLeftTree == null)
                     {
-                        Console.WriteLine(node.pos.x + ", " + node.pos.y + ": [" + this.bottomLeft.x + "," + this.bottomLeft.y + "~" + this.topRight.x + "," + this.topRight.y + "] bottomLeft");
+                        if(Program.DEBUG == true) Console.WriteLine(node.pos.x + ", " + node.pos.y + ": [" + this.bottomLeft.x + "," + this.bottomLeft.y + "~" + this.topRight.x + "," + this.topRight.y + "] bottomLeft");
                         bottomLeftTree = new Quadtree(
                             new Point(bottomLeft.x, bottomLeft.y),
                             new Point((bottomLeft.x + topRight.x) / 2, (bottomLeft.y + topRight.y) / 2)
@@ -72,7 +72,7 @@ namespace QuadTree
                 {
                     if (topLeftTree == null)
                     {
-                        Console.WriteLine(node.pos.x + ", " + node.pos.y + ": [" + this.bottomLeft.x + "," + this.bottomLeft.y + "~" + this.topRight.x + "," + this.topRight.y + "] topLeft");
+                        if (Program.DEBUG == true) Console.WriteLine(node.pos.x + ", " + node.pos.y + ": [" + this.bottomLeft.x + "," + this.bottomLeft.y + "~" + this.topRight.x + "," + this.topRight.y + "] topLeft");
                         topLeftTree = new Quadtree(
                             new Point(bottomLeft.x, (bottomLeft.y + topRight.y) / 2),
                             new Point((bottomLeft.x + topRight.x) / 2, (bottomLeft.y + topRight.y) / 2)
@@ -87,7 +87,7 @@ namespace QuadTree
                 {
                     if (bottomRightTree == null)
                     {
-                        Console.WriteLine(node.pos.x + ", " + node.pos.y + ": [" + this.bottomLeft.x + "," + this.bottomLeft.y + "~" + this.topRight.x + "," + this.topRight.y + "] bottomRight");
+                        if (Program.DEBUG == true) Console.WriteLine(node.pos.x + ", " + node.pos.y + ": [" + this.bottomLeft.x + "," + this.bottomLeft.y + "~" + this.topRight.x + "," + this.topRight.y + "] bottomRight");
                         bottomRightTree = new Quadtree(
                             new Point((bottomLeft.x + topRight.x) / 2, bottomLeft.y),
                             new Point(topRight.x, (bottomLeft.y + topRight.y) / 2)
@@ -99,7 +99,7 @@ namespace QuadTree
                 {
                     if (topRightTree == null)
                     {
-                        Console.WriteLine(node.pos.x + ", " + node.pos.y + ": [" + this.bottomLeft.x + "," + this.bottomLeft.y + "~" + this.topRight.x + "," + this.topRight.y + "] topRight");
+                        if (Program.DEBUG == true) Console.WriteLine(node.pos.x + ", " + node.pos.y + ": [" + this.bottomLeft.x + "," + this.bottomLeft.y + "~" + this.topRight.x + "," + this.topRight.y + "] topRight");
                         topRightTree = new Quadtree(
                             new Point((bottomLeft.x + topRight.x) / 2, (bottomLeft.y + topRight.y) / 2),
                             new Point(topRight.x, topRight.y)

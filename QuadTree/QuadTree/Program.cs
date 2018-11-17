@@ -8,6 +8,7 @@ namespace QuadTree
 {
     class Program
     {
+        public static bool DEBUG = true;
         private static List<Point> point_set = new List<Point>();
         private static List<Line> line_set = new List<Line>();
         public const int ROW = 5;
@@ -24,7 +25,7 @@ namespace QuadTree
         static void Main(string[] args)
         {
             MakePoint(point_set, 20);
-            MakeLine(point_set);
+            MakeLine(line_set, point_set);
 
             // now we have lv 0 tile (5x10) (width & height = 1)
             for(int i = 0; i < ROW; i++)
@@ -34,6 +35,9 @@ namespace QuadTree
                     tile[i,j] = new Quadtree(new Point(i, j), new Point(i+1, j+1));
                 }
             }
+
+            RayCasting caster = new RayCasting(point_set, tile, 0);
+            List<Quadtree> lv0_tile = caster.start(); 
 
             foreach (Point p in point_set)
             {
@@ -61,17 +65,17 @@ namespace QuadTree
             }
         }
 
-        private static void MakeLine(List<Point> set)
+        private static void MakeLine(List<Line> lineset, List<Point> set)
         {
             for(int i = 0; i < set.Count; i++)
             {
                 if (i != set.Count - 1) {
-                    line_set.Add(new Line(set[i], set[i + 1]));
+                    lineset.Add(new Line(set[i], set[i + 1]));
                 }
                 // make circular
                 else 
                 {
-                    line_set.Add(new Line(set[i], set[0]));
+                    lineset.Add(new Line(set[i], set[0]));
                 }
             }
         }
