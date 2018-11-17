@@ -12,7 +12,8 @@ namespace QuadTree
         private static List<Line> line_set = new List<Line>();
         public const int ROW = 5;
         public const int COL = 10;
-        private const int RANDOM_CONST = 1000;
+        private const double RANDOM_CONST_X = 5;
+        private const double RANDOM_CONST_Y = 10;
 
         public static double minX = Double.MaxValue;
         public static double minY = Double.MaxValue;
@@ -24,6 +25,8 @@ namespace QuadTree
         {
             MakePoint(point_set, 20);
             MakeLine(point_set);
+
+            // now we have lv 0 tile (5x10) (width & height = 1)
             for(int i = 0; i < ROW; i++)
             {
                 for(int j = 0; j < COL; j++)
@@ -32,15 +35,14 @@ namespace QuadTree
                 }
             }
 
-            foreach(Line s in line_set)
+            foreach (Point p in point_set)
             {
-                Console.WriteLine("(" + s.first.x + ", " + s.first.y + ") ~ (" + s.second.x + ", " + s.second.y + ")");
+                tile[(int)Math.Floor(p.x), (int)Math.Floor(p.y)].insert(new Node(p, 0));
             }
-
-            //Quadtree tree = new Quadtree(
-            //    new Point(minX, minY),
-            //    new Point(maxX, maxY)
-            //);
+            //foreach (Line s in line_set)
+            //{
+            //    Console.WriteLine("(" + s.first.x + ", " + s.first.y + ") ~ (" + s.second.x + ", " + s.second.y + ")");
+            //}
 
             Console.ReadKey();
         }
@@ -49,8 +51,8 @@ namespace QuadTree
         {
             for(int i = 0; i < n; i++)
             {
-                double x = new Random(Guid.NewGuid().GetHashCode()).NextDouble() * RANDOM_CONST;
-                double y = new Random(Guid.NewGuid().GetHashCode()).NextDouble() * RANDOM_CONST;
+                double x = new Random(Guid.NewGuid().GetHashCode()).NextDouble() * RANDOM_CONST_X;
+                double y = new Random(Guid.NewGuid().GetHashCode()).NextDouble() * RANDOM_CONST_Y;
                 if (x <= minX) minX = x;
                 if (x >= maxX) maxX = x;
                 if (y <= minY) minY = y;
