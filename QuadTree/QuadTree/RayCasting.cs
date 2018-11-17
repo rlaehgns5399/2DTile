@@ -18,6 +18,26 @@ namespace QuadTree
             this.qtree = qtree;
             this.depth = depth;
         }
+        private bool getInterceptPoint(Point AP1, Point AP2, Point BP1, Point BP2)
+        {
+            double t, s;
+            double under = (BP2.y - BP1.y) * (AP2.x - AP1.x) - (BP2.x - BP1.x) * (AP2.y - AP1.y);
+            if (under == 0) return false;
+
+            double _t = (BP2.x - BP1.x) * (AP1.y - BP1.y) - (BP2.y - BP1.y) * (AP1.x - BP1.x);
+            double _s = (AP2.x - AP1.x) * (AP1.y - BP1.y) - (AP2.y - AP1.y) * (AP1.x - BP1.x);
+
+            t = _t / under;
+            s = _s / under;
+
+            if (t < 0.0 || t > 1.0 || s < 0.0 || s > 1.0) return false;
+            if (_t == 0 && _s == 0) return false;
+
+            double x = AP1.x + t * (double)(AP2.x - AP1.x);
+            double y = AP1.y + t * (double)(AP2.y - AP1.y);
+
+            return true;
+        }
         public List<Quadtree> start()
         {
             // depth 0: brutal force
@@ -54,7 +74,7 @@ namespace QuadTree
                                 Point p1 = line.first;
                                 Point p2 = line.second;
 
-
+                                
                             }
                         }
                         
