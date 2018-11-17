@@ -36,7 +36,7 @@ namespace QuadTree
                 }
             }
 
-            RayCasting caster = new RayCasting(point_set, tile, 0);
+            RayCasting caster = new RayCasting(line_set, tile, 0);
             List<Quadtree> lv0_tile = caster.start(); 
 
             foreach (Point p in point_set)
