@@ -18,25 +18,35 @@ namespace QuadTree
             this.qtree = qtree;
             this.depth = depth;
         }
-        private bool getInterceptPoint(Point AP1, Point AP2, Point BP1, Point BP2)
+
+        public bool getInterceptPoint(Point AP1, Point AP2, Point BP1, Point BP2, Point returnP)
         {
-            double t, s;
-            double under = (BP2.y - BP1.y) * (AP2.x - AP1.x) - (BP2.x - BP1.x) * (AP2.y - AP1.y);
-            if (under == 0) return false;
+            double isParallel = (AP1.x - AP2.x) * (BP1.y - BP2.y) - (AP1.y - AP2.y) * (BP1.x - BP2.x);
+            if (isParallel == 0)
+            {
+                Console.WriteLine("두 직선은 평행하거나 같습니다.");
+                return false;
+            }
 
-            double _t = (BP2.x - BP1.x) * (AP1.y - BP1.y) - (BP2.y - BP1.y) * (AP1.x - BP1.x);
-            double _s = (AP2.x - AP1.x) * (AP1.y - BP1.y) - (AP2.y - AP1.y) * (AP1.x - BP1.x);
+            double minx = Math.Min(AP1.x, AP2.x) < Math.Min(BP1.x, BP2.x) ? Math.Min(AP1.x, AP2.x) : Math.Min(BP1.x, BP2.x);
+            double maxx = Math.Max(AP1.x, AP2.x) > Math.Max(BP1.x, BP2.x) ? Math.Max(AP1.x, AP2.x) : Math.Max(BP1.x, BP2.x);
+            double miny = Math.Min(AP1.y, AP2.y) < Math.Min(BP1.y, BP2.y) ? Math.Min(AP1.y, AP2.y) : Math.Min(BP1.y, BP2.y);
+            double maxy = Math.Max(AP1.y, AP2.y) > Math.Max(BP1.y, BP2.y) ? Math.Max(AP1.y, AP2.y) : Math.Max(BP1.y, BP2.y);
 
-            t = _t / under;
-            s = _s / under;
+            double x = (AP1.x * AP2.y - AP1.y * AP2.x) * (BP1.x - BP2.x) - (AP1.x - AP2.x) * (BP1.x * BP2.y - BP1.y * BP2.x);
+            x /= (isParallel);
+            
+            double y = (AP1.x * AP2.y - AP1.y * AP2.x) * (BP1.y - BP2.y) - (AP1.y - AP2.y) * (BP1.x * BP2.y - BP1.y * BP2.x);
+            y /= (isParallel);
 
-            if (t < 0.0 || t > 1.0 || s < 0.0 || s > 1.0) return false;
-            if (_t == 0 && _s == 0) return false;
-
-            double x = AP1.x + t * (double)(AP2.x - AP1.x);
-            double y = AP1.y + t * (double)(AP2.y - AP1.y);
-
-            return true;
+            if (x >= minx && x <= maxx && y >= miny && y <= maxy)
+            {
+                returnP.x = x;
+                returnP.y = y;
+                return true;
+            }
+            Console.WriteLine("범위 안에 교점은 없습니다.");
+            return false;
         }
         public List<Quadtree> start()
         {
@@ -66,8 +76,8 @@ namespace QuadTree
                         
                         for(int t = 0; t < 4; t++)
                         {
-                            int current_ray_x = ray[i, 0];
-                            int current_ray_y = ray[i, 1];
+                            int current_ray_x = ray[t, 0];
+                            int current_ray_y = ray[t, 1];
 
                             foreach (Line line in this.line_set)
                             {

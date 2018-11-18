@@ -37,6 +37,13 @@ namespace QuadTree
             }
 
             RayCasting caster = new RayCasting(line_set, tile, 0);
+            Point p1 = new QuadTree.Point(Double.MinValue,Double.MinValue);
+            caster.getInterceptPoint(new Point(0, 0), new QuadTree.Point(2, 2), new QuadTree.Point(1,2), new QuadTree.Point(2,3.1), p1);
+
+            Console.WriteLine(p1.x + ", " + p1.y);
+
+
+
             List<Quadtree> lv0_tile = caster.start(); 
 
             foreach (Point p in point_set)
