@@ -13,8 +13,8 @@ namespace QuadTree
         private static List<Line> line_set = new List<Line>();
         public const int ROW = 5;
         public const int COL = 10;
-        private const double RANDOM_CONST_X = 5;
-        private const double RANDOM_CONST_Y = 10;
+        private const double RANDOM_CONST_X = 10;
+        private const double RANDOM_CONST_Y = 5;
 
         public static double minX = Double.MaxValue;
         public static double minY = Double.MaxValue;
