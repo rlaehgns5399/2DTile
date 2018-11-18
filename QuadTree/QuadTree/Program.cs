@@ -24,7 +24,7 @@ namespace QuadTree
 
         static void Main(string[] args)
         {
-            MakePoint(point_set, 20);
+            MakePoint(point_set, 3);
             MakeLine(line_set, point_set);
 
             // now we have lv 0 tile (5x10) (width & height = 1)
@@ -37,14 +37,8 @@ namespace QuadTree
             }
 
             RayCasting caster = new RayCasting(line_set, tile, 0);
-            Point p1 = new QuadTree.Point(Double.MinValue,Double.MinValue);
-            caster.getInterceptPoint(new Point(0, 0), new QuadTree.Point(2, 2), new QuadTree.Point(1,2), new QuadTree.Point(2,3.1), p1);
+            List<Quadtree> lv0_tile = caster.start(tile); 
 
-            Console.WriteLine(p1.x + ", " + p1.y);
-
-
-
-            List<Quadtree> lv0_tile = caster.start(); 
 
             foreach (Point p in point_set)
             {

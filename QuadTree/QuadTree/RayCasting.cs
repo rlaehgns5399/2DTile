@@ -24,7 +24,7 @@ namespace QuadTree
             double isParallel = (AP1.x - AP2.x) * (BP1.y - BP2.y) - (AP1.y - AP2.y) * (BP1.x - BP2.x);
             if (isParallel == 0)
             {
-                Console.WriteLine("두 직선은 평행하거나 같습니다.");
+                if(Program.DEBUG == true) Console.WriteLine("두 직선은 평행하거나 같습니다.");
                 return false;
             }
 
@@ -45,11 +45,12 @@ namespace QuadTree
                 returnP.y = y;
                 return true;
             }
-            Console.WriteLine("범위 안에 교점은 없습니다.");
+            if (Program.DEBUG == true)  Console.WriteLine("범위 안에 교점은 없습니다.");
             return false;
         }
-        public List<Quadtree> start()
+        public List<Quadtree> start(Quadtree[,] tile)
         {
+            List<Quadtree> result = new List<Quadtree>();
             // depth 0: brutal force
             if(this.depth == 0)
             {
@@ -71,23 +72,36 @@ namespace QuadTree
                          * ray[2] = 0   , COL
                          * ray[3] = ROW , COL
                          */
-                        int[,] ray = { { 0, 0 }, { Program.ROW, 0 }, { 0, Program.COL }, { Program.ROW, Program.COL } };
+                        int[,] ray_set = { { 0, 0 }, { Program.ROW, 0 }, { 0, Program.COL }, { Program.ROW, Program.COL } };
                         int collision = 0;
                         
                         for(int t = 0; t < 4; t++)
                         {
-                            int current_ray_x = ray[t, 0];
-                            int current_ray_y = ray[t, 1];
-
+                            Point ray = new QuadTree.Point(ray_set[t, 0], ray_set[t, 1]);
                             foreach (Line line in this.line_set)
                             {
+                                Point rayend = new Point(points[t, 0], points[t, 1]);
                                 Point p1 = line.first;
                                 Point p2 = line.second;
 
-                                
+                                Point intercept = new Point(double.MinValue, double.MinValue);
+                                if (getInterceptPoint(ray, rayend, p1, p2, intercept))
+                                {
+                                    if(Program.DEBUG == true)
+                                    {
+                                        Console.WriteLine("ray(({0},{1}) ~ ({2},{3}))와 직선(({4},{5}) ~ ({6},{7})) 사이에 교점({8},{9})이 발견되었습니다.",
+                                            ray.x, ray.y, rayend.x, rayend.y, p1.x, p1.y, p2.x, p2.y, intercept.x, intercept.y);
+                                    }
+                                    collision++;
+                                }
                             }
                         }
-                        
+
+                        // if collision is odd, it is inside 
+                        if (collision % 2 != 0)
+                        {
+                            result.Add(tile[i, j]);
+                        }
                     }
                 }
             }
