@@ -29,6 +29,7 @@ namespace QuadTreeUI
         {
             // button1.Enabled = false;
             g = CreateGraphics();
+            g.Clear(Color.White);
             pen = new Pen(Color.Black);
             for (int i = 0; i <= 10; i++)
             {

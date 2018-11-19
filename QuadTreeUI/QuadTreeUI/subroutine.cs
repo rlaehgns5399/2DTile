@@ -21,13 +21,13 @@ namespace QuadTreeUI
         public double minY = Double.MaxValue;
         public double maxX = Double.MinValue;
         public double maxY = Double.MinValue;
-        public Quadtree[,] tile = new Quadtree[ROW, COL];
+        public static Quadtree2[,] tile = new Quadtree2[ROW, COL];
         
 
         private int WINDOW_CONST = 100;
         public subroutine()
         {
-            MakePoint(point_set, 3);
+            MakePoint(point_set, 2048);
             MakeLine(line_set, point_set);
 
             // now we have lv 0 tile (5x10) (width & height = 1)
@@ -35,7 +35,7 @@ namespace QuadTreeUI
             {
                 for (int j = 0; j < COL; j++)
                 {
-                    tile[i, j] = new Quadtree(new QuadTreeUI.Point(j * WINDOW_CONST, i * WINDOW_CONST), new QuadTreeUI.Point((j + 1) * WINDOW_CONST, (i + 1) * WINDOW_CONST));
+                    tile[i, j] = new Quadtree2(new QuadTreeUI.Point(j * WINDOW_CONST, i * WINDOW_CONST), new QuadTreeUI.Point((j + 1) * WINDOW_CONST, (i + 1) * WINDOW_CONST));
                     // Form1.g.DrawLine(Form1.pen, j * 100, 500 - i * 100, (j + 1) * 100, 500 - (i+1) * 100);
                 }
             }
@@ -69,7 +69,7 @@ namespace QuadTreeUI
                 set.Add(new Point(x, y));
 
                 Console.WriteLine(x + ", " + y);
-                int circlesize = 4;
+                int circlesize = 2;
                 Brush brush = (Brush)Brushes.Blue;
                 Form1.g.FillRectangle(brush, (float)x-circlesize/2, 500-(float)y-circlesize/2, circlesize, circlesize);
             }
@@ -82,13 +82,13 @@ namespace QuadTreeUI
             {
                 if (i != set.Count - 1)
                 {
-                     Form1.g.DrawLine(p, (float)set[i].x, 500-(float)set[i].y, (float)set[i + 1].x, 500-(float)set[i + 1].y);
+                    // Form1.g.DrawLine(p, (float)set[i].x, 500-(float)set[i].y, (float)set[i + 1].x, 500-(float)set[i + 1].y);
                     lineset.Add(new Line(set[i], set[i + 1]));
                 }
                 // make circular
                 else
                 {
-                     Form1.g.DrawLine(p, (float)set[i].x, 500-(float)set[i].y, (float)set[0].x, 500-(float)set[0].y);
+                    // Form1.g.DrawLine(p, (float)set[i].x, 500-(float)set[i].y, (float)set[0].x, 500-(float)set[0].y);
                     lineset.Add(new Line(set[i], set[0]));
                 }
             }

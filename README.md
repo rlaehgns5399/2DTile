@@ -79,7 +79,11 @@ I will use straight equation and points of intersection(limited scope)
 
 ![image](https://user-images.githubusercontent.com/26527826/48673764-30b44400-eb88-11e8-8f62-f33f422e71a8.png)
 
-it shows imperfect quadtree & dirty code :(
+Imperfect quadtree & shape (ver1)
+
+![honeycam 2018-11-19 16-52-45](https://user-images.githubusercontent.com/26527826/48693180-fbf1cc80-ec1b-11e8-9f93-ee299d3e8a7e.gif)
+
+Nice quadtree but there is something to be fixed
 
 <hr>
 
