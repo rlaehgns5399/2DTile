@@ -12,6 +12,8 @@ namespace QuadTreeUI
 {
     public partial class Form1 : Form
     {
+        public int ROW = 5;
+        public int COL = 10;
         public static Graphics g;
         public static Pen pen;
         public Form1()
@@ -31,13 +33,13 @@ namespace QuadTreeUI
             g = CreateGraphics();
             g.Clear(Color.White);
             pen = new Pen(Color.Black);
-            for (int i = 0; i <= 10; i++)
+            for (int i = 0; i <= this.COL; i++)
             {
-                g.DrawLine(pen, 0 + (100 * i), 0, 0 + (100 * i), 500);
+                g.DrawLine(pen, 0 + (Program.WINDOW_CONST * i), 0, 0 + (Program.WINDOW_CONST * i), Program.WINDOW_CONST * this.ROW);
             }
-            for (int i = 0; i <= 5; i++)
+            for (int i = 0; i <= this.ROW; i++)
             {
-                g.DrawLine(pen, 0, (100*i), 1000, (100*i));
+                g.DrawLine(pen, 0, (Program.WINDOW_CONST*i), Program.WINDOW_CONST*this.COL, (Program.WINDOW_CONST*i));
             }
 
             subroutine subroutine = new subroutine();

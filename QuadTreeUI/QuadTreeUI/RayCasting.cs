@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+
 namespace QuadTreeUI
 {
     class RayCasting
@@ -48,7 +49,38 @@ namespace QuadTreeUI
             if (subroutine.DEBUG == true) Console.WriteLine("범위 안에 교점은 없습니다.");
             return false;
         }
-        public List<Quadtree> start(Quadtree[,] tile)
+        private double ccw(Vector2 a, Vector2 b)
+        {
+            return a.cross(b);
+        }
+        private double ccw(Vector2 p, Vector2 a, Vector2 b)
+        {
+            return ccw(a.minus(p), b.minus(p));
+        }
+        public bool sementIntersect(Vector2 a, Vector2 b, Vector2 c, Vector2 d)
+        {
+            double ab = ccw(a, b, c) * ccw(a, b, d);
+            double cd = ccw(c, d, a) * ccw(c, d, b);
+
+            if(ab == 0 && cd == 0)
+            {
+                if (b.islow(a))
+                {
+                    Vector2 temp = a;
+                    a = b;
+                    b = temp;
+                }
+                if (d.islow(c))
+                {
+                    Vector2 temp = c;
+                    c = d;
+                    d = c;
+                }
+                return !(b.islow(c) || d.islow(a));
+            }
+            return ab <= 0 && cd <= 0;
+        }
+        public List<Quadtree> start(Quadtree[,] tile, Graphics g)
         {
             List<Quadtree> result = new List<Quadtree>();
             // depth 0: brutal force
@@ -64,7 +96,7 @@ namespace QuadTreeUI
                          * points[2] = topLeft      i   ,j+1
                          * points[3] = topRight     i+1 ,j+1
                          */
-                        int[,] points = { { i, j }, { i + 1, j }, { i, j + 1 }, { i + 1, j + 1 } };
+                        int[,] points = { { j * Program.WINDOW_CONST, i * Program.WINDOW_CONST }, { (j + 1) * Program.WINDOW_CONST, i * Program.WINDOW_CONST }, { j * Program.WINDOW_CONST, (i + 1) * Program.WINDOW_CONST }, { (j + 1) * Program.WINDOW_CONST, (i + 1) * Program.WINDOW_CONST } };
 
                         /*
                          * ray[0] = 0   , 0
@@ -72,10 +104,10 @@ namespace QuadTreeUI
                          * ray[2] = 0   , COL
                          * ray[3] = ROW , COL
                          */
-                        int[,] ray_set = { { 0, 0 }, { subroutine.ROW, 0 }, { 0, subroutine.COL }, { subroutine.ROW, subroutine.COL } };
+                        int[,] ray_set = { { 0, 0 }, { subroutine.COL * Program.WINDOW_CONST, 0 }, { 0, subroutine.ROW * Program.WINDOW_CONST }, { subroutine.COL * Program.WINDOW_CONST, subroutine.ROW * Program.WINDOW_CONST } };
                         int collision = 0;
 
-                        for (int t = 0; t < 4; t++)
+                        for (int t = 0; t < 1; t++)
                         {
                             Point ray = new Point(ray_set[t, 0], ray_set[t, 1]);
                             foreach (Line line in this.line_set)
@@ -89,8 +121,8 @@ namespace QuadTreeUI
                                 {
                                     if (subroutine.DEBUG == true)
                                     {
-                                        Console.WriteLine("ray(({0},{1}) ~ ({2},{3}))와 직선(({4},{5}) ~ ({6},{7})) 사이에 교점({8},{9})이 발견되었습니다.",
-                                            ray.x, ray.y, rayend.x, rayend.y, p1.x, p1.y, p2.x, p2.y, intercept.x, intercept.y);
+                                        Console.WriteLine("선분 ray(({0},{1}) ~ ({2},{3}))와 선분(({4},{5}) ~ ({6},{7})) 사이에 교점",
+                                            ray.x, ray.y, rayend.x, rayend.y, p1.x, p1.y, p2.x, p2.y);
                                     }
                                     collision++;
                                 }
@@ -98,9 +130,12 @@ namespace QuadTreeUI
                         }
 
                         // if collision is odd, it is inside 
-                        if (collision % 2 != 0)
+                        if (collision % 2 == 1)
                         {
                             result.Add(tile[i, j]);
+                            Brush brush = (Brush)Brushes.LawnGreen;
+                            Form1.g.FillRectangle(brush, (j) * Program.WINDOW_CONST, 500 - (i + 1)* Program.WINDOW_CONST,  Program.WINDOW_CONST, Program.WINDOW_CONST);
+                            Console.WriteLine("Fill: " + i + ", " + j);
                         }
                     }
                 }

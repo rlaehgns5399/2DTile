@@ -21,13 +21,12 @@ namespace QuadTreeUI
         public double minY = Double.MaxValue;
         public double maxX = Double.MinValue;
         public double maxY = Double.MinValue;
-        public static Quadtree2[,] tile = new Quadtree2[ROW, COL];
-        
+        public static Quadtree[,] tile = new Quadtree[ROW, COL];
 
-        private int WINDOW_CONST = 100;
+        
         public subroutine()
         {
-            MakePoint(point_set, 2048);
+            MakePoint(point_set, 3);
             MakeLine(line_set, point_set);
 
             // now we have lv 0 tile (5x10) (width & height = 1)
@@ -35,18 +34,18 @@ namespace QuadTreeUI
             {
                 for (int j = 0; j < COL; j++)
                 {
-                    tile[i, j] = new Quadtree2(new QuadTreeUI.Point(j * WINDOW_CONST, i * WINDOW_CONST), new QuadTreeUI.Point((j + 1) * WINDOW_CONST, (i + 1) * WINDOW_CONST));
+                    tile[i, j] = new Quadtree(new QuadTreeUI.Point(j * Program.WINDOW_CONST, i * Program.WINDOW_CONST), new QuadTreeUI.Point((j + 1) * Program.WINDOW_CONST, (i + 1) * Program.WINDOW_CONST));
                     // Form1.g.DrawLine(Form1.pen, j * 100, 500 - i * 100, (j + 1) * 100, 500 - (i+1) * 100);
                 }
             }
 
-            //RayCasting caster = new RayCasting(line_set, tile, 0);
-            //List<Quadtree> lv0_tile = caster.start(tile);
+            RayCasting caster = new RayCasting(line_set, tile, 0);
+            List<Quadtree> lv0_tile = caster.start(tile, Form1.g);
 
 
             foreach (QuadTreeUI.Point p in point_set)
             {
-                tile[(int)Math.Floor(p.y/(double)WINDOW_CONST), (int)Math.Floor(p.x/(double)WINDOW_CONST)].insert(new Node(p, 0));
+                tile[(int)Math.Floor(p.y/(double)Program.WINDOW_CONST), (int)Math.Floor(p.x/(double)Program.WINDOW_CONST)].insert(new Node(p, 0));
             }
             //foreach (Line s in line_set)
             //{
@@ -60,8 +59,8 @@ namespace QuadTreeUI
         {
             for (int i = 0; i < n; i++)
             {
-                double x = new Random(Guid.NewGuid().GetHashCode()).NextDouble() * RANDOM_CONST_X * WINDOW_CONST;
-                double y = new Random(Guid.NewGuid().GetHashCode()).NextDouble() * RANDOM_CONST_Y * WINDOW_CONST;
+                double x = new Random(Guid.NewGuid().GetHashCode()).NextDouble() * RANDOM_CONST_X * Program.WINDOW_CONST;
+                double y = new Random(Guid.NewGuid().GetHashCode()).NextDouble() * RANDOM_CONST_Y * Program.WINDOW_CONST;
                 if (x <= minX) minX = x;
                 if (x >= maxX) maxX = x;
                 if (y <= minY) minY = y;
@@ -71,7 +70,7 @@ namespace QuadTreeUI
                 Console.WriteLine(x + ", " + y);
                 int circlesize = 2;
                 Brush brush = (Brush)Brushes.Blue;
-                Form1.g.FillRectangle(brush, (float)x-circlesize/2, 500-(float)y-circlesize/2, circlesize, circlesize);
+                Form1.g.FillRectangle(brush, (float)x-circlesize/2, (ROW*Program.WINDOW_CONST)- (float)y-circlesize/2, circlesize, circlesize);
             }
         }
 
@@ -82,13 +81,13 @@ namespace QuadTreeUI
             {
                 if (i != set.Count - 1)
                 {
-                    // Form1.g.DrawLine(p, (float)set[i].x, 500-(float)set[i].y, (float)set[i + 1].x, 500-(float)set[i + 1].y);
+                    Form1.g.DrawLine(p, (float)set[i].x, (subroutine.ROW * Program.WINDOW_CONST) - (float)set[i].y, (float)set[i + 1].x, (subroutine.ROW * Program.WINDOW_CONST) - (float)set[i + 1].y);
                     lineset.Add(new Line(set[i], set[i + 1]));
                 }
                 // make circular
                 else
                 {
-                    // Form1.g.DrawLine(p, (float)set[i].x, 500-(float)set[i].y, (float)set[0].x, 500-(float)set[0].y);
+                    Form1.g.DrawLine(p, (float)set[i].x, (subroutine.ROW * Program.WINDOW_CONST) - (float)set[i].y, (float)set[0].x, (subroutine.ROW * Program.WINDOW_CONST) - (float)set[0].y);
                     lineset.Add(new Line(set[i], set[0]));
                 }
             }

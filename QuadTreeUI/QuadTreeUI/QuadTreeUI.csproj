@@ -72,8 +72,8 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Quadtree_prev.cs" />
     <Compile Include="Quadtree.cs" />
-    <Compile Include="Quadtree2.cs" />
     <Compile Include="RayCasting.cs" />
     <Compile Include="subroutine.cs" />
     <EmbeddedResource Include="Form1.resx">

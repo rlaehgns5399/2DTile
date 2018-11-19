@@ -11,6 +11,8 @@ namespace QuadTreeUI
         /// <summary>
         /// 해당 응용 프로그램의 주 진입점입니다.
         /// </summary>
+        /// 
+        public static int WINDOW_CONST = 100;
         [STAThread]
         static void Main()
         {
