@@ -49,37 +49,6 @@ namespace QuadTreeUI
             if (subroutine.DEBUG == true) Console.WriteLine("범위 안에 교점은 없습니다.");
             return false;
         }
-        private double ccw(Vector2 a, Vector2 b)
-        {
-            return a.cross(b);
-        }
-        private double ccw(Vector2 p, Vector2 a, Vector2 b)
-        {
-            return ccw(a.minus(p), b.minus(p));
-        }
-        public bool sementIntersect(Vector2 a, Vector2 b, Vector2 c, Vector2 d)
-        {
-            double ab = ccw(a, b, c) * ccw(a, b, d);
-            double cd = ccw(c, d, a) * ccw(c, d, b);
-
-            if(ab == 0 && cd == 0)
-            {
-                if (b.islow(a))
-                {
-                    Vector2 temp = a;
-                    a = b;
-                    b = temp;
-                }
-                if (d.islow(c))
-                {
-                    Vector2 temp = c;
-                    c = d;
-                    d = c;
-                }
-                return !(b.islow(c) || d.islow(a));
-            }
-            return ab <= 0 && cd <= 0;
-        }
         public List<Quadtree> start(Quadtree[,] tile, Graphics g)
         {
             List<Quadtree> result = new List<Quadtree>();
