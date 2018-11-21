@@ -8,7 +8,7 @@ namespace QuadTreeUI
 {
     class Vector2
     {
-        double x, y;
+        double x, y;    
         public Vector2(double _x, double _y)
         {
             this.x = _x;

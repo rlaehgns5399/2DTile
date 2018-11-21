@@ -13,9 +13,9 @@ namespace QuadTreeUI
         private List<Line> line_set;
         private Quadtree[,] qtree;
         private int depth;
-        public RayCasting(List<Line> line_set, Quadtree[,] qtree, int depth)
+        public RayCasting(List<Point> point_set, Quadtree[,] qtree, int depth)
         {
-            this.line_set = line_set;
+            this.point_set = point_set;
             this.qtree = qtree;
             this.depth = depth;
         }
@@ -49,6 +49,26 @@ namespace QuadTreeUI
             if (subroutine.DEBUG == true) Console.WriteLine("범위 안에 교점은 없습니다.");
             return false;
         }
+        public bool pointInPolygon(Point p)
+        {
+            int i = 0;
+            int j = this.point_set.Count - 1;
+            bool oddNodes = false;
+
+            for(i = 0;i < this.point_set.Count; i++)
+            {
+                if( point_set[i].y < p.y && point_set[j].y >= p.y 
+                    || point_set[j].y < p.y && point_set[i].y >= p.y){
+                    if ( point_set[i].x + (p.y - point_set[i].y ) / (point_set[j].y - point_set[i].y) * (point_set[j].x - point_set[i].x) < p.x)
+                    {
+                        oddNodes = !oddNodes;
+                    }
+                }
+                j = i;
+            }
+
+            return oddNodes;
+        }
         public List<Quadtree> start(Quadtree[,] tile, Graphics g)
         {
             List<Quadtree> result = new List<Quadtree>();
@@ -67,45 +87,20 @@ namespace QuadTreeUI
                          */
                         int[,] points = { { j * Program.WINDOW_CONST, i * Program.WINDOW_CONST }, { (j + 1) * Program.WINDOW_CONST, i * Program.WINDOW_CONST }, { j * Program.WINDOW_CONST, (i + 1) * Program.WINDOW_CONST }, { (j + 1) * Program.WINDOW_CONST, (i + 1) * Program.WINDOW_CONST } };
 
-                        /*
-                         * ray[0] = 0   , 0
-                         * ray[1] = ROW , 0
-                         * ray[2] = 0   , COL
-                         * ray[3] = ROW , COL
-                         */
-                        int[,] ray_set = { { 0, 0 }, { subroutine.COL * Program.WINDOW_CONST, 0 }, { 0, subroutine.ROW * Program.WINDOW_CONST }, { subroutine.COL * Program.WINDOW_CONST, subroutine.ROW * Program.WINDOW_CONST } };
-                        int collision = 0;
-
-                        for (int t = 0; t < 1; t++)
+                        int count = 0;
+                        for (int t = 0; t < 4; t++)
                         {
-                            Point ray = new Point(ray_set[t, 0], ray_set[t, 1]);
-                            foreach (Line line in this.line_set)
+                            Point point = new Point(points[t, 0], points[t, 1]);
+                            if (pointInPolygon(point))
+                                count++;
+                            if (count == 4)
                             {
-                                Point rayend = new Point(points[t, 0], points[t, 1]);
-                                Point p1 = line.first;
-                                Point p2 = line.second;
-
-                                Point intercept = new Point(double.MinValue, double.MinValue);
-                                if (getInterceptPoint(ray, rayend, p1, p2, intercept))
-                                {
-                                    if (subroutine.DEBUG == true)
-                                    {
-                                        Console.WriteLine("선분 ray(({0},{1}) ~ ({2},{3}))와 선분(({4},{5}) ~ ({6},{7})) 사이에 교점",
-                                            ray.x, ray.y, rayend.x, rayend.y, p1.x, p1.y, p2.x, p2.y);
-                                    }
-                                    collision++;
-                                }
+                                Brush brush = (Brush)Brushes.LawnGreen;
+                                Form1.g.FillRectangle(brush, (j) * Program.WINDOW_CONST, 500 - (i + 1) * Program.WINDOW_CONST, Program.WINDOW_CONST, Program.WINDOW_CONST);
+                                result.Add(tile[i, j]);
                             }
                         }
-
-                        // if collision is odd, it is inside 
-                        if (collision % 2 == 1)
-                        {
-                            result.Add(tile[i, j]);
-                            Brush brush = (Brush)Brushes.LawnGreen;
-                            Form1.g.FillRectangle(brush, (j) * Program.WINDOW_CONST, 500 - (i + 1)* Program.WINDOW_CONST,  Program.WINDOW_CONST, Program.WINDOW_CONST);
-                            Console.WriteLine("Fill: " + i + ", " + j);
-                        }
+                        
                     }
                 }
             }

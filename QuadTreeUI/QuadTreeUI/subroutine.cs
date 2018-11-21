@@ -9,7 +9,7 @@ namespace QuadTreeUI
 {
     class subroutine
     {
-        public static bool DEBUG = true;
+        public static bool DEBUG = false;
         private List<Point> point_set = new List<Point>();
         private List<Line> line_set = new List<Line>();
         public const int ROW = 5;
@@ -39,7 +39,7 @@ namespace QuadTreeUI
                 }
             }
 
-            RayCasting caster = new RayCasting(line_set, tile, 0);
+            RayCasting caster = new RayCasting(point_set, tile, 0);
             List<Quadtree> lv0_tile = caster.start(tile, Form1.g);
 
 
@@ -67,7 +67,7 @@ namespace QuadTreeUI
                 if (y >= maxY) maxY = y;
                 set.Add(new Point(x, y));
 
-                Console.WriteLine(x + ", " + y);
+                // Console.WriteLine(x + ", " + y);
                 int circlesize = 2;
                 Brush brush = (Brush)Brushes.Blue;
                 Form1.g.FillRectangle(brush, (float)x-circlesize/2, (ROW*Program.WINDOW_CONST)- (float)y-circlesize/2, circlesize, circlesize);
