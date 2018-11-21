@@ -83,10 +83,8 @@ namespace QuadTreeUI
         {
             double ab = ccw(a, b, c) * ccw(a, b, d);
             double cd = ccw(c, d, a) * ccw(c, d, b);
-            Console.WriteLine(ab + ", " + cd);
             if (ab == 0 && cd == 0)
             {
-                Console.WriteLine("zz");
                 if (b.islow(a))
                 {
                     Vector2 temp = new Vector2(a.x, a.y);
@@ -116,6 +114,14 @@ namespace QuadTreeUI
         public List<Quadtree> start(Quadtree[,] tile, Graphics g)
         {
             List<Quadtree> result = new List<Quadtree>();
+
+            //int qindex = 1;
+            //foreach(Point p in point_set)
+            //{
+            //    Console.WriteLine((qindex++) + ": (" + p.x + ", " + p.y + ")");
+            //}
+
+
             // depth 0: brutal force
             if (this.depth == 0)
             {
@@ -129,7 +135,7 @@ namespace QuadTreeUI
                          * points[2] = topLeft      i   ,j+1
                          * points[3] = topRight     i+1 ,j+1
                          */
-                        int[,] points = { { j * Program.WINDOW_CONST, i * Program.WINDOW_CONST }, { (j + 1) * Program.WINDOW_CONST, i * Program.WINDOW_CONST }, { j * Program.WINDOW_CONST, (i + 1) * Program.WINDOW_CONST }, { (j + 1) * Program.WINDOW_CONST, (i + 1) * Program.WINDOW_CONST } };
+                        int[,] points = { { j * Program.WINDOW_CONST, i * Program.WINDOW_CONST }, { (j + 1) * Program.WINDOW_CONST, i * Program.WINDOW_CONST }, { (j + 1) * Program.WINDOW_CONST, (i + 1) * Program.WINDOW_CONST }, { j * Program.WINDOW_CONST, (i + 1) * Program.WINDOW_CONST } };
 
                         int count = 0;
                         for (int t = 0; t < 4; t++)
