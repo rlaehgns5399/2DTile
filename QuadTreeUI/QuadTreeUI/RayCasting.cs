@@ -51,6 +51,7 @@ namespace QuadTreeUI
         }
         public bool pointInPolygon(Point p)
         {
+            // Ray Casting algorithm
             int i = 0;
             int j = this.point_set.Count - 1;
             bool oddNodes = false;
@@ -69,6 +70,49 @@ namespace QuadTreeUI
 
             return oddNodes;
         }
+
+        private double ccw(Vector2 a, Vector2 b)
+        {
+            return a.cross(b);
+        }
+        private double ccw(Vector2 p, Vector2 a, Vector2 b)
+        {
+            return ccw(a.minus(p), b.minus(p));
+        }
+        private bool sementIntersect(Vector2 a, Vector2 b, Vector2 c, Vector2 d)
+        {
+            double ab = ccw(a, b, c) * ccw(a, b, d);
+            double cd = ccw(c, d, a) * ccw(c, d, b);
+            Console.WriteLine(ab + ", " + cd);
+            if (ab == 0 && cd == 0)
+            {
+                Console.WriteLine("zz");
+                if (b.islow(a))
+                {
+                    Vector2 temp = new Vector2(a.x, a.y);
+                    a = b;
+                    b = temp;
+                }
+                if (d.islow(c))
+                {
+                    Vector2 temp = new Vector2(c.x, c.y);
+                    c = d;
+                    d = temp;
+                }
+                return !(b.islow(c) || d.islow(a));
+            }
+
+            return ab <= 0 && cd <= 0;
+        }
+        private bool sementIntersectIterator(Vector2 p1, Vector2 p2, int n, int m, Point[] tile_point_set)
+        {
+            if (!sementIntersect(p1, p2, new Vector2(tile_point_set[n]), new Vector2(tile_point_set[m])))
+            {
+                return false;
+            }
+            return true;
+        }
+
         public List<Quadtree> start(Quadtree[,] tile, Graphics g)
         {
             List<Quadtree> result = new List<Quadtree>();
@@ -95,6 +139,44 @@ namespace QuadTreeUI
                                 count++;
                             if (count == 4)
                             {
+                                Point[] tile_point_set = {
+                                    new Point(points[0, 0], points[0, 1]),
+                                    new Point(points[1, 0], points[1, 1]),
+                                    new Point(points[2, 0], points[2, 1]),
+                                    new Point(points[3, 0], points[3, 1])
+                                };
+
+
+                                bool flag = false;
+                                for (int p = 0; p < point_set.Count; p++)
+                                {
+                                    Point p1, p2;
+                                    if(p < point_set.Count - 1)
+                                    {
+                                        p1 = point_set[p];
+                                        p2 = point_set[p + 1];
+                                    }
+                                    else
+                                    {
+                                        p1 = point_set[p];
+                                        p2 = point_set[0];
+                                    }
+                                    if (sementIntersectIterator(new Vector2(p1), new Vector2(p2), 0, 1, tile_point_set) == true
+                                            || sementIntersectIterator(new Vector2(p1), new Vector2(p2), 1, 2, tile_point_set) == true
+                                            || sementIntersectIterator(new Vector2(p1), new Vector2(p2), 2, 3, tile_point_set) == true
+                                            || sementIntersectIterator(new Vector2(p1), new Vector2(p2), 3, 0, tile_point_set) == true)
+                                    {
+                                        flag = true;
+                                        break;
+                                    }
+                                }
+
+                                if (flag)
+                                {
+                                    Brush localbrush = (Brush)Brushes.Pink;
+                                    Form1.g.FillRectangle(localbrush, (j) * Program.WINDOW_CONST, 500 - (i + 1) * Program.WINDOW_CONST, Program.WINDOW_CONST-2, Program.WINDOW_CONST-2);
+                                    continue;
+                                }
                                 Brush brush = (Brush)Brushes.LawnGreen;
                                 Form1.g.FillRectangle(brush, (j) * Program.WINDOW_CONST, 500 - (i + 1) * Program.WINDOW_CONST, Program.WINDOW_CONST, Program.WINDOW_CONST);
                                 result.Add(tile[i, j]);

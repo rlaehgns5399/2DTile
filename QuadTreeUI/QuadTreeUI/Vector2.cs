@@ -8,13 +8,17 @@ namespace QuadTreeUI
 {
     class Vector2
     {
-        double x, y;    
+        public double x, y;    
         public Vector2(double _x, double _y)
         {
             this.x = _x;
             this.y = _y;
         }
-
+        public Vector2(Point p)
+        {
+            this.x = p.x;
+            this.y = p.y;
+        }
         public double cross(Vector2 other)
         {
             return x * other.y - y * other.x;
@@ -41,7 +45,6 @@ namespace QuadTreeUI
         }
         public bool islow(Vector2 other){
             return x < other.x && y < other.y;
-         }
-
+        }
     }
 }

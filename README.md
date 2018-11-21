@@ -85,6 +85,11 @@ Imperfect quadtree & shape (ver1)
 
 Nice quadtree but there is something to be fixed
 
+[image](https://user-images.githubusercontent.com/26527826/48844184-76694a80-eddc-11e8-82f7-f1ae6cf0fd3f.png)
+
+Because there is an error when a line passes tile which is judged correct already
+
+So, with [an Article](http://bowbowbow.tistory.com/17), i fixed this error. Previosly, The pink tile was be perceived as correct. But not now(2018. 11. 21)
 <hr>
 
 # XDOErrorDectectorUI
