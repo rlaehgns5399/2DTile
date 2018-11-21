@@ -81,11 +81,11 @@ I will use straight equation and points of intersection(limited scope)
 
 Imperfect quadtree & shape (ver1)
 
-![honeycam 2018-11-19 16-52-45](https://user-images.githubusercontent.com/26527826/48693180-fbf1cc80-ec1b-11e8-9f93-ee299d3e8a7e.gif)
+![image](https://user-images.githubusercontent.com/26527826/48693180-fbf1cc80-ec1b-11e8-9f93-ee299d3e8a7e.gif)
 
 Nice quadtree but there is something to be fixed
 
-[image](https://user-images.githubusercontent.com/26527826/48844184-76694a80-eddc-11e8-82f7-f1ae6cf0fd3f.png)
+![image](https://user-images.githubusercontent.com/26527826/48844184-76694a80-eddc-11e8-82f7-f1ae6cf0fd3f.png)
 
 Because there is an error when a line passes tile which is judged correct already
 
