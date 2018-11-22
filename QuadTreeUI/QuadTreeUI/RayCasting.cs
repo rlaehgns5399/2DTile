@@ -9,10 +9,11 @@ namespace QuadTreeUI
 {
     class RayCasting
     {
+        List<string> result = new List<string>();
         private List<Point> point_set;
-        private List<Line> line_set;
         private Quadtree[,] qtree;
         private int depth;
+
         public RayCasting(List<Point> point_set, Quadtree[,] qtree, int depth)
         {
             this.point_set = point_set;
@@ -104,94 +105,109 @@ namespace QuadTreeUI
         }
         private bool sementIntersectIterator(Vector2 p1, Vector2 p2, int n, int m, Point[] tile_point_set)
         {
-            if (!sementIntersect(p1, p2, new Vector2(tile_point_set[n]), new Vector2(tile_point_set[m])))
-            {
-                return false;
-            }
+            if (!sementIntersect(p1, p2, new Vector2(tile_point_set[n]), new Vector2(tile_point_set[m]))) return false;
             return true;
         }
+        private bool isIncorrectTile(int count, int[,] points)
+        {
+            if(count == 4)
+            {
+                Point[] tile_point_set = {
+                                    new Point(points[0, 0], points[0, 1]),
+                                    new Point(points[1, 0], points[1, 1]),
+                                    new Point(points[2, 0], points[2, 1]),
+                                    new Point(points[3, 0], points[3, 1])
+                };
 
+                for (int p = 0; p < point_set.Count; p++)
+                {
+                    Point p1, p2;
+                    if (p < point_set.Count - 1)
+                    {
+                        p1 = point_set[p];
+                        p2 = point_set[p + 1];
+                    }
+                    else
+                    {
+                        p1 = point_set[p];
+                        p2 = point_set[0];
+                    }
+
+
+                    if (sementIntersectIterator(new Vector2(p1), new Vector2(p2), 0, 1, tile_point_set) == true
+                            || sementIntersectIterator(new Vector2(p1), new Vector2(p2), 1, 2, tile_point_set) == true
+                            || sementIntersectIterator(new Vector2(p1), new Vector2(p2), 2, 3, tile_point_set) == true
+                            || sementIntersectIterator(new Vector2(p1), new Vector2(p2), 3, 0, tile_point_set) == true)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        private void Find_Perfect_Level_0_Tile()
+        {
+            // Level 0: Brute force
+            for (int i = 0; i < subroutine.ROW; i++)
+            {
+                for (int j = 0; j < subroutine.COL; j++)
+                {
+                    /* 
+                     * points[0] = bottomLeft   i   ,j
+                     * points[1] = bottomRight  i+1 ,j
+                     * points[2] = topLeft      i   ,j+1
+                     * points[3] = topRight     i+1 ,j+1
+                     */
+                    int[,] points = { { j * Program.WINDOW_CONST, i * Program.WINDOW_CONST }, { (j + 1) * Program.WINDOW_CONST, i * Program.WINDOW_CONST }, { (j + 1) * Program.WINDOW_CONST, (i + 1) * Program.WINDOW_CONST }, { j * Program.WINDOW_CONST, (i + 1) * Program.WINDOW_CONST } };
+
+                    int count = 0;
+                    for (int t = 0; t < 4; t++)
+                    {
+                        Point point = new Point(points[t, 0], points[t, 1]);
+                        if (pointInPolygon(point))
+                            count++;
+                    }
+
+                    if(isIncorrectTile(count, points))
+                    {
+                        Brush localbrush = (Brush)Brushes.Pink;
+                        Form1.g.FillRectangle(localbrush, (j) * Program.WINDOW_CONST, 500 - (i + 1) * Program.WINDOW_CONST, Program.WINDOW_CONST, Program.WINDOW_CONST);
+                        continue;
+                    }
+                    else if(count == 4)
+                    {
+                        Brush brush = (Brush)Brushes.LawnGreen;
+                        Form1.g.FillRectangle(brush, (j) * Program.WINDOW_CONST, 500 - (i + 1) * Program.WINDOW_CONST, Program.WINDOW_CONST, Program.WINDOW_CONST);
+                        result.Add("L0_X" + j + "_Y" + i);
+                        continue;
+                    }
+                    else if(count < 4 && count > 0)
+                    {
+                        // 선분에 걸쳐진 타일들 검출
+                    }
+
+                    /////////////////////////////////
+
+                }
+            }
+        }
+        private void Find_Perfect_Level_N_Tile(int level)
+        {
+
+        }
         public List<Quadtree> start(Quadtree[,] tile, Graphics g)
         {
-            List<Quadtree> result = new List<Quadtree>();
-
             //int qindex = 1;
             //foreach(Point p in point_set)
             //{
             //    Console.WriteLine((qindex++) + ": (" + p.x + ", " + p.y + ")");
             //}
 
-
-            // depth 0: brutal force
-            if (this.depth == 0)
-            {
-                for (int i = 0; i < subroutine.ROW; i++)
-                {
-                    for (int j = 0; j < subroutine.COL; j++)
-                    {
-                        /* 
-                         * points[0] = bottomLeft   i   ,j
-                         * points[1] = bottomRight  i+1 ,j
-                         * points[2] = topLeft      i   ,j+1
-                         * points[3] = topRight     i+1 ,j+1
-                         */
-                        int[,] points = { { j * Program.WINDOW_CONST, i * Program.WINDOW_CONST }, { (j + 1) * Program.WINDOW_CONST, i * Program.WINDOW_CONST }, { (j + 1) * Program.WINDOW_CONST, (i + 1) * Program.WINDOW_CONST }, { j * Program.WINDOW_CONST, (i + 1) * Program.WINDOW_CONST } };
-
-                        int count = 0;
-                        for (int t = 0; t < 4; t++)
-                        {
-                            Point point = new Point(points[t, 0], points[t, 1]);
-                            if (pointInPolygon(point))
-                                count++;
-                            if (count == 4)
-                            {
-                                Point[] tile_point_set = {
-                                    new Point(points[0, 0], points[0, 1]),
-                                    new Point(points[1, 0], points[1, 1]),
-                                    new Point(points[2, 0], points[2, 1]),
-                                    new Point(points[3, 0], points[3, 1])
-                                };
-
-
-                                bool flag = false;
-                                for (int p = 0; p < point_set.Count; p++)
-                                {
-                                    Point p1, p2;
-                                    if(p < point_set.Count - 1)
-                                    {
-                                        p1 = point_set[p];
-                                        p2 = point_set[p + 1];
-                                    }
-                                    else
-                                    {
-                                        p1 = point_set[p];
-                                        p2 = point_set[0];
-                                    }
-                                    if (sementIntersectIterator(new Vector2(p1), new Vector2(p2), 0, 1, tile_point_set) == true
-                                            || sementIntersectIterator(new Vector2(p1), new Vector2(p2), 1, 2, tile_point_set) == true
-                                            || sementIntersectIterator(new Vector2(p1), new Vector2(p2), 2, 3, tile_point_set) == true
-                                            || sementIntersectIterator(new Vector2(p1), new Vector2(p2), 3, 0, tile_point_set) == true)
-                                    {
-                                        flag = true;
-                                        break;
-                                    }
-                                }
-
-                                if (flag)
-                                {
-                                    Brush localbrush = (Brush)Brushes.Pink;
-                                    Form1.g.FillRectangle(localbrush, (j) * Program.WINDOW_CONST, 500 - (i + 1) * Program.WINDOW_CONST, Program.WINDOW_CONST-2, Program.WINDOW_CONST-2);
-                                    continue;
-                                }
-                                Brush brush = (Brush)Brushes.LawnGreen;
-                                Form1.g.FillRectangle(brush, (j) * Program.WINDOW_CONST, 500 - (i + 1) * Program.WINDOW_CONST, Program.WINDOW_CONST, Program.WINDOW_CONST);
-                                result.Add(tile[i, j]);
-                            }
-                        }
-                        
-                    }
-                }
-            }
+            
+            Find_Perfect_Level_0_Tile();
+            Find_Perfect_Level_N_Tile(depth);
+             
+            
 
             return null;
         }
