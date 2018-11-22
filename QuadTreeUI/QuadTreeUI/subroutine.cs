@@ -26,8 +26,8 @@ namespace QuadTreeUI
         
         public subroutine()
         {
-            MakePoint(point_set, 5);
-            MakeLine(line_set, point_set);
+            MakePoint(point_set, 4);
+            
 
             // now we have lv 0 tile (5x10) (width & height = 1)
             for (int i = 0; i < ROW; i++)
@@ -47,6 +47,8 @@ namespace QuadTreeUI
             {
                 tile[(int)Math.Floor(p.y/(double)Program.WINDOW_CONST), (int)Math.Floor(p.x/(double)Program.WINDOW_CONST)].insert(new Node(p, 0));
             }
+
+            MakeLine(line_set, point_set);
             //foreach (Line s in line_set)
             //{
             //    Console.WriteLine("(" + s.first.x + ", " + s.first.y + ") ~ (" + s.second.x + ", " + s.second.y + ")");

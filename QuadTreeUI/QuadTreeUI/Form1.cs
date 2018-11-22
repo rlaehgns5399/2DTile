@@ -32,6 +32,10 @@ namespace QuadTreeUI
             // button1.Enabled = false;
             g = CreateGraphics();
             g.Clear(Color.White);
+            
+
+            subroutine subroutine = new subroutine();
+
             pen = new Pen(Color.Black);
             for (int i = 0; i <= this.COL; i++)
             {
@@ -39,10 +43,8 @@ namespace QuadTreeUI
             }
             for (int i = 0; i <= this.ROW; i++)
             {
-                g.DrawLine(pen, 0, (Program.WINDOW_CONST*i), Program.WINDOW_CONST*this.COL, (Program.WINDOW_CONST*i));
+                g.DrawLine(pen, 0, (Program.WINDOW_CONST * i), Program.WINDOW_CONST * this.COL, (Program.WINDOW_CONST * i));
             }
-
-            subroutine subroutine = new subroutine();
 
             g.Dispose();
         }

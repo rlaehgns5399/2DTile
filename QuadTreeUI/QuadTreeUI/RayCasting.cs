@@ -145,6 +145,40 @@ namespace QuadTreeUI
             }
             return false;
         }
+        private bool isImperfectTile(int[,] points)
+        {
+                Point[] tile_point_set = {
+                                    new Point(points[0, 0], points[0, 1]),
+                                    new Point(points[1, 0], points[1, 1]),
+                                    new Point(points[2, 0], points[2, 1]),
+                                    new Point(points[3, 0], points[3, 1])
+                };
+
+                for (int p = 0; p < point_set.Count; p++)
+                {
+                    Point p1, p2;
+                    if (p < point_set.Count - 1)
+                    {
+                        p1 = point_set[p];
+                        p2 = point_set[p + 1];
+                    }
+                    else
+                    {
+                        p1 = point_set[p];
+                        p2 = point_set[0];
+                    }
+
+
+                    if (sementIntersectIterator(new Vector2(p1), new Vector2(p2), 0, 1, tile_point_set) == true
+                            || sementIntersectIterator(new Vector2(p1), new Vector2(p2), 1, 2, tile_point_set) == true
+                            || sementIntersectIterator(new Vector2(p1), new Vector2(p2), 2, 3, tile_point_set) == true
+                            || sementIntersectIterator(new Vector2(p1), new Vector2(p2), 3, 0, tile_point_set) == true)
+                    {
+                        return true;
+                    }
+                }
+            return false;
+        }
         private void Find_Perfect_Level_0_Tile()
         {
             // Level 0: Brute force
@@ -170,20 +204,25 @@ namespace QuadTreeUI
 
                     if(isIncorrectTile(count, points))
                     {
+                        // 점 네개는 포함되어 있으나, 선이 겹쳐서 에러인 타일들
                         Brush localbrush = (Brush)Brushes.Pink;
                         Form1.g.FillRectangle(localbrush, (j) * Program.WINDOW_CONST, 500 - (i + 1) * Program.WINDOW_CONST, Program.WINDOW_CONST, Program.WINDOW_CONST);
                         continue;
                     }
                     else if(count == 4)
                     {
+                        // 완벽한 타일 검출
                         Brush brush = (Brush)Brushes.LawnGreen;
                         Form1.g.FillRectangle(brush, (j) * Program.WINDOW_CONST, 500 - (i + 1) * Program.WINDOW_CONST, Program.WINDOW_CONST, Program.WINDOW_CONST);
                         result.Add("L0_X" + j + "_Y" + i);
                         continue;
                     }
-                    else if(count < 4 && count > 0)
+                    else if(isImperfectTile(points))
                     {
                         // 선분에 걸쳐진 타일들 검출
+                        Brush brush = (Brush)Brushes.Azure;
+                        Form1.g.FillRectangle(brush, (j) * Program.WINDOW_CONST, 500 - (i + 1) * Program.WINDOW_CONST, Program.WINDOW_CONST, Program.WINDOW_CONST);
+                        continue;
                     }
 
                     /////////////////////////////////
@@ -191,12 +230,13 @@ namespace QuadTreeUI
                 }
             }
         }
-        private void Find_Perfect_Level_N_Tile(int level)
+        private void Find_Perfect_Level_N_Tile(int level, Queue<TileItem> q)
         {
 
         }
         public List<Quadtree> start(Quadtree[,] tile, Graphics g)
         {
+            Queue<TileItem> q = new Queue<TileItem>();
             //int qindex = 1;
             //foreach(Point p in point_set)
             //{
@@ -205,7 +245,7 @@ namespace QuadTreeUI
 
             
             Find_Perfect_Level_0_Tile();
-            Find_Perfect_Level_N_Tile(depth);
+            Find_Perfect_Level_N_Tile(depth, q);
              
             
 
