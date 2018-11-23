@@ -90,6 +90,17 @@ Nice quadtree but there is something to be fixed
 Because there is an error when a line passes tile which is judged correct already
 
 So, with [an Article](http://bowbowbow.tistory.com/17), i fixed this error. Previosly, The pink tile was be perceived as correct. But not now(2018. 11. 21)
+
+![honeycam 2018-11-23 20-41-37](https://user-images.githubusercontent.com/26527826/48941807-5cf10b80-ef60-11e8-9019-d8b7c5bdbf1f.gif)
+
+I completed this work. (I think), (2018. 11. 23)
+
+As you see, Each tile is represented by a different color with each level.
+
+The request wanted to be represented to the level 15. 
+
+In my computer, when the level is more thatn 11, there are some overload.
+
 <hr>
 
 # XDOErrorDectectorUI
