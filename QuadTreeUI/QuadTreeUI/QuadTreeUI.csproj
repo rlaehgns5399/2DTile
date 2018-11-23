@@ -80,6 +80,7 @@
     <Compile Include="Quadtree.cs" />
     <Compile Include="RayCasting.cs" />
     <Compile Include="subroutine.cs" />
+    <Compile Include="TileItem.cs" />
     <Compile Include="Vector2.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>

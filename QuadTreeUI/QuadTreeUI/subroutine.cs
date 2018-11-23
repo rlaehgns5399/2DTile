@@ -26,7 +26,7 @@ namespace QuadTreeUI
         
         public subroutine()
         {
-            MakePoint(point_set, 4);
+            MakePoint(point_set, 10);
             
 
             // now we have lv 0 tile (5x10) (width & height = 1)
