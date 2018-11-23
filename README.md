@@ -99,7 +99,9 @@ As you see, Each tile is represented by a different color with each level.
 
 The request wanted to be represented to the level 15. 
 
-In my computer, when the level is more thatn 11, there are some overload.
+In my computer, beyond level 11, my computer slows down in representing shape.
+
+I made Quadtree, but it doesnt need(There were good ideas to refer)
 
 <hr>
 
