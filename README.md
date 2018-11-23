@@ -101,7 +101,11 @@ The request wanted to be represented to the level 15.
 
 In my computer, beyond level 11, my computer slows down in representing shape.
 
-I made Quadtree, but it doesnt need(There were good ideas to refer)
+I made Quadtree, but it doesn't need(of course, there were good ideas to refer).
+
+For making shape, I havent use `Convex hull algorithm`.
+
+If you want to use, just modify `Point` class codes.
 
 <hr>
 
