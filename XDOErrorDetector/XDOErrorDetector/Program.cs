@@ -8,10 +8,29 @@ using Npgsql;
 
 namespace XDOErrorDetector
 {
+    
     class Program
     {
         //public static String baseURL = @"C:\APM_Setup\htdocs\etri\js\test";
-        public static String baseURL = @"C:\Users\KimDoHoon\Desktop\C++_Project\data";
+        public static String baseURL = @"C:\Users\KimDoHoon\Desktop\git\2DTile\XDOErrorDetector\data";
+        enum STATUS{
+            SUCCESS,
+            ERR_NOT_EXIST_FILE,
+            WARN_UPPER_LOWER_CASE,
+            UNKNOWN_CODE
+        }
+        static STATUS getStatus(String fullPath, String path, int level=0)
+        {
+            if (fullPath.Equals(path))
+            {
+                return STATUS.SUCCESS;
+            }
+            else if (fullPath.ToLower().Equals(path.ToLower()))
+            {
+                return STATUS.WARN_UPPER_LOWER_CASE;
+            }
+            return STATUS.UNKNOWN_CODE;
+        }
         static void Main(string[] args)
         {
             // Search xdo file from baseURL
@@ -35,39 +54,34 @@ namespace XDOErrorDetector
                 
                 foreach (XDOMesh mesh in xdo.mesh)
                 {
+                    String path = null;
                     String imageName = mesh.imageName;
-                    int status = 0;
+                    STATUS status = 0;
                     foreach (String fullPath in imageFileList)
                     {
-                        if(fullPath.Equals(baseDirectory + "\\" + imageName))
-                        {
-                            status = 1;
-                            break;
-                        }
-                        else if (fullPath.ToLower().Equals( (baseDirectory + "\\" + imageName).ToLower() ))
-                        {
-                            status = 2;
-                            break;
-                        }
+                        path = baseDirectory + "\\" + imageName;
+                        status = getStatus(fullPath, path);
+                        break;
                     }
 
                     switch (status)
                     {
-                        case 0:
+                        case STATUS.ERR_NOT_EXIST_FILE:
                             hashMap[xdoFile].status_error++;
-                            Console.WriteLine(baseDirectory + "\\" + imageName + ": image is not exist");
+                            Console.WriteLine(path + ": image is not exist");
                             break;
-                        case 1:
+                        case STATUS.SUCCESS:
                             hashMap[xdoFile].status_correct++;
-                            Console.WriteLine(baseDirectory + "\\" + imageName + ": image is exist");
+                            Console.WriteLine(path + ": image is exist");
                             break;
-                        case 2:
+                        case STATUS.WARN_UPPER_LOWER_CASE:
                             hashMap[xdoFile].status_warning++;
-                            Console.WriteLine(baseDirectory + "\\" + imageName + ": image is exist but there is a warning about UPPER/LOWER case");
+                            Console.WriteLine(path + ": image is exist but there is a warning about UPPER/LOWER case");
                             break;
                     }
-
+                    
                 }
+
 
                 
 
@@ -84,7 +98,7 @@ namespace XDOErrorDetector
                     {
                         cmd.Connection = conn;
                         cmd.CommandText = "delete from " + info.Table;
-                        cmd.ExecuteNonQuery();
+                        // cmd.ExecuteNonQuery();
                     }
                     foreach (KeyValuePair<String, DBItem> key in hashMap)
                     {
@@ -100,7 +114,7 @@ namespace XDOErrorDetector
                             cmd.Parameters.AddWithValue("success", key.Value.status_correct);
                             cmd.Parameters.AddWithValue("warning", key.Value.status_warning);
                             Console.WriteLine(key.Key + "/" + key.Value.status_error + "/" + key.Value.status_correct + "/" + key.Value.status_warning);
-                            cmd.ExecuteNonQuery();
+                            // cmd.ExecuteNonQuery();
                         }
                     }
                 }
