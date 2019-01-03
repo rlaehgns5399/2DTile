@@ -46,40 +46,64 @@ namespace XDOErrorDetector
 
                 List<String> imageFileList = new List<String>();
 
-                foreach(String file in Directory.GetFiles(baseDirectory))  imageFileList.Add(file);
+                foreach (String file in Directory.GetFiles(baseDirectory))
+                {
+                    // todo: image_n.jpg는 걸러서 리스트에 넣어야 함
+                    imageFileList.Add(file);
+                }
                 String fileName = Path.GetFileName(fullURL);
 
                 // hashMap will be pushed
                 hashMap.Add(xdoFile, new DBItem(xdoFile));
-                
+
                 foreach (XDOMesh mesh in xdo.mesh)
                 {
                     String path = null;
                     String imageName = mesh.imageName;
-                    STATUS status = 0;
+                    int imageLevel = mesh.ImageLevel;
+                    STATUS status = STATUS.ERR_NOT_EXIST_FILE;
                     foreach (String fullPath in imageFileList)
                     {
                         path = baseDirectory + "\\" + imageName;
                         status = getStatus(fullPath, path);
-                        break;
-                    }
 
-                    switch (status)
-                    {
-                        case STATUS.ERR_NOT_EXIST_FILE:
-                            hashMap[xdoFile].status_error++;
-                            Console.WriteLine(path + ": image is not exist");
-                            break;
-                        case STATUS.SUCCESS:
-                            hashMap[xdoFile].status_correct++;
-                            Console.WriteLine(path + ": image is exist");
-                            break;
-                        case STATUS.WARN_UPPER_LOWER_CASE:
-                            hashMap[xdoFile].status_warning++;
-                            Console.WriteLine(path + ": image is exist but there is a warning about UPPER/LOWER case");
-                            break;
+                        switch (status)
+                        {
+                            case STATUS.ERR_NOT_EXIST_FILE:
+                                hashMap[xdoFile].status_error++;
+                                Console.WriteLine(path + ": image is not exist");
+                                break;
+                            case STATUS.SUCCESS:
+                                hashMap[xdoFile].status_correct++;
+                                Console.WriteLine(path + ": image is exist");
+                                break;
+                            case STATUS.WARN_UPPER_LOWER_CASE:
+                                hashMap[xdoFile].status_warning++;
+                                Console.WriteLine(path + ": image is exist but there is a warning about UPPER/LOWER case");
+                                break;
+                        }
+
+                        for(int i = 0; i < imageLevel; i++)
+                        {
+                            path = baseDirectory + "\\" + imageName.Replace(".", "_" + i + ".");
+                        }
+
+                        switch (status)
+                        {
+                            case STATUS.ERR_NOT_EXIST_FILE:
+                                hashMap[xdoFile].status_error++;
+                                Console.WriteLine(path + ": image is not exist");
+                                break;
+                            case STATUS.SUCCESS:
+                                hashMap[xdoFile].status_correct++;
+                                Console.WriteLine(path + ": image is exist");
+                                break;
+                            case STATUS.WARN_UPPER_LOWER_CASE:
+                                hashMap[xdoFile].status_warning++;
+                                Console.WriteLine(path + ": image is exist but there is a warning about UPPER/LOWER case");
+                                break;
+                        }
                     }
-                    
                 }
 
 
@@ -89,7 +113,8 @@ namespace XDOErrorDetector
 
             // DB connect & write
             var info = new DB();
-            using (var conn = new NpgsqlConnection("Host=" + info.Host + ";Username=" + info.Username + ";Password=" + info.Password + ";Database=" + info.Database))
+            string connString = String.Format("Host={0};Username={1};password={2};database={3}", info.Host, info.Username, info.Password, info.Database);
+            using (var conn = new NpgsqlConnection(connString))
             {
                 try
                 {
@@ -108,7 +133,8 @@ namespace XDOErrorDetector
 
                             cmd.Connection = conn;
                             
-                            cmd.CommandText = "insert into " + info.Table + "(\"name\",\"imageError\",\"imageSuccess\",\"imageWarning\") values(@name, @error, @success, @warning)";
+                            cmd.CommandText = "insert into @table (\"name\",\"imageError\",\"imageSuccess\",\"imageWarning\") values(@name, @error, @success, @warning)";
+                            cmd.Parameters.AddWithValue("table", info.Table);
                             cmd.Parameters.AddWithValue("name", key.Key);
                             cmd.Parameters.AddWithValue("error", key.Value.status_error);
                             cmd.Parameters.AddWithValue("success", key.Value.status_correct);
