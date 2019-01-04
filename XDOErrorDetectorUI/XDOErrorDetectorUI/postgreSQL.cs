@@ -156,7 +156,7 @@ namespace XDOErrorDetectorUI
             */
         }
 
-        public void createTable()
+        public void createTable(string tablename)
         {
             using (var conn = new NpgsqlConnection("Host=" + info.host + ";Username=" + info.username + ";Password=" + info.password + ";Database=" + info.database))
             {
@@ -166,7 +166,27 @@ namespace XDOErrorDetectorUI
                     using (var cmd = new NpgsqlCommand())
                     {
                         cmd.Connection = conn;
-                        cmd.CommandText = "delete from " + info.table;
+                        cmd.CommandText = "CREATE TABLE public." + tablename + "(" +
+                            "\"Level\" integer," +
+                            "\"X\" text," +
+                            "\"Y\" text," +
+                            "\"fileName\" text," +
+                            "\"ObjectID\" integer," +
+                            "\"Key\" text," +
+                            "\"ObjBox_minX\" double precision," +
+                            "\"ObjBox_minY\" double precision," +
+                            "\"ObjBox_minZ\" double precision," +
+                            "\"ObjBox_maxX\" double precision," +
+                            "\"ObjBox_maxY\" double precision," +
+                            "\"ObjBox_maxZ\" double precision," +
+                            "\"Altitude\" real," +
+                            "\"FaceNum\" integer," +
+                            "\"XDOVersion\" integer," +
+                            "\"VertexCount\" integer[]," +
+                            "\"IndexedCount\" integer[]," +
+                            "\"ImageLevel\" integer[]," +
+                            "\"ImageName\" text[]" +
+                            ")";
                         cmd.ExecuteNonQuery();
                     }
                 }
@@ -179,15 +199,17 @@ namespace XDOErrorDetectorUI
 
         public string connect()
         {
-            var conn = new NpgsqlConnection("Host=" + info.host + ";Username=" + info.username + ";Password=" + info.password + ";Database=" + info.database);
-            try
+            using (var conn = new NpgsqlConnection("Host=" + info.host + ";Username=" + info.username + ";Password=" + info.password + ";Database=" + info.database))
             {
-                conn.Open();
-                return "성공적으로 연결되었습니다.";
-            }
-            catch (Exception e)
-            {
-                return "DB 접속에 실패하였습니다.";
+                try
+                {
+                    conn.Open();
+                    return "성공적으로 연결되었습니다.";
+                }
+                catch (Exception e)
+                {
+                    return "DB 접속에 실패하였습니다.";
+                }
             }
         }
     }

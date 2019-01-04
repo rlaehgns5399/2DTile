@@ -66,7 +66,7 @@ namespace XDOErrorDetectorUI
 
         private void button_CreateTable_Click(object sender, RoutedEventArgs e)
         {
-            sql.createTable();
+            sql.createTable(textBox_table.Text);
             label1.Content = "Table을 생성하였습니다.";
         }
 
@@ -84,6 +84,16 @@ namespace XDOErrorDetectorUI
             textBox_username.IsEnabled = false;
             textBox_password.IsEnabled = false;
             textBox_database.IsEnabled = false;
+        }
+
+        private void button_ClearTable_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void button_DeleteTable_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
