@@ -186,12 +186,21 @@ namespace XDOErrorDetector
                     conn.Open();
                     using (var cmd = new NpgsqlCommand())
                     {
+                        cmd.Connection = conn;
+                        cmd.CommandText = "delete from " + info.Table;
+                        cmd.ExecuteNonQuery();
+                    }
+                    using (var cmd = new NpgsqlCommand())
+                    {
                         // Console.WriteLine(key.Key + "\n(" + key.Value.status_correct + ", " + key.Value.status_warning + ", " + key.Value.status_error + ")");
 
                         cmd.Connection = conn;
 
-                        cmd.CommandText = "INSERT INTO xdo2 (\"fileName\", \"ObjectID\", \"Key\", \"ObjBox_minX\", \"ObjBox_minY\", \"ObjBox_minZ\", \"ObjBox_maxX\", \"ObjBox_maxY\", \"ObjBox_maxZ\", \"Altitude\", \"FaceNum\", \"XDOVersion\", \"VertexCount\", \"IndexedCount\", \"ImageLevel\", \"ImageName\") " +
-                            @"VALUES(@fileName, @ObjectID, @Key, @ObjBox_minX, @ObjBox_minY, @ObjBox_minZ, @ObjBox_maxX, @ObjBox_maxY, @ObjBox_maxZ, @Altitude, @FaceNum, @XDOVersion, @VertexCount, @IndexedCount, @ImageLevel, @ImageName)";
+                        cmd.CommandText = "INSERT INTO xdo2 (\"Level\", \"X\", \"Y\", \"fileName\", \"ObjectID\", \"Key\", \"ObjBox_minX\", \"ObjBox_minY\", \"ObjBox_minZ\", \"ObjBox_maxX\", \"ObjBox_maxY\", \"ObjBox_maxZ\", \"Altitude\", \"FaceNum\", \"XDOVersion\", \"VertexCount\", \"IndexedCount\", \"ImageLevel\", \"ImageName\") " +
+                            @"VALUES(@Level, @X, @Y, @fileName, @ObjectID, @Key, @ObjBox_minX, @ObjBox_minY, @ObjBox_minZ, @ObjBox_maxX, @ObjBox_maxY, @ObjBox_maxZ, @Altitude, @FaceNum, @XDOVersion, @VertexCount, @IndexedCount, @ImageLevel, @ImageName)";
+                        cmd.Parameters.Add(new NpgsqlParameter("Level", NpgsqlDbType.Integer));
+                        cmd.Parameters.Add(new NpgsqlParameter("X", NpgsqlDbType.Text));
+                        cmd.Parameters.Add(new NpgsqlParameter("Y", NpgsqlDbType.Text));
                         cmd.Parameters.Add(new NpgsqlParameter("fileName", NpgsqlDbType.Text));
                         cmd.Parameters.Add(new NpgsqlParameter("ObjectID", NpgsqlDbType.Integer));
                         cmd.Parameters.Add(new NpgsqlParameter("Key", NpgsqlDbType.Text));
@@ -213,22 +222,31 @@ namespace XDOErrorDetector
 
                         foreach(KeyValuePair < String, DBItem > key in hashMap)
                         {
-                            cmd.Parameters[0].Value = key.Key;
-                            cmd.Parameters[1].Value = key.Value.ObjectID;
-                            cmd.Parameters[2].Value = key.Value.Key;
-                            cmd.Parameters[3].Value = key.Value.ObjBox[0];
-                            cmd.Parameters[4].Value = key.Value.ObjBox[1];
-                            cmd.Parameters[5].Value = key.Value.ObjBox[2];
-                            cmd.Parameters[6].Value = key.Value.ObjBox[3];
-                            cmd.Parameters[7].Value = key.Value.ObjBox[4];
-                            cmd.Parameters[8].Value = key.Value.ObjBox[5];
-                            cmd.Parameters[9].Value = key.Value.Altitude;
-                            cmd.Parameters[10].Value = key.Value.FaceNum;
-                            cmd.Parameters[11].Value = key.Value.XDOVersion;
-                            cmd.Parameters[12].Value = key.Value.VertexCount.ToArray();
-                            cmd.Parameters[13].Value = key.Value.IndexedCount.ToArray();
-                            cmd.Parameters[14].Value = key.Value.ImageLevel.ToArray();
-                            cmd.Parameters[15].Value = key.Value.ImageName.ToArray();
+                            var xy = new FileInfo(key.Key).Directory.Name;
+                            var name = xy.Split('_');
+                            Object[] obj_container = {
+                                Int32.Parse(new FileInfo(key.Key).Directory.Parent.Parent.Name),
+                                name[0],
+                                name[1],
+                                new FileInfo(key.Key).Name,
+                                key.Value.ObjectID,
+                                key.Value.Key,
+                                key.Value.ObjBox[0],
+                                key.Value.ObjBox[1],
+                                key.Value.ObjBox[2],
+                                key.Value.ObjBox[3],
+                                key.Value.ObjBox[4],
+                                key.Value.ObjBox[5],
+                                key.Value.Altitude,
+                                key.Value.FaceNum,
+                                key.Value.XDOVersion,
+                                key.Value.VertexCount.ToArray(),
+                                key.Value.IndexedCount.ToArray(),
+                                key.Value.ImageLevel.ToArray(),
+                                key.Value.ImageName.ToArray()
+                            };
+                            for(int i = 0; i < cmd.Parameters.Count; i++)
+                                cmd.Parameters[i].Value = obj_container[i];
                             cmd.ExecuteNonQuery();
                         }
                     }
