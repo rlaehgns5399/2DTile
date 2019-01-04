@@ -66,8 +66,7 @@ namespace XDOErrorDetectorUI
 
         private void button_CreateTable_Click(object sender, RoutedEventArgs e)
         {
-            sql.createTable(textBox_table.Text);
-            label1.Content = "Table을 생성하였습니다.";
+            label1.Content = sql.createTable(textBox_table.Text);
         }
 
         private void button_Connect_Click(object sender, RoutedEventArgs e)
@@ -88,12 +87,12 @@ namespace XDOErrorDetectorUI
 
         private void button_ClearTable_Click(object sender, RoutedEventArgs e)
         {
-
+            label1.Content = sql.clearTable(textBox_table.Text);
         }
 
         private void button_DeleteTable_Click(object sender, RoutedEventArgs e)
         {
-
+            // label1.Content = sql.deleteTable(textBox_table.Text);
         }
     }
 }

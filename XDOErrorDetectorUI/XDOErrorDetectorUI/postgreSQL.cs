@@ -156,9 +156,9 @@ namespace XDOErrorDetectorUI
             */
         }
 
-        public void createTable(string tablename)
+        public string createTable(string tablename)
         {
-            using (var conn = new NpgsqlConnection("Host=" + info.host + ";Username=" + info.username + ";Password=" + info.password + ";Database=" + info.database))
+            using (var conn = connection())
             {
                 try
                 {
@@ -188,18 +188,43 @@ namespace XDOErrorDetectorUI
                             "\"ImageName\" text[]" +
                             ")";
                         cmd.ExecuteNonQuery();
+                        return "Table이 성공적으로 생성되었습니다.";
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    return "Table을 생성시키지 못했습니다.";
                 }
             }
         }
-
+        public NpgsqlConnection connection()
+        {
+            return new NpgsqlConnection("Host=" + info.host + ";Username=" + info.username + ";Password=" + info.password + ";Database=" + info.database);
+        }
+        public string clearTable(string tablename)
+        {
+            using (var conn = connection())
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new NpgsqlCommand())
+                    {
+                        cmd.Connection = conn;
+                        cmd.CommandText = "delete from " + tablename;
+                        cmd.ExecuteNonQuery();
+                        return "Table을 성공적으로 초기화하였습니다.";
+                    }
+                }
+                catch (Exception e)
+                {
+                    return "초기화 실패";
+                }
+            }
+        }
         public string connect()
         {
-            using (var conn = new NpgsqlConnection("Host=" + info.host + ";Username=" + info.username + ";Password=" + info.password + ";Database=" + info.database))
+            using (var conn = connection())
             {
                 try
                 {
