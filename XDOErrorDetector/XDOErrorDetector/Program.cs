@@ -59,9 +59,37 @@ namespace XDOErrorDetector
                 var baseDirectory = new FileInfo(xdo.url).Directory.FullName;
 
                 var xdo_dbItem = new DBItem();
-                
 
-                foreach(var imgFile in Directory.GetFiles(baseDirectory))
+                xdo_dbItem.XDOVersion = xdo.XDOVersion;
+                xdo_dbItem.fileName = xdoFile;
+                xdo_dbItem.ObjectID = (int)xdo.ObjectID;
+                xdo_dbItem.Key = xdo.Key;
+                xdo_dbItem.ObjBox[0] = xdo.minX;
+                xdo_dbItem.ObjBox[1] = xdo.minY;
+                xdo_dbItem.ObjBox[2] = xdo.minZ;
+                xdo_dbItem.ObjBox[3] = xdo.maxX;
+                xdo_dbItem.ObjBox[4] = xdo.maxY;
+                xdo_dbItem.ObjBox[5] = xdo.maxZ;
+                xdo_dbItem.Altitude = xdo.altitude;
+                if (xdo.XDOVersion == 1)
+                {
+                    xdo_dbItem.FaceNum = 1;
+                }
+                else
+                {
+                    xdo_dbItem.FaceNum = xdo.faceNum;
+                }
+
+                for (int i = 0; i < xdo.faceNum; i++)
+                {
+                    xdo_dbItem.VertexCount.Add((int)xdo.mesh[i].vertexCount);
+                    xdo_dbItem.IndexedCount.Add((int)xdo.mesh[i].indexedCount);
+                    xdo_dbItem.ImageLevel.Add((int)xdo.mesh[i].ImageLevel);
+                    xdo_dbItem.ImageName.Add(xdo.mesh[i].imageName);
+                }
+
+
+                foreach (var imgFile in Directory.GetFiles(baseDirectory))
                 {
                     if (imgFile.ToLower().Contains(".jpg") || imgFile.ToLower().Contains(".png"))
                         imageSet.Add(imgFile);
