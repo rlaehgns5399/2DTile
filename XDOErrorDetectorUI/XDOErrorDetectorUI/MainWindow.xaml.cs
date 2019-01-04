@@ -26,7 +26,12 @@ namespace XDOErrorDetectorUI
             InitializeComponent();
             sql = new postgreSQL();
             label.Content = sql.baseURL;
-            
+
+            textBox_host.Text = "localhost";
+            textBox_username.Text = "postgres";
+            textBox_password.Text = "root";
+            textBox_database.Text = "mydata";
+            textBox_table.Text = "xdo2";
         }
 
         private void button_update_Click(object sender, RoutedEventArgs e)
@@ -57,6 +62,28 @@ namespace XDOErrorDetectorUI
             public int Success { get; set; }
             public int Warning { get; set; }
             public int Error { get; set; }
+        }
+
+        private void button_CreateTable_Click(object sender, RoutedEventArgs e)
+        {
+            sql.createTable();
+            label1.Content = "Table을 생성하였습니다.";
+        }
+
+        private void button_Connect_Click(object sender, RoutedEventArgs e)
+        {
+            sql.info = new XDOErrorDetectorUI.DB(textBox_host.Text, textBox_username.Text, textBox_password.Text, textBox_database.Text);
+            label1.Content = sql.connect();
+            btn_createtable.IsEnabled = true;
+            btn_deletetable.IsEnabled = true;
+            btn_cleartable.IsEnabled = true;
+            textBox_table.IsEnabled = true;
+
+            btn_connection.IsEnabled = false;
+            textBox_host.IsEnabled = false;
+            textBox_username.IsEnabled = false;
+            textBox_password.IsEnabled = false;
+            textBox_database.IsEnabled = false;
         }
     }
 }

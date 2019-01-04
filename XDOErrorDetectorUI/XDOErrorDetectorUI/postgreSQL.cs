@@ -11,11 +11,13 @@ namespace XDOErrorDetectorUI
     class postgreSQL
     {
         //public static String baseURL = @"C:\APM_Setup\htdocs\etri\js\test";
+        public DB info;
         public String baseURL = @"C:\Users\KimDoHoon\Desktop\C++_Project\data";
         public Dictionary<String, DBItem> check()
         {
             Dictionary<String, DBItem> dic = new Dictionary<string, DBItem>();
 
+            /*
             var info = new DB();
             using (var conn = new NpgsqlConnection("Host=" + info.Host + ";Username=" + info.Username + ";Password=" + info.Password + ";Database=" + info.Database))
             {
@@ -49,7 +51,7 @@ namespace XDOErrorDetectorUI
                     Console.WriteLine(ex);
                 }
             }
-            
+            */
 
             return dic;
         }
@@ -115,6 +117,7 @@ namespace XDOErrorDetectorUI
             }
 
             // DB connect & write
+            /*
             var info = new DB();
             using (var conn = new NpgsqlConnection("Host=" + info.Host + ";Username=" + info.Username + ";Password=" + info.Password + ";Database=" + info.Database))
             {
@@ -150,17 +153,114 @@ namespace XDOErrorDetectorUI
                     Console.WriteLine(ex);
                 }
             }
-            
+            */
+        }
+
+        public void createTable()
+        {
+            using (var conn = new NpgsqlConnection("Host=" + info.host + ";Username=" + info.username + ";Password=" + info.password + ";Database=" + info.database))
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new NpgsqlCommand())
+                    {
+                        cmd.Connection = conn;
+                        cmd.CommandText = "delete from " + info.table;
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+        }
+
+        public string connect()
+        {
+            var conn = new NpgsqlConnection("Host=" + info.host + ";Username=" + info.username + ";Password=" + info.password + ";Database=" + info.database);
+            try
+            {
+                conn.Open();
+                return "성공적으로 연결되었습니다.";
+            }
+            catch (Exception e)
+            {
+                return "DB 접속에 실패하였습니다.";
+            }
         }
     }
-
     class DB
     {
-        public String Host = "localhost";
-        public String Username = "postgres";
-        public String Password = "root";
-        public String Database = "mydata";
-        public String Table = "xdo";
+        private string Host;
+        private string Username;
+        private string Password;
+        private string Database;
+        private string Table;
+
+        public string host
+        {
+            get
+            {
+                return this.Host;
+            }
+            set
+            {
+                this.Host = value;
+            }
+        }
+        public string username
+        {
+            get
+            {
+                return this.Username;
+            }
+            set
+            {
+                this.Username = value;
+            }
+        }
+        public string password
+        {
+            get
+            {
+                return this.Password;
+            }
+            set
+            {
+                this.Password = value;
+            }
+        }
+        public string database
+        {
+            get
+            {
+                return this.Database;
+            }
+            set
+            {
+                this.Database = value;
+            }
+        }
+        public string table
+        {
+            get
+            {
+                return this.Table;
+            }
+            set
+            {
+                this.Table = value;
+            }
+        }
+        public DB(string h, string u, string p, string d)
+        {
+            this.host = h;
+            this.username = u;
+            this.password = p;
+            this.database = d;
+        }
     }
 
     class DBItem
