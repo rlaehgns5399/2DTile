@@ -5,23 +5,25 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using Npgsql;
+using NpgsqlTypes;
 
 namespace XDOErrorDetector
 {
-    
+
     class Program
     {
         //public static String baseURL = @"C:\APM_Setup\htdocs\etri\js\test";
         public static String baseURL = @"C:\Users\KimDoHoon\Desktop\git\2DTile\XDOErrorDetector\data";
-        enum STATUS{
+        enum STATUS
+        {
             SUCCESS,
             ERR_NOT_EXIST_FILE,
             WARN_UPPER_LOWER_CASE,
             UNKNOWN_CODE
         }
-        static STATUS getStatus(String fullPath, String path, int level=-1)
+        static STATUS getStatus(String fullPath, String path, int level = -1)
         {
-            if(level == -1)
+            if (level == -1)
             {
                 if (fullPath.Equals(path))
                 {
@@ -34,7 +36,7 @@ namespace XDOErrorDetector
             }
             else
             {
-                for(int i = 0; i < level; i++)
+                for (int i = 0; i < level; i++)
                 {
 
                 }
@@ -46,13 +48,14 @@ namespace XDOErrorDetector
             // XDO 파일을 주어진 경로로 부터 모두 다 찾음
             var xdoFileReader = new xdoFileFinder(baseURL);
             var xdoFileList = xdoFileReader.run();
-            
+
             // DB에 저장할 hashMap 구성
             var hashMap = new Dictionary<String, DBItem>();
             var imageSet = new HashSet<String>();
-            
-            // XDO(v3.0.0.2) Read -> 이미지 집합 생성
+
+            // XDO(v3.0.0.2) Read -> 이미지 집합 및 1 DBItem row 생성
             // 나중에 안쓰이는 그림 파일 찾을 때 쓰임
+            // 비효율적으로 제작
             foreach (var xdoFile in xdoFileList)
             {
                 var xdo = new XDO(xdoFile);
@@ -71,6 +74,7 @@ namespace XDOErrorDetector
                 xdo_dbItem.ObjBox[4] = xdo.maxY;
                 xdo_dbItem.ObjBox[5] = xdo.maxZ;
                 xdo_dbItem.Altitude = xdo.altitude;
+
                 if (xdo.XDOVersion == 1)
                 {
                     xdo_dbItem.FaceNum = 1;
@@ -88,6 +92,7 @@ namespace XDOErrorDetector
                     xdo_dbItem.ImageName.Add(xdo.mesh[i].imageName);
                 }
 
+                hashMap.Add(xdoFile, xdo_dbItem);
 
                 foreach (var imgFile in Directory.GetFiles(baseDirectory))
                 {
@@ -96,6 +101,7 @@ namespace XDOErrorDetector
                 }
             }
 
+            /*
             // XDO(3.0.0.2) Read
             foreach (String xdoFile in xdoFileList)
             {
@@ -169,7 +175,7 @@ namespace XDOErrorDetector
                 
 
             }
-
+            */
             // DB connect & write
             var info = new DB();
             var connString = String.Format("Host={0};Username={1};password={2};database={3}", info.Host, info.Username, info.Password, info.Database);
@@ -180,26 +186,50 @@ namespace XDOErrorDetector
                     conn.Open();
                     using (var cmd = new NpgsqlCommand())
                     {
-                        cmd.Connection = conn;
-                        cmd.CommandText = "delete from " + info.Table;
-                        // cmd.ExecuteNonQuery();
-                    }
-                    foreach (KeyValuePair<String, DBItem> key in hashMap)
-                    {
-                        using (var cmd = new NpgsqlCommand())
-                        {
-                            // Console.WriteLine(key.Key + "\n(" + key.Value.status_correct + ", " + key.Value.status_warning + ", " + key.Value.status_error + ")");
+                        // Console.WriteLine(key.Key + "\n(" + key.Value.status_correct + ", " + key.Value.status_warning + ", " + key.Value.status_error + ")");
 
-                            cmd.Connection = conn;
-                            
-                            cmd.CommandText = "insert into @table (\"name\",\"imageError\",\"imageSuccess\",\"imageWarning\") values(@name, @error, @success, @warning)";
-                            cmd.Parameters.AddWithValue("table", info.Table);
-                            cmd.Parameters.AddWithValue("name", key.Key);
-                            cmd.Parameters.AddWithValue("error", key.Value.status_error);
-                            cmd.Parameters.AddWithValue("success", key.Value.status_correct);
-                            cmd.Parameters.AddWithValue("warning", key.Value.status_warning);
-                            // Console.WriteLine(key.Key + "/" + key.Value.status_error + "/" + key.Value.status_correct + "/" + key.Value.status_warning);
-                            // cmd.ExecuteNonQuery();
+                        cmd.Connection = conn;
+
+                        cmd.CommandText = "INSERT INTO xdo2 (\"fileName\", \"ObjectID\", \"Key\", \"ObjBox_minX\", \"ObjBox_minY\", \"ObjBox_minZ\", \"ObjBox_maxX\", \"ObjBox_maxY\", \"ObjBox_maxZ\", \"Altitude\", \"FaceNum\", \"XDOVersion\", \"VertexCount\", \"IndexedCount\", \"ImageLevel\", \"ImageName\") " +
+                            @"VALUES(@fileName, @ObjectID, @Key, @ObjBox_minX, @ObjBox_minY, @ObjBox_minZ, @ObjBox_maxX, @ObjBox_maxY, @ObjBox_maxZ, @Altitude, @FaceNum, @XDOVersion, @VertexCount, @IndexedCount, @ImageLevel, @ImageName)";
+                        cmd.Parameters.Add(new NpgsqlParameter("fileName", NpgsqlDbType.Text));
+                        cmd.Parameters.Add(new NpgsqlParameter("ObjectID", NpgsqlDbType.Integer));
+                        cmd.Parameters.Add(new NpgsqlParameter("Key", NpgsqlDbType.Text));
+                        cmd.Parameters.Add(new NpgsqlParameter("ObjBox_minX", NpgsqlDbType.Double));
+                        cmd.Parameters.Add(new NpgsqlParameter("ObjBox_minY", NpgsqlDbType.Double));
+                        cmd.Parameters.Add(new NpgsqlParameter("ObjBox_minZ", NpgsqlDbType.Double));
+                        cmd.Parameters.Add(new NpgsqlParameter("ObjBox_maxX", NpgsqlDbType.Double));
+                        cmd.Parameters.Add(new NpgsqlParameter("ObjBox_maxY", NpgsqlDbType.Double));
+                        cmd.Parameters.Add(new NpgsqlParameter("ObjBox_maxZ", NpgsqlDbType.Double));
+                        cmd.Parameters.Add(new NpgsqlParameter("Altitude", NpgsqlDbType.Real));
+                        cmd.Parameters.Add(new NpgsqlParameter("FaceNum", NpgsqlDbType.Integer));
+                        cmd.Parameters.Add(new NpgsqlParameter("XDOVersion", NpgsqlDbType.Integer));
+                        cmd.Parameters.Add(new NpgsqlParameter("VertexCount", NpgsqlDbType.Array | NpgsqlDbType.Integer));
+                        cmd.Parameters.Add(new NpgsqlParameter("IndexedCount", NpgsqlDbType.Array | NpgsqlDbType.Integer));
+                        cmd.Parameters.Add(new NpgsqlParameter("ImageLevel", NpgsqlDbType.Array | NpgsqlDbType.Integer));
+                        cmd.Parameters.Add(new NpgsqlParameter("ImageName", NpgsqlDbType.Array | NpgsqlDbType.Text));
+
+                        cmd.Prepare();
+
+                        foreach(KeyValuePair < String, DBItem > key in hashMap)
+                        {
+                            cmd.Parameters[0].Value = key.Key;
+                            cmd.Parameters[1].Value = key.Value.ObjectID;
+                            cmd.Parameters[2].Value = key.Value.Key;
+                            cmd.Parameters[3].Value = key.Value.ObjBox[0];
+                            cmd.Parameters[4].Value = key.Value.ObjBox[1];
+                            cmd.Parameters[5].Value = key.Value.ObjBox[2];
+                            cmd.Parameters[6].Value = key.Value.ObjBox[3];
+                            cmd.Parameters[7].Value = key.Value.ObjBox[4];
+                            cmd.Parameters[8].Value = key.Value.ObjBox[5];
+                            cmd.Parameters[9].Value = key.Value.Altitude;
+                            cmd.Parameters[10].Value = key.Value.FaceNum;
+                            cmd.Parameters[11].Value = key.Value.XDOVersion;
+                            cmd.Parameters[12].Value = key.Value.VertexCount.ToArray();
+                            cmd.Parameters[13].Value = key.Value.IndexedCount.ToArray();
+                            cmd.Parameters[14].Value = key.Value.ImageLevel.ToArray();
+                            cmd.Parameters[15].Value = key.Value.ImageName.ToArray();
+                            cmd.ExecuteNonQuery();
                         }
                     }
                 }
@@ -219,7 +249,7 @@ namespace XDOErrorDetector
         public String Username = "postgres";
         public String Password = "root";
         public String Database = "mydata";
-        public String Table = "xdo";
+        public String Table = "xdo2";
     }
 
     class DBItem
