@@ -27,8 +27,6 @@ namespace XDOErrorDetectorUI
         {
             InitializeComponent();
             sql = new postgreSQL();
-            label.Content = sql.baseURL;
-
             textBox_host.Text = "localhost";
             textBox_username.Text = "postgres";
             textBox_password.Text = "root";

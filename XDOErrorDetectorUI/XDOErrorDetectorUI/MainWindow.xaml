@@ -8,7 +8,6 @@
         Title="XDOErrorDetectorUI" Height="768" Width="1024">
     <Grid Margin="0,0,0,0
           ">
-        <Label x:Name="label" Content="Label" HorizontalAlignment="Left" Height="25" Margin="117,454,0,0" VerticalAlignment="Top" Width="136" FontSize="10"/>
         <ListView x:Name="listView1" Height="261" Margin="11,179,9.6,0" VerticalAlignment="Top" SelectionChanged="listView_SelectionChanged">
             <ListView.View>
                 <GridView>
@@ -34,7 +33,7 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <Label x:Name="label1" Content="Label" HorizontalAlignment="Left" Height="34" Margin="11,445,0,0" VerticalAlignment="Top" Width="997"/>
+        <Label x:Name="label1" Content="Label" HorizontalAlignment="Left" Height="34" Margin="21,445,-0.4,0" VerticalAlignment="Top" Width="997"/>
         <Button x:Name="btn_connection" Content="연결" HorizontalAlignment="Left" Height="110" Margin="238,23,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_Connect_Click"/>
         <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="11,23,0,0" TextWrapping="Wrap" Text="Host" VerticalAlignment="Top" Height="18" Width="59"/>
         <TextBlock x:Name="textBlock_Copy" HorizontalAlignment="Left" Margin="11,46,0,0" TextWrapping="Wrap" Text="UserName" VerticalAlignment="Top" Height="18" Width="59"/>
