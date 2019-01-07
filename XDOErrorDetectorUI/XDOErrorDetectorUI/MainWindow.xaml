@@ -12,7 +12,7 @@
                 " Margin="0,139,9.6,0" VerticalAlignment="Top" Width="88" RenderTransformOrigin="-0.017,-0.442" Click="button_update_Click">
         </Button>
         <Button x:Name="button_check" Content="Check" HorizontalAlignment="Left" Height="25" Margin="827,139,0,0" VerticalAlignment="Top" Width="88" RenderTransformOrigin="-0.017,-0.442" Click="button_check_Click"/>
-        <Label x:Name="label" Content="Label" HorizontalAlignment="Left" Height="25" Margin="11,138,0,0" VerticalAlignment="Top" Width="711" FontSize="10"/>
+        <Label x:Name="label" Content="Label" HorizontalAlignment="Left" Height="25" Margin="117,454,0,0" VerticalAlignment="Top" Width="136" FontSize="10"/>
         <ListView x:Name="listView1" Height="261" Margin="11,179,9.6,0" VerticalAlignment="Top" SelectionChanged="listView_SelectionChanged">
             <ListView.View>
                 <GridView>
@@ -36,9 +36,12 @@
         <TextBlock x:Name="textBlock_Copy3" HorizontalAlignment="Left" Margin="11,115,0,0" TextWrapping="Wrap" Text="Table" VerticalAlignment="Top" Height="18" Width="59"/>
         <TextBox x:Name="textBox_table" IsEnabled="False" HorizontalAlignment="Left" Height="18" Margin="74,115,0,0" TextWrapping="Wrap" Text="default table" VerticalAlignment="Top" Width="147"/>
 
-        <Button x:Name="btn_createtable" IsEnabled="False" Content="테이블 생성" HorizontalAlignment="Left" Height="31" Margin="340,23,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_CreateTable_Click"/>
-        <Button x:Name="btn_deletetable" IsEnabled="False" Content="테이블 삭제" HorizontalAlignment="Left" Height="31" Margin="340,63,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_DeleteTable_Click"/>
-        <Button x:Name="btn_cleartable" IsEnabled="False" Content="테이블 초기화" HorizontalAlignment="Left" Height="31" Margin="340,102,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_ClearTable_Click"/>
+        <Button x:Name="btn_createtable" IsEnabled="False" Content="테이블 생성" HorizontalAlignment="Left" Height="31" Margin="337,23,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_CreateTable_Click"/>
+        <Button x:Name="btn_deletetable" IsEnabled="False" Content="테이블 삭제" HorizontalAlignment="Left" Height="31" Margin="338,63,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_DeleteTable_Click"/>
+        <Button x:Name="btn_cleartable" IsEnabled="False" Content="테이블 초기화" HorizontalAlignment="Left" Height="31" Margin="338,102,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_ClearTable_Click"/>
+        <Button x:Name="btn_searchtable" Content="XDO 파일 검색" HorizontalAlignment="Left" Height="20" Margin="238,144,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_search_Click"/>
+        <Button x:Name="button" Content="폴더 선택" HorizontalAlignment="Left" Margin="146,145,0,0" VerticalAlignment="Top" Width="75" Click="button_changefolder"/>
+        <TextBox x:Name="folder_path" HorizontalAlignment="Left" Height="18" Margin="11,146,0,0" TextWrapping="Wrap" Text="폴더 경로" VerticalAlignment="Top" Width="120"/>
 
     </Grid>
 </Window>

@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Forms;
+
 
 namespace XDOErrorDetectorUI
 {
@@ -93,6 +95,24 @@ namespace XDOErrorDetectorUI
         private void button_DeleteTable_Click(object sender, RoutedEventArgs e)
         {
             label1.Content = sql.deleteTable(textBox_table.Text);
+        }
+
+        private void button_view_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
+        private void button_search_Click(object sender, RoutedEventArgs e)
+        {
+            // label1.Content = sql.search(textBox_table.Text, string filepath);
+        }
+
+        private void button_changefolder(object sender, RoutedEventArgs e)
+        {
+            var folderDialog = new FolderBrowserDialog();
+            folderDialog.ShowDialog();
+            folder_path.Text = folderDialog.SelectedPath;
+
         }
     }
 }
