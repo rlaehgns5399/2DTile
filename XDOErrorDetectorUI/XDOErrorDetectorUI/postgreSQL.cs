@@ -222,6 +222,27 @@ namespace XDOErrorDetectorUI
                 }
             }
         }
+        public string deleteTable(string tablename)
+        {
+            using (var conn = connection())
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new NpgsqlCommand())
+                    {
+                        cmd.Connection = conn;
+                        cmd.CommandText = "drop table " + tablename;
+                        cmd.ExecuteNonQuery();
+                        return "Table을 성공적으로 삭제하였습니다";
+                    }
+                }
+                catch (Exception e)
+                {
+                    return "삭제 실패";
+                }
+            }
+        }
         public string connect()
         {
             using (var conn = connection())

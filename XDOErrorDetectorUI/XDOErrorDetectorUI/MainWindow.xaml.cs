@@ -92,7 +92,7 @@ namespace XDOErrorDetectorUI
 
         private void button_DeleteTable_Click(object sender, RoutedEventArgs e)
         {
-            // label1.Content = sql.deleteTable(textBox_table.Text);
+            label1.Content = sql.deleteTable(textBox_table.Text);
         }
     }
 }
