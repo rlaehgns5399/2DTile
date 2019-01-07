@@ -8,10 +8,6 @@
         Title="XDOErrorDetectorUI" Height="768" Width="1024">
     <Grid Margin="0,0,0,0
           ">
-        <Button x:Name="button_update" Content="Update" HorizontalAlignment="Right" Height="25
-                " Margin="0,139,9.6,0" VerticalAlignment="Top" Width="88" RenderTransformOrigin="-0.017,-0.442" Click="button_update_Click">
-        </Button>
-        <Button x:Name="button_check" Content="Check" HorizontalAlignment="Left" Height="25" Margin="827,139,0,0" VerticalAlignment="Top" Width="88" RenderTransformOrigin="-0.017,-0.442" Click="button_check_Click"/>
         <Label x:Name="label" Content="Label" HorizontalAlignment="Left" Height="25" Margin="117,454,0,0" VerticalAlignment="Top" Width="136" FontSize="10"/>
         <ListView x:Name="listView1" Height="261" Margin="11,179,9.6,0" VerticalAlignment="Top" SelectionChanged="listView_SelectionChanged">
             <ListView.View>
@@ -57,7 +53,7 @@
         <Button x:Name="btn_searchtable" IsEnabled="False" Content="검색 및 DB에 저장" HorizontalAlignment="Left" Height="31" Margin="873,63,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="-0.017,-0.442" Click="button_search_Click"/>
         <Button x:Name="button" Content="폴더 선택" HorizontalAlignment="Left" Margin="908,23,0,0" VerticalAlignment="Top" Width="89" Click="button_changefolder" Height="31"/>
         <TextBlock x:Name="folder_path" HorizontalAlignment="Left" Margin="440,23,0,0" TextWrapping="Wrap" Text="폴더 경로" VerticalAlignment="Top" Height="31" Width="454"/>
-        <Button x:Name="btn_load" IsEnabled="False" Content="파일 정보 불러오기" HorizontalAlignment="Left" Height="31" Margin="744,63,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="-0.017,-0.442" Click="button_load_Click"/>
+        <Button x:Name="btn_load" IsEnabled="False" Content="테이블 불러오기" HorizontalAlignment="Left" Height="31" Margin="744,63,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="-0.017,-0.442" Click="button_load_Click"/>
 
     </Grid>
 </Window>

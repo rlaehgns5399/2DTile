@@ -11,51 +11,10 @@ namespace XDOErrorDetectorUI
 {
     class postgreSQL
     {
-        //public static String baseURL = @"C:\APM_Setup\htdocs\etri\js\test";
         public DB info;
         public String baseURL = @"C:\Users\KimDoHoon\Desktop\C++_Project\data";
-        public Dictionary<String, DBItem> check()
-        {
-            Dictionary<String, DBItem> dic = new Dictionary<string, DBItem>();
+        
 
-            /*
-            var info = new DB();
-            using (var conn = new NpgsqlConnection("Host=" + info.Host + ";Username=" + info.Username + ";Password=" + info.Password + ";Database=" + info.Database))
-            {
-                try
-                {
-                    conn.Open();
-                    using (var cmd = new NpgsqlCommand())
-                    {
-                        cmd.Connection = conn;
-                        cmd.CommandText = "select * from " + info.Table;
-                        
-                        using(var reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                DBItem item = new DBItem();
-                                item.fileName = reader["name"].ToString();
-                                item.status_error = int.Parse(reader["imageError"].ToString());
-                                item.status_correct = int.Parse(reader["imageSuccess"].ToString());
-                                item.status_warning = int.Parse(reader["imageWarning"].ToString());
-
-                                string header = reader["name"].ToString().Replace(baseURL + @"\", "");
-                                dic.Add(header, item);
-                            }
-                        }
-                    }
-                    
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            }
-            */
-
-            return dic;
-        }
         public string search(string table, string path)
         {
             // XDO 파일을 주어진 경로로 부터 모두 다 찾음
@@ -191,9 +150,11 @@ namespace XDOErrorDetectorUI
                 }
             }
         }
+        /* unused code just for reference.
+         * ToDo: delete
         public void update()
         {
-            /*
+            
             // Search xdo file from baseURL
             var xdoFileReader = new xdoFileFinder(baseURL);
             List<String> xdoFileList = xdoFileReader.run();
@@ -291,8 +252,8 @@ namespace XDOErrorDetectorUI
                     Console.WriteLine(ex);
                 }
             }
-            */
         }
+    */
         public List<DBItem> loadTable(string table)
         {
             var list = new List<DBItem>();
@@ -390,7 +351,7 @@ namespace XDOErrorDetectorUI
         }
         public NpgsqlConnection connection()
         {
-            return new NpgsqlConnection("Host=" + info.host + ";Username=" + info.username + ";Password=" + info.password + ";Database=" + info.database);
+            return new NpgsqlConnection("Host=" + info.Host + ";Username=" + info.Username + ";Password=" + info.Password + ";Database=" + info.Database);
         }
         public string clearTable(string tablename)
         {
@@ -445,80 +406,25 @@ namespace XDOErrorDetectorUI
                 }
                 catch (Exception e)
                 {
-                    return "DB 접속에 실패하였습니다.";
+                    return "DB 접속 실패";
                 }
             }
         }
     }
     class DB
     {
-        private string Host;
-        private string Username;
-        private string Password;
-        private string Database;
-        private string Table;
-
-        public string host
-        {
-            get
-            {
-                return this.Host;
-            }
-            set
-            {
-                this.Host = value;
-            }
-        }
-        public string username
-        {
-            get
-            {
-                return this.Username;
-            }
-            set
-            {
-                this.Username = value;
-            }
-        }
-        public string password
-        {
-            get
-            {
-                return this.Password;
-            }
-            set
-            {
-                this.Password = value;
-            }
-        }
-        public string database
-        {
-            get
-            {
-                return this.Database;
-            }
-            set
-            {
-                this.Database = value;
-            }
-        }
-        public string table
-        {
-            get
-            {
-                return this.Table;
-            }
-            set
-            {
-                this.Table = value;
-            }
-        }
+        public string Host { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public string Database { get; set; }
+        public string Table { get; set; }
+        
         public DB(string h, string u, string p, string d)
         {
-            this.host = h;
-            this.username = u;
-            this.password = p;
-            this.database = d;
+            this.Host = h;
+            this.Username = u;
+            this.Password = p;
+            this.Database = d;
         }
     }
 
