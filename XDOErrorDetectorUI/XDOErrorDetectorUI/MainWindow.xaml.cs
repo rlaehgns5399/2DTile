@@ -57,15 +57,6 @@ namespace XDOErrorDetectorUI
         {
 
         }
-
-        public class myItem
-        {
-            public string File { get; set; }
-            public int Success { get; set; }
-            public int Warning { get; set; }
-            public int Error { get; set; }
-        }
-
         private void button_CreateTable_Click(object sender, RoutedEventArgs e)
         {
             label1.Content = sql.createTable(textBox_table.Text);
@@ -78,7 +69,9 @@ namespace XDOErrorDetectorUI
             btn_createtable.IsEnabled = true;
             btn_deletetable.IsEnabled = true;
             btn_cleartable.IsEnabled = true;
+            btn_searchtable.IsEnabled = true;
             textBox_table.IsEnabled = true;
+            btn_load.IsEnabled = true;
 
             btn_connection.IsEnabled = false;
             textBox_host.IsEnabled = false;
@@ -112,6 +105,59 @@ namespace XDOErrorDetectorUI
             var folderDialog = new FolderBrowserDialog();
             folderDialog.ShowDialog();
             folder_path.Text = folderDialog.SelectedPath;
+        }
+
+        private void button_load_Click(object sender, RoutedEventArgs e)
+        {
+            listView1.Items.Clear();
+            List<DBItem> list = sql.loadTable(textBox_table.Text);
+            
+            foreach (DBItem key in list)
+            {
+                listView1.Items.Add(new myItem {
+                    FileName = key.minifiedName,
+                    Level = key.level,
+                    X = key.X,
+                    Y = key.Y,
+                    ObjectID = key.ObjectID,
+                    Key = key.Key,
+                    minX = key.ObjBox[0],
+                    minY = key.ObjBox[1],
+                    minZ = key.ObjBox[2],
+                    maxX = key.ObjBox[3],
+                    maxY = key.ObjBox[4],
+                    maxZ = key.ObjBox[5],
+                    Altitude = key.Altitude,
+                    faceNum = key.FaceNum,
+                    XDOVersion = key.XDOVersion,
+                    VertexCount = String.Join(", ", key.VertexCount.ToArray()),
+                    IndexedCount = String.Join(", ", key.IndexedCount.ToArray()),
+                    ImageLevel = String.Join(", ", key.ImageLevel.ToArray()),
+                    ImageName = String.Join(", ", key.ImageName.ToArray())
+                });
+            }
+        }
+        public class myItem
+        {
+            public string FileName { get; set; }
+            public int Level { get; set; }
+            public string X { get; set; }
+            public string Y { get; set; }
+            public int ObjectID { get; set; }
+            public string Key { get; set; }
+            public double minX { get; set; }
+            public double minY { get; set; }
+            public double minZ { get; set; }
+            public double maxX { get; set; }
+            public double maxY { get; set; }
+            public double maxZ { get; set; }
+            public float Altitude { get; set; }
+            public int faceNum { get; set; }
+            public int XDOVersion { get; set; }
+            public string VertexCount { get; set; }
+            public string IndexedCount { get; set; }
+            public string ImageLevel { get; set; }
+            public string ImageName { get; set; }
         }
     }
 }

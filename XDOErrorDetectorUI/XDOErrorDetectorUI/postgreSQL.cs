@@ -76,6 +76,13 @@ namespace XDOErrorDetectorUI
 
                 var xdo_dbItem = new DBItem();
 
+
+                var xy = new FileInfo(xdoFile).Directory.Name;
+                var name = xy.Split('_');
+                xdo_dbItem.level = Int32.Parse(new FileInfo(xdoFile).Directory.Parent.Parent.Name);
+                xdo_dbItem.X = name[0];
+                xdo_dbItem.Y = name[1];
+                xdo_dbItem.minifiedName = new FileInfo(xdoFile).Name;
                 xdo_dbItem.XDOVersion = xdo.XDOVersion;
                 xdo_dbItem.fileName = xdoFile;
                 xdo_dbItem.ObjectID = (int)xdo.ObjectID;
@@ -149,13 +156,11 @@ namespace XDOErrorDetectorUI
 
                         foreach (KeyValuePair<String, DBItem> key in hashMap)
                         {
-                            var xy = new FileInfo(key.Key).Directory.Name;
-                            var name = xy.Split('_');
                             Object[] obj_container = {
-                                Int32.Parse(new FileInfo(key.Key).Directory.Parent.Parent.Name),
-                                name[0],
-                                name[1],
-                                new FileInfo(key.Key).Name,
+                                key.Value.level,
+                                key.Value.X,
+                                key.Value.Y,
+                                key.Value.minifiedName,
                                 key.Value.ObjectID,
                                 key.Value.Key,
                                 key.Value.ObjBox[0],
@@ -288,7 +293,59 @@ namespace XDOErrorDetectorUI
             }
             */
         }
+        public List<DBItem> loadTable(string table)
+        {
+            var list = new List<DBItem>();
+            using (var conn = connection())
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new NpgsqlCommand())
+                    {
+                        cmd.Connection = conn;
+                        cmd.CommandText = "select * from " + table;
+                        
+                        using(var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                DBItem item = new DBItem();
+                                item.level = int.Parse(reader["level"].ToString());
+                                item.X = reader["X"].ToString();
+                                item.Y = reader["Y"].ToString();
+                                item.minifiedName = reader["fileName"].ToString();
+                                item.ObjectID = int.Parse(reader["ObjectID"].ToString());
+                                item.Key = reader["Key"].ToString();
+                                item.ObjBox = new double[6] {
+                                    double.Parse(reader["ObjBox_minX"].ToString()),
+                                    double.Parse(reader["ObjBox_minY"].ToString()),
+                                    double.Parse(reader["ObjBox_minZ"].ToString()),
+                                    double.Parse(reader["ObjBox_maxX"].ToString()),
+                                    double.Parse(reader["ObjBox_maxY"].ToString()),
+                                    double.Parse(reader["ObjBox_maxZ"].ToString())
+                                };
+                                item.Altitude = float.Parse(reader["Altitude"].ToString());
+                                item.FaceNum = int.Parse(reader["FaceNum"].ToString());
+                                item.XDOVersion = int.Parse(reader["XDOVersion"].ToString());
+                                item.VertexCount = ((int[])reader["VertexCount"]).ToList();
+                                item.IndexedCount = ((int[])reader["IndexedCount"]).ToList();
+                                item.ImageLevel = ((int[])reader["ImageLevel"]).ToList();
+                                item.ImageName = ((string[])reader["ImageName"]).ToList();
+                                list.Add(item);
+                            }
+                        }
+                    }
+                    
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
 
+            return list;
+        }
         public string createTable(string tablename)
         {
             using (var conn = connection())
@@ -467,7 +524,11 @@ namespace XDOErrorDetectorUI
 
     class DBItem
     {
+        public string X;
+        public string Y;
+        public int level;
         public String fileName;
+        public String minifiedName;
         public int ObjectID;
         public String Key;
         public double[] ObjBox = new double[6];
