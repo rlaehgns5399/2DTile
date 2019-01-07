@@ -39,9 +39,9 @@
         <Button x:Name="btn_createtable" IsEnabled="False" Content="테이블 생성" HorizontalAlignment="Left" Height="31" Margin="337,23,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_CreateTable_Click"/>
         <Button x:Name="btn_deletetable" IsEnabled="False" Content="테이블 삭제" HorizontalAlignment="Left" Height="31" Margin="338,63,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_DeleteTable_Click"/>
         <Button x:Name="btn_cleartable" IsEnabled="False" Content="테이블 초기화" HorizontalAlignment="Left" Height="31" Margin="338,102,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_ClearTable_Click"/>
-        <Button x:Name="btn_searchtable" Content="XDO 파일 검색" HorizontalAlignment="Left" Height="20" Margin="238,144,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_search_Click"/>
-        <Button x:Name="button" Content="폴더 선택" HorizontalAlignment="Left" Margin="146,145,0,0" VerticalAlignment="Top" Width="75" Click="button_changefolder"/>
-        <TextBox x:Name="folder_path" HorizontalAlignment="Left" Height="18" Margin="11,146,0,0" TextWrapping="Wrap" Text="폴더 경로" VerticalAlignment="Top" Width="120"/>
+        <Button x:Name="btn_searchtable" Content="검색" HorizontalAlignment="Left" Height="31" Margin="338,139,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_search_Click"/>
+        <Button x:Name="button" Content="폴더 선택" HorizontalAlignment="Left" Margin="238,139,0,0" VerticalAlignment="Top" Width="89" Click="button_changefolder" Height="31"/>
+        <TextBlock x:Name="folder_path" HorizontalAlignment="Left" Margin="12,139,0,0" TextWrapping="Wrap" Text="폴더 경로" VerticalAlignment="Top" Height="31" Width="210"/>
 
     </Grid>
 </Window>

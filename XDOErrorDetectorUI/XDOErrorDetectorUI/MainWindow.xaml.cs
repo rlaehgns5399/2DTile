@@ -49,7 +49,7 @@ namespace XDOErrorDetectorUI
             label1.Content = "데이터 개수: " + dic.Count;
             foreach (KeyValuePair<String, DBItem> key in dic)
             {
-                listView1.Items.Add(new myItem { File = key.Key, Success = key.Value.status_correct, Warning = key.Value.status_warning, Error = key.Value.status_error });
+             //   listView1.Items.Add(new myItem { File = key.Key, Success = key.Value.status_correct, Warning = key.Value.status_warning, Error = key.Value.status_error });
             }
         }
 
@@ -104,7 +104,7 @@ namespace XDOErrorDetectorUI
 
         private void button_search_Click(object sender, RoutedEventArgs e)
         {
-            // label1.Content = sql.search(textBox_table.Text, string filepath);
+            label1.Content = sql.search(textBox_table.Text, folder_path.Text);
         }
 
         private void button_changefolder(object sender, RoutedEventArgs e)
@@ -112,7 +112,6 @@ namespace XDOErrorDetectorUI
             var folderDialog = new FolderBrowserDialog();
             folderDialog.ShowDialog();
             folder_path.Text = folderDialog.SelectedPath;
-
         }
     }
 }

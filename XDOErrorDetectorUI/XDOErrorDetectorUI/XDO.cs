@@ -19,7 +19,7 @@ namespace XDOErrorDetectorUI
         public double minX, minY, minZ, maxX, maxY, maxZ;
         public float altitude;
         public byte faceNum;
-
+        public int XDOVersion;
         public XDO(string url)
         {
             this.url = url;
@@ -62,12 +62,14 @@ namespace XDOErrorDetectorUI
             if (temp == 0)
             {
                 // Console.WriteLine("XDO version 3.0.0.1");
+                this.XDOVersion = 1;
                 br.BaseStream.Position -= 5;
                 this.mesh.Add(new XDOMesh(br));
             }
             else
             {
                 // Console.WriteLine("XDO version 3.0.0.2");
+                this.XDOVersion = 2;
                 br.BaseStream.Position -= 4;
                 for (int i = 0; i < this.faceNum; i++)
                 {
