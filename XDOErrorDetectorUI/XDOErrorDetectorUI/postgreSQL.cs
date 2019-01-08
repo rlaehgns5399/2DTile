@@ -20,8 +20,8 @@ namespace XDOErrorDetectorUI
             var xdoFileList = xdoFileReader.run();
 
             // DB에 저장할 hashMap 구성
-            var hashMap = new Dictionary<String, DBItem>();
-            var imageSet = new HashSet<String>();
+            var hashMap = new Dictionary<string, DBItem>();
+            var imageSet = new HashSet<string>();
 
             // XDO(v3.0.0.2) Read -> 이미지 집합 및 1 DBItem row 생성
             // 나중에 안쓰이는 그림 파일 찾을 때 쓰임
@@ -77,9 +77,46 @@ namespace XDOErrorDetectorUI
                         imageSet.Add(imgFile);
                 }
             }
+            writeDBwithXDOLog(table, hashMap, imageSet);
             return writeDBwithXDOInfo(table, hashMap);
         }
-        public string writeDBwithXDOInfo(string table, Dictionary<String, DBItem> hashMap)
+        public void writeDBwithXDOLog(string table, Dictionary<string, DBItem> hashMap, HashSet<string> imageSet)
+        {
+            foreach(KeyValuePair<string, DBItem> key in hashMap)
+            {
+                var baseURL = new FileInfo(key.Key).Directory.FullName;
+                var status = 0;
+                for (var i = 0; i < key.Value.FaceNum; i++)
+                {
+                    var imgURL = baseURL + "\\" + key.Value.ImageName[i];
+                    for(var j = 1; j < key.Value.ImageLevel[i]; j++)
+                    {
+                        var imgLodUrl = baseURL + "\\" + key.Value.ImageName[i].Replace(".", "_" + j + ".");
+                        foreach(string imageSetElement in imageSet)
+                        {
+                            if(imgLodUrl.Equals(imageSetElement))
+                            {
+                                // 성공
+                                // xdo level 체크를 위해 수를 세어야함.
+                                break;
+                            }
+                            else if (imgLodUrl.ToLower().Equals(imageSetElement.ToLower()))
+                            {
+                                // lower/upper Case 오류
+                                // xdo level 체크를 위해 수를 세어야함
+                                break;
+                            }
+                        }
+                        // if(갯수가 차이가 나면) level error
+                    }
+                }
+            }
+            foreach(string remainImage in imageSet)
+            {
+                // 쓰이지 않는 것들 여기서 처리
+            }
+        }
+        public string writeDBwithXDOInfo(string table, Dictionary<string, DBItem> hashMap)
         {
             using (var conn = connection())
             {
@@ -151,10 +188,7 @@ namespace XDOErrorDetectorUI
                 }
             }
         }
-        public void checklog()
-        {
 
-        }
         /* unused code just for reference.
          * ToDo: delete
         public void update()
