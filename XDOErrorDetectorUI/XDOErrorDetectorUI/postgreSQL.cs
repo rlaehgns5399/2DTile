@@ -12,8 +12,6 @@ namespace XDOErrorDetectorUI
     class postgreSQL
     {
         public DB info;
-        public String baseURL = @"C:\Users\KimDoHoon\Desktop\C++_Project\data";
-        
 
         public string search(string table, string path)
         {
@@ -79,8 +77,11 @@ namespace XDOErrorDetectorUI
                         imageSet.Add(imgFile);
                 }
             }
-
-            using(var conn = connection())
+            return writeDBwithXDOInfo(table, hashMap);
+        }
+        public string writeDBwithXDOInfo(string table, Dictionary<String, DBItem> hashMap)
+        {
+            using (var conn = connection())
             {
                 try
                 {
@@ -149,6 +150,10 @@ namespace XDOErrorDetectorUI
                     return "검색 실패";
                 }
             }
+        }
+        public void checklog()
+        {
+
         }
         /* unused code just for reference.
          * ToDo: delete
