@@ -32,6 +32,7 @@ namespace XDOErrorDetectorUI
             textBox_password.Text = "root";
             textBox_database.Text = "mydata";
             textBox_table.Text = "xdo2";
+            folder_path.Text = @"C:\Users\KimDoHoon\Desktop\git\2DTile\XDOErrorDetector\data";
         }
 
         /* Unused code

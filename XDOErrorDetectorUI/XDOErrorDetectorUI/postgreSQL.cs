@@ -84,36 +84,70 @@ namespace XDOErrorDetectorUI
         {
             foreach(KeyValuePair<string, DBItem> key in hashMap)
             {
+                var imageSet_forRemove = new HashSet<string>();
                 var baseURL = new FileInfo(key.Key).Directory.FullName;
-                var status = 0;
                 for (var i = 0; i < key.Value.FaceNum; i++)
                 {
                     var imgURL = baseURL + "\\" + key.Value.ImageName[i];
-                    for(var j = 1; j < key.Value.ImageLevel[i]; j++)
+                    var count = 0;
+
+                    int imageNum = key.Value.ImageLevel[i];
+
+                    if (key.Value.ImageLevel[i] == 1)
+                    {
+                        // 기본 텍스쳐도 없는 경우는 1
+                    }
+                    else if(key.Value.ImageLevel[i] == 2)
+                    {
+                        // 기본 텍스쳐만 있는경우(레벨이 없는 이미지)
+                    }
+                    else if(key.Value.ImageLevel[i] > 2)
+                    {
+                        // 여러 레벨이 있는 텍스쳐라면 2를 빼줌
+                        imageNum -= 2;
+                    }
+                    
+                    for (var j = 1; j <= imageNum; j++)
                     {
                         var imgLodUrl = baseURL + "\\" + key.Value.ImageName[i].Replace(".", "_" + j + ".");
-                        foreach(string imageSetElement in imageSet)
+                        foreach (string imageSetElement in imageSet)
                         {
-                            if(imgLodUrl.Equals(imageSetElement))
+                            if (imgLodUrl.Equals(imageSetElement))
                             {
                                 // 성공
                                 // xdo level 체크를 위해 수를 세어야함.
+                                imageSet_forRemove.Add(imageSetElement);
+                                count++;
                                 break;
                             }
                             else if (imgLodUrl.ToLower().Equals(imageSetElement.ToLower()))
                             {
                                 // lower/upper Case 오류
                                 // xdo level 체크를 위해 수를 세어야함
+                                //Console.WriteLine("[Case] " + imgLodUrl);
+                                imageSet_forRemove.Add(imageSetElement);
+                                count++;
                                 break;
                             }
                         }
-                        // if(갯수가 차이가 나면) level error
                     }
+
+                    //if (count != key.Value.ImageLevel[i])
+                    //{
+                        // if(갯수가 차이가 나면) level error
+                        // Console.WriteLine(key.Key + ": " + key.Value.ImageName[i]);
+                        // Console.WriteLine("조사된 갯수: " + count + "/" + imageNum);
+                    //}
+                }
+                foreach(string t in imageSet_forRemove) {
+                    imageSet.Remove(t);
+                    // Console.WriteLine("[O] " + t);
                 }
             }
             foreach(string remainImage in imageSet)
             {
-                // 쓰이지 않는 것들 여기서 처리
+                // Console.WriteLine("[X] " + remainImage);
+                // 쓰이지 않는 것들 여기서 처리 
             }
         }
         public string writeDBwithXDOInfo(string table, Dictionary<string, DBItem> hashMap)
@@ -189,110 +223,6 @@ namespace XDOErrorDetectorUI
             }
         }
 
-        /* unused code just for reference.
-         * ToDo: delete
-        public void update()
-        {
-            
-            // Search xdo file from baseURL
-            var xdoFileReader = new xdoFileFinder(baseURL);
-            List<String> xdoFileList = xdoFileReader.run();
-            Dictionary<String, DBItem> hashMap = new Dictionary<String, DBItem>();
-            // XDO(v3.0.0.2) Read
-            foreach (String xdoFile in xdoFileList)
-            {
-                XDO xdo = new XDO(xdoFile);
-                String fullURL = xdo.url;
-                String baseDirectory = new FileInfo(fullURL).Directory.FullName;
-
-                List<String> imageFileList = new List<String>();
-
-                foreach (String file in Directory.GetFiles(baseDirectory)) imageFileList.Add(file);
-                String fileName = Path.GetFileName(fullURL);
-
-                // hashMap will be pushed
-                hashMap.Add(xdoFile, new DBItem(xdoFile));
-
-                foreach (XDOMesh mesh in xdo.mesh)
-                {
-                    String imageName = mesh.imageName;
-                    int status = 0;
-                    foreach (String fullPath in imageFileList)
-                    {
-                        if (fullPath.Equals(baseDirectory + "\\" + imageName))
-                        {
-                            status = 1;
-                            break;
-                        }
-                        else if (fullPath.ToLower().Equals((baseDirectory + "\\" + imageName).ToLower()))
-                        {
-                            status = 2;
-                            break;
-                        }
-                    }
-
-                    switch (status)
-                    {
-                        case 0:
-                            hashMap[xdoFile].status_error++;
-                            Console.WriteLine(baseDirectory + "\\" + imageName + ": image is not exist");
-                            break;
-                        case 1:
-                            hashMap[xdoFile].status_correct++;
-                            Console.WriteLine(baseDirectory + "\\" + imageName + ": image is exist");
-                            break;
-                        case 2:
-                            hashMap[xdoFile].status_warning++;
-                            Console.WriteLine(baseDirectory + "\\" + imageName + ": image is exist but there is a warning about UPPER/LOWER case");
-                            break;
-                    }
-
-                }
-
-            
-
-            }
-            */
-
-            // DB connect & write
-            /*
-            var info = new DB();
-            using (var conn = new NpgsqlConnection("Host=" + info.Host + ";Username=" + info.Username + ";Password=" + info.Password + ";Database=" + info.Database))
-            {
-                try
-                {
-                    conn.Open();
-                    using (var cmd = new NpgsqlCommand())
-                    {
-                        cmd.Connection = conn;
-                        cmd.CommandText = "delete from " + info.Table;
-                        cmd.ExecuteNonQuery();
-                    }
-                    foreach (KeyValuePair<String, DBItem> key in hashMap)
-                    {
-                        using (var cmd = new NpgsqlCommand())
-                        {
-                            // Console.WriteLine(key.Key + "\n(" + key.Value.status_correct + ", " + key.Value.status_warning + ", " + key.Value.status_error + ")");
-
-                            cmd.Connection = conn;
-
-                            cmd.CommandText = "insert into " + info.Table + "(\"name\",\"imageError\",\"imageSuccess\",\"imageWarning\") values(@name, @error, @success, @warning)";
-                            cmd.Parameters.AddWithValue("name", key.Key);
-                            cmd.Parameters.AddWithValue("error", key.Value.status_error);
-                            cmd.Parameters.AddWithValue("success", key.Value.status_correct);
-                            cmd.Parameters.AddWithValue("warning", key.Value.status_warning);
-                            Console.WriteLine(key.Key + "/" + key.Value.status_error + "/" + key.Value.status_correct + "/" + key.Value.status_warning);
-                            cmd.ExecuteNonQuery();
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            }
-        }
-    */
         public List<DBItem> loadTable(string table)
         {
             var list = new List<DBItem>();

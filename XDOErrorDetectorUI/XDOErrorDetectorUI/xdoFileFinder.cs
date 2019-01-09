@@ -10,17 +10,17 @@ namespace XDOErrorDetectorUI
     class xdoFileFinder
     {
         private String url;
-        public List<String> fileList = new List<String>();
+        public HashSet<String> fileList = new HashSet<String>();
         public xdoFileFinder(String url)
         {
             this.url = url;
         }
-        public List<String> run()
+        public HashSet<String> run()
         {
             DirSearch(this.fileList, this.url);
             return this.fileList;
         }
-        public void DirSearch(List<String> list, String url)
+        public void DirSearch(HashSet<String> list, String url)
         {
             try
             {
