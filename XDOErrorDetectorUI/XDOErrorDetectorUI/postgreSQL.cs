@@ -9,17 +9,18 @@ using NpgsqlTypes;
 
 namespace XDOErrorDetectorUI
 {
+    enum LOG
+    {
+        SUCCESS,
+        ERR_NOT_EXIST,
+        WARN_CASE_INSENSITIVE,
+        NOT_USED,
+        XDO_LEVEL_ERROR
+    }
     class postgreSQL
     {
         public DB info;
-        enum LOG
-        {
-            SUCCESS,
-            ERR_NOT_EXIST,
-            WANR_CASE_INSENTIVE,
-            NOT_USED,
-            XDO_LEVEL_ERROR
-        }
+        
         public string search(string table, string path)
         {
             // XDO 파일을 주어진 경로로 부터 모두 다 찾음
@@ -84,11 +85,12 @@ namespace XDOErrorDetectorUI
                         imageSet.Add(imgFile);
                 }
             }
-            writeDBwithXDOLog(table, hashMap, imageSet);
+            List<LogItem> logList = writeDBwithXDOLog(table, hashMap, imageSet);
             return writeDBwithXDOInfo(table, hashMap);
         }
-        public void writeDBwithXDOLog(string table, Dictionary<string, DBItem> hashMap, HashSet<string> imageSet)
+        public List<LogItem> writeDBwithXDOLog(string table, Dictionary<string, DBItem> hashMap, HashSet<string> imageSet)
         {
+            var log = new List<LogItem>();
             foreach(KeyValuePair<string, DBItem> key in hashMap)
             {
                 var imageSet_forRemove = new HashSet<string>();
@@ -103,7 +105,6 @@ namespace XDOErrorDetectorUI
                         if (imgURL.Equals(imageSetElement))
                         {
                             // 성공
-                            Console.WriteLine(imageSetElement);
                             imageSet_forRemove.Add(imageSetElement);
                             basecount++;
                             break;
@@ -111,7 +112,7 @@ namespace XDOErrorDetectorUI
                         else if (imgURL.ToLower().Equals(imageSetElement.ToLower()))
                         {
                             // lower/upper Case 오류
-                            Console.WriteLine("[Case] " + imgURL);
+                            log.Add(new LogItem(LOG.WARN_CASE_INSENSITIVE, new FileInfo(key.Key).Name, i, key.Value.ImageName[i]));
                             imageSet_forRemove.Add(imageSetElement);
                             basecount++;
                             break;
@@ -119,8 +120,8 @@ namespace XDOErrorDetectorUI
                     }
                     if(basecount == 0)
                     {
-                        Console.WriteLine("[X] " + imgURL);
                         // texture가 없음
+                        log.Add(new LogItem(LOG.ERR_NOT_EXIST, new FileInfo(key.Key).Name, i, key.Value.ImageName[i]));
                     }
 
 
@@ -186,6 +187,7 @@ namespace XDOErrorDetectorUI
                 Console.WriteLine("[X] " + remainImage);
                 // 쓰이지 않는 것들 여기서 처리 
             }
+            return log;
         }
         public string writeDBwithXDOInfo(string table, Dictionary<string, DBItem> hashMap)
         {
@@ -362,7 +364,7 @@ namespace XDOErrorDetectorUI
                 }
             }
         }
-        public NpgsqlConnection connection()
+        private NpgsqlConnection connection()
         {
             return new NpgsqlConnection("Host=" + info.Host + ";Username=" + info.Username + ";Password=" + info.Password + ";Database=" + info.Database);
         }
@@ -426,39 +428,5 @@ namespace XDOErrorDetectorUI
             }
         }
     }
-    class DB
-    {
-        public string Host { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public string Database { get; set; }
-        public string Table { get; set; }
-        
-        public DB(string h, string u, string p, string d)
-        {
-            this.Host = h;
-            this.Username = u;
-            this.Password = p;
-            this.Database = d;
-        }
-    }
-
-    class DBItem
-    {
-        public string X;
-        public string Y;
-        public int level;
-        public String fileName;
-        public String minifiedName;
-        public int ObjectID;
-        public String Key;
-        public double[] ObjBox = new double[6];
-        public float Altitude;
-        public int FaceNum;
-        public int XDOVersion;
-        public List<int> VertexCount = new List<int>();
-        public List<int> IndexedCount = new List<int>();
-        public List<int> ImageLevel = new List<int>();
-        public List<string> ImageName = new List<String>();
-    }
+    
 }
