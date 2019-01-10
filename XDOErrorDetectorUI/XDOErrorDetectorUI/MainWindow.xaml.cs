@@ -100,9 +100,10 @@ namespace XDOErrorDetectorUI
         private void button_load_Click(object sender, RoutedEventArgs e)
         {
             listView1.Items.Clear();
-            List<DBItem> list = sql.loadTable(textBox_table.Text);
+            listView_Log.Items.Clear();
+            var list = sql.loadTable(textBox_table.Text);
             
-            foreach (DBItem key in list)
+            foreach (var key in list)
             {
                 listView1.Items.Add(new myItem {
                     FileName = key.minifiedName,
@@ -126,7 +127,14 @@ namespace XDOErrorDetectorUI
                     ImageName = String.Join(", ", key.ImageName.ToArray())
                 });
             }
-            label1.Content = "데이터 개수 " + list.Count + "개를 불러왔습니다.";
+
+            var logList = sql.loadLogTable(textBox_table.Text);
+            foreach(var item in logList)
+            {
+                listView_Log.Items.Add(item);
+            }
+
+            label1.Content = "데이터 개수 " + list.Count + "/" + logList.Count + "개를 불러왔습니다.";
         }
         public class myItem
         {

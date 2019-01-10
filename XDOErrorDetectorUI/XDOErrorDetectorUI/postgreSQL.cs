@@ -20,7 +20,7 @@ namespace XDOErrorDetectorUI
     class postgreSQL
     {
         public DB info;
-        
+        public List<LogItem> logList;
         public string search(string table, string path)
         {
             // XDO 파일을 주어진 경로로 부터 모두 다 찾음
@@ -85,8 +85,8 @@ namespace XDOErrorDetectorUI
                         imageSet.Add(imgFile);
                 }
             }
-            List<LogItem> logList = writeDBwithXDOLog(table, hashMap, imageSet);
-            return writeDBwithXDOInfo(table, hashMap);
+            this.logList = writeDBwithXDOLog(table, hashMap, imageSet);
+            return writeDBwithXDOInfo(table, hashMap, this.logList);
         }
         public List<LogItem> writeDBwithXDOLog(string table, Dictionary<string, DBItem> hashMap, HashSet<string> imageSet)
         {
@@ -112,7 +112,7 @@ namespace XDOErrorDetectorUI
                         else if (imgURL.ToLower().Equals(imageSetElement.ToLower()))
                         {
                             // lower/upper Case 오류
-                            log.Add(new LogItem(LOG.WARN_CASE_INSENSITIVE, new FileInfo(key.Key).Name, i, key.Value.ImageName[i]));
+                            log.Add(new LogItem(LOG.WARN_CASE_INSENSITIVE, new FileInfo(key.Key).Name, i, key.Value.ImageName[i], new FileInfo(imageSetElement).Name));
                             imageSet_forRemove.Add(imageSetElement);
                             basecount++;
                             break;
@@ -121,7 +121,7 @@ namespace XDOErrorDetectorUI
                     if(basecount == 0)
                     {
                         // texture가 없음
-                        log.Add(new LogItem(LOG.ERR_NOT_EXIST, new FileInfo(key.Key).Name, i, key.Value.ImageName[i]));
+                        log.Add(new LogItem(LOG.ERR_NOT_EXIST, new FileInfo(key.Key).Name, i, key.Value.ImageName[i], ""));
                     }
 
 
@@ -129,13 +129,13 @@ namespace XDOErrorDetectorUI
 
                     if (key.Value.ImageLevel[i] == 1)
                     {
-                        imageNum -= 1;
                         // 기본 텍스쳐도 없는 경우는 1
+                        imageNum -= 1;
                     }
                     else if(key.Value.ImageLevel[i] == 2)
                     {
-                        imageNum -= 2;
                         // 기본 텍스쳐만 있는경우(레벨이 없는 이미지)
+                        imageNum -= 2;
                     }
                     else if(key.Value.ImageLevel[i] > 2)
                     {
@@ -145,6 +145,8 @@ namespace XDOErrorDetectorUI
 
                     var count = 0;
 
+                    var lv_checker = new List<int>();
+                    for (var t = 1; t <= imageNum; t++) lv_checker.Add(t);
                     for (var j = 1; j <= imageNum; j++)
                     {
                         var imgLodUrl = baseURL + "\\" + key.Value.ImageName[i].Replace(".", "_" + j + ".");
@@ -154,6 +156,7 @@ namespace XDOErrorDetectorUI
                             {
                                 // 성공
                                 // xdo level 체크를 위해 수를 세어야함.
+                                lv_checker.Remove(j);
                                 imageSet_forRemove.Add(imageSetElement);
                                 count++;
                                 break;
@@ -162,7 +165,8 @@ namespace XDOErrorDetectorUI
                             {
                                 // lower/upper Case 오류
                                 // xdo level 체크를 위해 수를 세어야함
-                                //Console.WriteLine("[Case] " + imgLodUrl);
+                                lv_checker.Remove(j);
+                                log.Add(new LogItem(LOG.WARN_CASE_INSENSITIVE, new FileInfo(key.Key).Name, i, new FileInfo(imgLodUrl).Name, new FileInfo(imageSetElement).Name));
                                 imageSet_forRemove.Add(imageSetElement);
                                 count++;
                                 break;
@@ -170,26 +174,24 @@ namespace XDOErrorDetectorUI
                         }
                     }
 
-                    //if (count != key.Value.ImageLevel[i])
-                    //{
+                    if (count != imageNum)
+                    {
                         // if(갯수가 차이가 나면) level error
-                        // Console.WriteLine(key.Key + ": " + key.Value.ImageName[i]);
-                        // Console.WriteLine("조사된 갯수: " + count + "/" + imageNum);
-                    //}
+                        log.Add(new LogItem(LOG.XDO_LEVEL_ERROR, new FileInfo(key.Key).Name, i, new FileInfo(imgURL).Name.Replace(".", "_?."), "", lv_checker));
+                    }
                 }
                 foreach(string t in imageSet_forRemove) {
                     imageSet.Remove(t);
-                    // Console.WriteLine("[O] " + t);
                 }
             }
             foreach(string remainImage in imageSet)
             {
-                Console.WriteLine("[X] " + remainImage);
                 // 쓰이지 않는 것들 여기서 처리 
+                log.Add(new LogItem(LOG.NOT_USED, "", 0, new FileInfo(remainImage).Name, ""));
             }
             return log;
         }
-        public string writeDBwithXDOInfo(string table, Dictionary<string, DBItem> hashMap)
+        public string writeDBwithXDOInfo(string table, Dictionary<string, DBItem> hashMap, List<LogItem> LogList)
         {
             using (var conn = connection())
             {
@@ -251,7 +253,32 @@ namespace XDOErrorDetectorUI
                                 cmd.Parameters[i].Value = obj_container[i];
                             cmd.ExecuteNonQuery();
                         }
-                        return "데이터 " + hashMap.Count + "개가 " + table + "에 삽입되었습니다.";
+
+                        cmd.Parameters.Clear();
+                        cmd.CommandText = "INSERT INTO " + table + "_log" + " (\"filename\", \"facenum\", \"imgname\", \"found\", \"detail\") " +
+                            @"VALUES(@filename, @facenum, @imgname, @found, @detail)";
+                        cmd.Parameters.Add(new NpgsqlParameter("filename", NpgsqlDbType.Text));
+                        cmd.Parameters.Add(new NpgsqlParameter("facenum", NpgsqlDbType.Integer));
+                        cmd.Parameters.Add(new NpgsqlParameter("imgname", NpgsqlDbType.Text));
+                        cmd.Parameters.Add(new NpgsqlParameter("found", NpgsqlDbType.Text));
+                        cmd.Parameters.Add(new NpgsqlParameter("detail", NpgsqlDbType.Text));
+                        cmd.Prepare();
+
+                        foreach (LogItem item in LogList)
+                        {
+                            Object[] obj_container = {
+                                item.filename,
+                                item.facenum,
+                                item.imgname,
+                                item.found,
+                                item.detail
+                            };
+                            for (int i = 0; i < cmd.Parameters.Count; i++)
+                                cmd.Parameters[i].Value = obj_container[i];
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        return "데이터 " + hashMap.Count + "/" + LogList.Count + "개가 " + table + "에 삽입되었습니다.";
                     }
                 }
                 catch (Exception ex)
@@ -279,7 +306,7 @@ namespace XDOErrorDetectorUI
                         {
                             while (reader.Read())
                             {
-                                DBItem item = new DBItem();
+                                var item = new DBItem();
                                 item.level = int.Parse(reader["level"].ToString());
                                 item.X = reader["X"].ToString();
                                 item.Y = reader["Y"].ToString();
@@ -306,6 +333,43 @@ namespace XDOErrorDetectorUI
                         }
                     }
                     
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+
+            return list;
+        }
+        public List<LogItem> loadLogTable(string table)
+        {
+            var list = new List<LogItem>();
+            using (var conn = connection())
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new NpgsqlCommand())
+                    {
+                        cmd.Connection = conn;
+                        cmd.CommandText = "select * from " + table + "_log";
+
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var item = new LogItem();
+                                item.facenum = int.Parse(reader["facenum"].ToString());
+                                item.filename = reader["filename"].ToString();
+                                item.found = reader["found"].ToString();
+                                item.imgname = reader["imgname"].ToString();
+                                item.detail = reader["detail"].ToString();
+                                list.Add(item);
+                            }
+                        }
+                    }
+
                 }
                 catch (Exception ex)
                 {
@@ -347,10 +411,11 @@ namespace XDOErrorDetectorUI
                             "\"ImageName\" text[]" +
                             ")";
                         cmd.CommandText += "; CREATE TABLE public." + tablename + "_log" + "(" +
-                            "\"fileName\" text," +
-                            "\"faceNum\" integer," +
-                            "\"imgName\" text," +
-                            "\"description\" text" +
+                            "\"filename\" text," +
+                            "\"facenum\" integer," +
+                            "\"imgname\" text," +
+                            "\"found\" text," +
+                            "\"detail\" text" +
                             ")";
                         cmd.ExecuteNonQuery();
                         return tablename + ", " + tablename + "_log가 성공적으로 생성되었습니다.";

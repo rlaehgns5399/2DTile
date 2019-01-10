@@ -58,7 +58,8 @@
                 <GridView>
                     <GridViewColumn Header="File Name" DisplayMemberBinding="{Binding filename}"/>
                     <GridViewColumn Header="Face" DisplayMemberBinding="{Binding facenum}"/>
-                    <GridViewColumn Header="Texture File" DisplayMemberBinding="{Binding imgname}"/>
+                    <GridViewColumn Header="XDO - want" DisplayMemberBinding="{Binding imgname}"/>
+                    <GridViewColumn Header="found" DisplayMemberBinding="{Binding found}"/>
                     <GridViewColumn Header="Detail" DisplayMemberBinding="{Binding detail}"/>
                 </GridView>
             </ListView.View>
