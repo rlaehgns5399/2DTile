@@ -89,16 +89,44 @@ namespace XDOErrorDetectorUI
                 for (var i = 0; i < key.Value.FaceNum; i++)
                 {
                     var imgURL = baseURL + "\\" + key.Value.ImageName[i];
-                    var count = 0;
+                    var basecount = 0;
+
+                    foreach (string imageSetElement in imageSet)
+                    {
+                        if (imgURL.Equals(imageSetElement))
+                        {
+                            // 성공
+                            Console.WriteLine(imageSetElement);
+                            imageSet_forRemove.Add(imageSetElement);
+                            basecount++;
+                            break;
+                        }
+                        else if (imgURL.ToLower().Equals(imageSetElement.ToLower()))
+                        {
+                            // lower/upper Case 오류
+                            Console.WriteLine("[Case] " + imgURL);
+                            imageSet_forRemove.Add(imageSetElement);
+                            basecount++;
+                            break;
+                        }
+                    }
+                    if(basecount == 0)
+                    {
+                        Console.WriteLine("[X] " + imgURL);
+                        // texture가 없음
+                    }
+
 
                     int imageNum = key.Value.ImageLevel[i];
 
                     if (key.Value.ImageLevel[i] == 1)
                     {
+                        imageNum -= 1;
                         // 기본 텍스쳐도 없는 경우는 1
                     }
                     else if(key.Value.ImageLevel[i] == 2)
                     {
+                        imageNum -= 2;
                         // 기본 텍스쳐만 있는경우(레벨이 없는 이미지)
                     }
                     else if(key.Value.ImageLevel[i] > 2)
@@ -106,7 +134,9 @@ namespace XDOErrorDetectorUI
                         // 여러 레벨이 있는 텍스쳐라면 2를 빼줌
                         imageNum -= 2;
                     }
-                    
+
+                    var count = 0;
+
                     for (var j = 1; j <= imageNum; j++)
                     {
                         var imgLodUrl = baseURL + "\\" + key.Value.ImageName[i].Replace(".", "_" + j + ".");
@@ -146,7 +176,7 @@ namespace XDOErrorDetectorUI
             }
             foreach(string remainImage in imageSet)
             {
-                // Console.WriteLine("[X] " + remainImage);
+                Console.WriteLine("[X] " + remainImage);
                 // 쓰이지 않는 것들 여기서 처리 
             }
         }
@@ -307,9 +337,16 @@ namespace XDOErrorDetectorUI
                             "\"ImageLevel\" integer[]," +
                             "\"ImageName\" text[]" +
                             ")";
+                        cmd.CommandText += "; CREATE TABLE public." + tablename + "_log" + "(" +
+                            "\"fileName\" text," +
+                            "\"faceNum\" integer," +
+                            "\"imgName\" text," +
+                            "\"description\" text" +
+                            ")";
                         cmd.ExecuteNonQuery();
-                        return "Table이 성공적으로 생성되었습니다.";
+                        return tablename + ", " + tablename + "_log가 성공적으로 생성되었습니다.";
                     }
+
                 }
                 catch (Exception ex)
                 {
@@ -333,6 +370,7 @@ namespace XDOErrorDetectorUI
                     {
                         cmd.Connection = conn;
                         cmd.CommandText = "delete from " + tablename;
+                        cmd.CommandText += "; delete from " + tablename + "_log";
                         cmd.ExecuteNonQuery();
                         return "Table을 성공적으로 초기화하였습니다.";
                     }
@@ -354,6 +392,7 @@ namespace XDOErrorDetectorUI
                     {
                         cmd.Connection = conn;
                         cmd.CommandText = "drop table " + tablename;
+                        cmd.CommandText += "; drop table " + tablename + "_log";
                         cmd.ExecuteNonQuery();
                         return "Table을 성공적으로 삭제하였습니다";
                     }
