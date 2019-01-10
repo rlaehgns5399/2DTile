@@ -12,7 +12,14 @@ namespace XDOErrorDetectorUI
     class postgreSQL
     {
         public DB info;
-
+        enum LOG
+        {
+            SUCCESS,
+            ERR_NOT_EXIST,
+            WANR_CASE_INSENTIVE,
+            NOT_USED,
+            XDO_LEVEL_ERROR
+        }
         public string search(string table, string path)
         {
             // XDO 파일을 주어진 경로로 부터 모두 다 찾음
