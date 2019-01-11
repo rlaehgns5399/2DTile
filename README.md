@@ -111,56 +111,20 @@ If you want to use, just modify `Point` class codes.
 
 # XDOErrorDectectorUI
 
-![Something](https://user-images.githubusercontent.com/26527826/48317753-20591200-e63a-11e8-891f-295913eb85b9.png)
+![image](https://user-images.githubusercontent.com/26527826/51008523-7c370d00-158f-11e9-876e-9ba8b16ebde2.png)
 
-Look how simple this program is.
+This program's purposes are showing XDO's inner data & checking its referred texture files.
 
-Top label means directory which you inputed.
+You can input information for connecting DB(using `PostgreSQL`). if the connection is successful, you can set table where you access.
 
-If you want to change directory, go to `postgreSQL.cs`, line 14
+you can create, delete, clear table you inputted.
 
-```
-public String baseURL = @"C:\Users\KimDoHoon\Desktop\C++_Project\data";
-```
+`테이블 불러오기(Load Table)` does:
 
-and you must change postgreSQL information.
+- load data into listview
 
-In `postgreSQL.cs`, line 157~164
+`검색 및 DB에 저장(XDO Search & Save at DB)` does:
 
-```
-    class DB
-    {
-        public String Host = "localhost";
-        public String Username = "postgres";
-        public String Password = "root";
-        public String Database = "mydata";
-        public String Table = "xdo";
-    }
-```
-
-and structure of table(xdo) is like this:
-
-![image](https://user-images.githubusercontent.com/26527826/48317831-5d71d400-e63b-11e8-92c2-858debe25d8a.png)
-
-**Update** button does:
-
-- find `.xdo` file in given directory
-- parsing `.xdo`, check if there is texture
-```
-success: there is correct texture.
-error: there is no correct texture(missing file)
-warning: there is texture, but something problem(Upper, LowerCase)
-```
-- delete all data in table(`xdo`)
-- insert data in table(`xdo`)
-
-
-**Check** button does:
-
-![image](https://user-images.githubusercontent.com/26527826/48317770-6f06ac00-e63a-11e8-86d5-e9791191b4ba.png)
-
-- read DB & gets its rows.
-- change label of bottom to row size.
-- fill listview
-
-
+- The program will find recursively XDO files in given folder(beware about out of memory)
+- The program will parse XDO files, check texture error, and make a note unused textures.
+- After above that, it will save data at DB
