@@ -454,8 +454,7 @@ namespace XDOErrorDetectorUI
                     using (var cmd = new NpgsqlCommand())
                     {
                         cmd.Connection = conn;
-                        cmd.CommandText = "delete from " + tablename;
-                        cmd.CommandText += "; delete from " + tablename + "_log";
+                        cmd.CommandText = "delete from " + tablename + "; delete from " + tablename + "_log";
                         cmd.ExecuteNonQuery();
                         return "Table을 성공적으로 초기화하였습니다.";
                     }
@@ -476,8 +475,7 @@ namespace XDOErrorDetectorUI
                     using (var cmd = new NpgsqlCommand())
                     {
                         cmd.Connection = conn;
-                        cmd.CommandText = "drop table " + tablename;
-                        cmd.CommandText += "; drop table " + tablename + "_log";
+                        cmd.CommandText = "drop table " + tablename + "," + tablename + "_log";
                         cmd.ExecuteNonQuery();
                         return "Table을 성공적으로 삭제하였습니다";
                     }

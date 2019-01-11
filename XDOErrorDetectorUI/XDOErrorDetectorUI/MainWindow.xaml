@@ -33,6 +33,19 @@
                 </GridView>
             </ListView.View>
         </ListView>
+        <ListView x:Name="listView_Log" Height="214" Margin="11,445,9.6,0" VerticalAlignment="Top">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Y" DisplayMemberBinding="{Binding Y}"/>
+                    <GridViewColumn Header="X" DisplayMemberBinding="{Binding X}"/>
+                    <GridViewColumn Header="File Name" DisplayMemberBinding="{Binding filename}"/>
+                    <GridViewColumn Header="Face" DisplayMemberBinding="{Binding facenum}"/>
+                    <GridViewColumn Header="XDO - want" DisplayMemberBinding="{Binding imgname}"/>
+                    <GridViewColumn Header="found" DisplayMemberBinding="{Binding found}"/>
+                    <GridViewColumn Header="Detail" DisplayMemberBinding="{Binding detail}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
         <Label x:Name="label1" Content="Label" HorizontalAlignment="Left" Height="34" Margin="11,145,0,0" VerticalAlignment="Top" Width="997"/>
         <Button x:Name="btn_connection" Content="연결" HorizontalAlignment="Left" Height="110" Margin="238,23,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_Connect_Click"/>
         <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="11,23,0,0" TextWrapping="Wrap" Text="Host" VerticalAlignment="Top" Height="18" Width="59"/>
@@ -53,19 +66,7 @@
         <Button x:Name="button" Content="폴더 선택" HorizontalAlignment="Left" Margin="908,23,0,0" VerticalAlignment="Top" Width="89" Click="button_changefolder" Height="31"/>
         <TextBlock x:Name="folder_path" HorizontalAlignment="Left" Margin="440,23,0,0" TextWrapping="Wrap" Text="폴더 경로" VerticalAlignment="Top" Height="31" Width="454"/>
         <Button x:Name="btn_load" IsEnabled="False" Content="테이블 불러오기" HorizontalAlignment="Left" Height="31" Margin="744,63,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="-0.017,-0.442" Click="button_load_Click"/>
-        <ListView x:Name="listView_Log" HorizontalAlignment="Left" Height="214" Margin="11,445,0,0" VerticalAlignment="Top" Width="997">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Y" DisplayMemberBinding="{Binding Y}"/>
-                    <GridViewColumn Header="X" DisplayMemberBinding="{Binding X}"/>
-                    <GridViewColumn Header="File Name" DisplayMemberBinding="{Binding filename}"/>
-                    <GridViewColumn Header="Face" DisplayMemberBinding="{Binding facenum}"/>
-                    <GridViewColumn Header="XDO - want" DisplayMemberBinding="{Binding imgname}"/>
-                    <GridViewColumn Header="found" DisplayMemberBinding="{Binding found}"/>
-                    <GridViewColumn Header="Detail" DisplayMemberBinding="{Binding detail}"/>
-                </GridView>
-            </ListView.View>
-        </ListView>
+        
 
     </Grid>
 </Window>
