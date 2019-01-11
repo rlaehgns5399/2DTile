@@ -13,8 +13,8 @@
                 <GridView>
                     <GridViewColumn Header="FileName" DisplayMemberBinding="{Binding FileName}"/>
                     <GridViewColumn Header="Level" DisplayMemberBinding="{Binding Level}"/>
-                    <GridViewColumn Header="X" DisplayMemberBinding="{Binding X}"/>
                     <GridViewColumn Header="Y" DisplayMemberBinding="{Binding Y}"/>
+                    <GridViewColumn Header="X" DisplayMemberBinding="{Binding X}"/>
                     <GridViewColumn Header="ObjectID" DisplayMemberBinding="{Binding ObjectID}"/>
                     <GridViewColumn Header="Key" DisplayMemberBinding="{Binding Key}"/>
                     <GridViewColumn Header="minX" DisplayMemberBinding="{Binding minX}"/>
@@ -56,6 +56,8 @@
         <ListView x:Name="listView_Log" HorizontalAlignment="Left" Height="214" Margin="11,445,0,0" VerticalAlignment="Top" Width="997">
             <ListView.View>
                 <GridView>
+                    <GridViewColumn Header="Y" DisplayMemberBinding="{Binding Y}"/>
+                    <GridViewColumn Header="X" DisplayMemberBinding="{Binding X}"/>
                     <GridViewColumn Header="File Name" DisplayMemberBinding="{Binding filename}"/>
                     <GridViewColumn Header="Face" DisplayMemberBinding="{Binding facenum}"/>
                     <GridViewColumn Header="XDO - want" DisplayMemberBinding="{Binding imgname}"/>
