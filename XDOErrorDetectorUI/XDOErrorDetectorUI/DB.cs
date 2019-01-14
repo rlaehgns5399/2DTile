@@ -13,9 +13,10 @@ namespace XDOErrorDetectorUI
         public string Password { get; set; }
         public string Database { get; set; }
         public string Table { get; set; }
-
-        public DB(string h, string u, string p, string d)
+        public string Port { get; set; }
+        public DB(string h, string u, string p, string d, string port)
         {
+            this.Port = port;
             this.Host = h;
             this.Username = u;
             this.Password = p;

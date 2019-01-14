@@ -6,8 +6,7 @@
         xmlns:local="clr-namespace:XDOErrorDetectorUI"
         mc:Ignorable="d"
         Title="XDOErrorDetectorUI" Height="768" Width="1024">
-    <Grid Margin="0,0,0,0
-          ">
+    <Grid Margin="-3,0,2.6,0.4">
         <ListView x:Name="listView1" Height="261" Margin="11,179,9.6,0" VerticalAlignment="Top" SelectionChanged="listView_SelectionChanged">
             <ListView.View>
                 <GridView>
@@ -56,17 +55,19 @@
         <TextBox x:Name="textBox_username" HorizontalAlignment="Left" Height="18" Margin="75,46,0,0" TextWrapping="Wrap" Text="default username" VerticalAlignment="Top" Width="147"/>
         <TextBox x:Name="textBox_password" HorizontalAlignment="Left" Height="18" Margin="75,69,0,0" TextWrapping="Wrap" Text="default password" VerticalAlignment="Top" Width="147"/>
         <TextBox x:Name="textBox_database" HorizontalAlignment="Left" Height="18" Margin="75,92,0,0" TextWrapping="Wrap" Text="default database" VerticalAlignment="Top" Width="147"/>
-        <TextBlock x:Name="textBlock_Copy3" HorizontalAlignment="Left" Margin="11,115,0,0" TextWrapping="Wrap" Text="Table" VerticalAlignment="Top" Height="18" Width="59"/>
-        <TextBox x:Name="textBox_table" IsEnabled="False" HorizontalAlignment="Left" Height="18" Margin="74,115,0,0" TextWrapping="Wrap" Text="default table" VerticalAlignment="Top" Width="147"/>
+        <TextBlock x:Name="textBlock_Copy3" HorizontalAlignment="Left" Margin="332,113,0,0" TextWrapping="Wrap" Text="Table" VerticalAlignment="Top" Height="18" Width="59"/>
+        <TextBox x:Name="textBox_table" IsEnabled="False" HorizontalAlignment="Left" Height="18" Margin="396,113,0,0" TextWrapping="Wrap" Text="default table" VerticalAlignment="Top" Width="147"/>
 
-        <Button x:Name="btn_createtable" IsEnabled="False" Content="테이블 생성" HorizontalAlignment="Left" Height="31" Margin="337,23,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_CreateTable_Click"/>
-        <Button x:Name="btn_deletetable" IsEnabled="False" Content="테이블 삭제" HorizontalAlignment="Left" Height="31" Margin="338,63,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_DeleteTable_Click"/>
-        <Button x:Name="btn_cleartable" IsEnabled="False" Content="테이블 초기화" HorizontalAlignment="Left" Height="31" Margin="338,102,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_ClearTable_Click"/>
+        <Button x:Name="btn_createtable" IsEnabled="False" Content="테이블 생성" HorizontalAlignment="Left" Height="31" Margin="548,107,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_CreateTable_Click"/>
+        <Button x:Name="btn_deletetable" IsEnabled="False" Content="테이블 삭제" HorizontalAlignment="Left" Height="31" Margin="642,107,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_DeleteTable_Click"/>
+        <Button x:Name="btn_cleartable" IsEnabled="False" Content="테이블 초기화" HorizontalAlignment="Left" Height="31" Margin="736,107,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_ClearTable_Click"/>
         <Button x:Name="btn_searchtable" IsEnabled="False" Content="검색 및 DB에 저장" HorizontalAlignment="Left" Height="31" Margin="873,63,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="-0.017,-0.442" Click="button_search_Click"/>
         <Button x:Name="button" Content="폴더 선택" HorizontalAlignment="Left" Margin="908,23,0,0" VerticalAlignment="Top" Width="89" Click="button_changefolder" Height="31"/>
         <TextBlock x:Name="folder_path" HorizontalAlignment="Left" Margin="440,23,0,0" TextWrapping="Wrap" Text="폴더 경로" VerticalAlignment="Top" Height="31" Width="454"/>
         <Button x:Name="btn_load" IsEnabled="False" Content="테이블 불러오기" HorizontalAlignment="Left" Height="31" Margin="744,63,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="-0.017,-0.442" Click="button_load_Click"/>
-        
+        <TextBox x:Name="textBox_port" HorizontalAlignment="Left" Height="18" Margin="75,115,0,0" TextWrapping="Wrap" Text="default port" VerticalAlignment="Top" Width="147"/>
+        <TextBlock x:Name="textBlock_Copy4" HorizontalAlignment="Left" Margin="11,115,0,0" TextWrapping="Wrap" Text="Port" VerticalAlignment="Top" Height="18" Width="59"/>
+
 
     </Grid>
 </Window>

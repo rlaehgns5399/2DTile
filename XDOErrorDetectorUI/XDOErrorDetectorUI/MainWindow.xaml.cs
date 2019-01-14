@@ -32,6 +32,7 @@ namespace XDOErrorDetectorUI
             textBox_password.Text = "root";
             textBox_database.Text = "mydata";
             textBox_table.Text = "xdo2";
+            textBox_port.Text = "5433";
             folder_path.Text = @"C:\Users\KimDoHoon\Desktop\git\2DTile\XDOErrorDetector\data";
         }
 
@@ -54,7 +55,7 @@ namespace XDOErrorDetectorUI
 
         private void button_Connect_Click(object sender, RoutedEventArgs e)
         {
-            sql.info = new XDOErrorDetectorUI.DB(textBox_host.Text, textBox_username.Text, textBox_password.Text, textBox_database.Text);
+            sql.info = new XDOErrorDetectorUI.DB(textBox_host.Text, textBox_username.Text, textBox_password.Text, textBox_database.Text, textBox_port.Text);
             label1.Content = sql.connect();
             btn_createtable.IsEnabled = true;
             btn_deletetable.IsEnabled = true;
@@ -68,6 +69,7 @@ namespace XDOErrorDetectorUI
             textBox_username.IsEnabled = false;
             textBox_password.IsEnabled = false;
             textBox_database.IsEnabled = false;
+            textBox_port.IsEnabled = false;
         }
 
         private void button_ClearTable_Click(object sender, RoutedEventArgs e)

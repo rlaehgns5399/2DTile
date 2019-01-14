@@ -442,7 +442,7 @@ namespace XDOErrorDetectorUI
         }
         private NpgsqlConnection connection()
         {
-            return new NpgsqlConnection("Host=" + info.Host + ";Username=" + info.Username + ";Password=" + info.Password + ";Database=" + info.Database);
+            return new NpgsqlConnection("Host=" + info.Host + ";Port=" + info.Port + ";Username=" + info.Username + ";Password=" + info.Password + ";Database=" + info.Database);
         }
         public string clearTable(string tablename)
         {
