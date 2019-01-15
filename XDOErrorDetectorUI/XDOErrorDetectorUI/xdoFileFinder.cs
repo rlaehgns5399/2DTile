@@ -24,14 +24,10 @@ namespace XDOErrorDetectorUI
         {
             try
             {
-                foreach (string tempDirectoryName in Directory.GetDirectories(url))
-                {
-                    foreach (string xdoName in Directory.GetFiles(tempDirectoryName, "*.xdo"))
+                    foreach (string xdoName in Directory.GetFiles(url, "*.xdo"))
                     {
                         list.Add(xdoName);
                     }
-                    DirSearch(list, tempDirectoryName);
-                }
             }
             catch (Exception e)
             {

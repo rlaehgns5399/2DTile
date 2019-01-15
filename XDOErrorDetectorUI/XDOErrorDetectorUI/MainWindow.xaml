@@ -16,12 +16,6 @@
                     <GridViewColumn Header="X" DisplayMemberBinding="{Binding X}"/>
                     <GridViewColumn Header="ObjectID" DisplayMemberBinding="{Binding ObjectID}"/>
                     <GridViewColumn Header="Key" DisplayMemberBinding="{Binding Key}"/>
-                    <GridViewColumn Header="minX" DisplayMemberBinding="{Binding minX}"/>
-                    <GridViewColumn Header="minY" DisplayMemberBinding="{Binding minY}"/>
-                    <GridViewColumn Header="minZ" DisplayMemberBinding="{Binding minZ}"/>
-                    <GridViewColumn Header="maxX" DisplayMemberBinding="{Binding maxX}"/>
-                    <GridViewColumn Header="maxY" DisplayMemberBinding="{Binding maxY}"/>
-                    <GridViewColumn Header="maxZ" DisplayMemberBinding="{Binding maxZ}"/>
                     <GridViewColumn Header="Altitude" DisplayMemberBinding="{Binding Altitude}"/>
                     <GridViewColumn Header="faceNum" DisplayMemberBinding="{Binding faceNum}"/>
                     <GridViewColumn Header="XDOVersion" DisplayMemberBinding="{Binding XDOVersion}"/>
@@ -29,12 +23,19 @@
                     <GridViewColumn Header="IndexedCount" DisplayMemberBinding="{Binding IndexedCount}"/>
                     <GridViewColumn Header="ImageLevel" DisplayMemberBinding="{Binding ImageLevel}"/>
                     <GridViewColumn Header="ImageName" DisplayMemberBinding="{Binding ImageName}"/>
+                    <GridViewColumn Header="minX" DisplayMemberBinding="{Binding minX}"/>
+                    <GridViewColumn Header="minY" DisplayMemberBinding="{Binding minY}"/>
+                    <GridViewColumn Header="minZ" DisplayMemberBinding="{Binding minZ}"/>
+                    <GridViewColumn Header="maxX" DisplayMemberBinding="{Binding maxX}"/>
+                    <GridViewColumn Header="maxY" DisplayMemberBinding="{Binding maxY}"/>
+                    <GridViewColumn Header="maxZ" DisplayMemberBinding="{Binding maxZ}"/>
                 </GridView>
             </ListView.View>
         </ListView>
         <ListView x:Name="listView_Log" Height="214" Margin="11,467,10,0" VerticalAlignment="Top">
             <ListView.View>
                 <GridView>
+                    <GridViewColumn Header="Level" DisplayMemberBinding="{Binding level}"/>
                     <GridViewColumn Header="Y" DisplayMemberBinding="{Binding Y}"/>
                     <GridViewColumn Header="X" DisplayMemberBinding="{Binding X}"/>
                     <GridViewColumn Header="File Name" DisplayMemberBinding="{Binding filename}"/>

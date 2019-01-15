@@ -16,12 +16,14 @@ namespace XDOErrorDetectorUI
         public string found { get; set; }
         public string Y { get; set; }
         public string X { get; set; }
+        public string level { get; set; }
         public LogItem()
         {
 
         }
-        public LogItem(string y, string x, LOG type, string filename, int facenum, string imgname, string found)
+        public LogItem(string level, string y, string x, LOG type, string filename, int facenum, string imgname, string found)
         {
+            this.level = level;
             this.Y = y;
             this.X = x;
             this.type = type;
@@ -42,7 +44,7 @@ namespace XDOErrorDetectorUI
                     break;
             }
         }
-        public LogItem(string y, string x, LOG type, string filename, int facenum, string imgname, string found, List<int> lv_checker) : this(y, x, type, filename, facenum, imgname, found)
+        public LogItem(string level, string y, string x, LOG type, string filename, int facenum, string imgname, string found, List<int> lv_checker) : this(level, y, x, type, filename, facenum, imgname, found)
         {
             switch (this.type)
             {

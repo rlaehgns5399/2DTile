@@ -83,6 +83,7 @@
     <Compile Include="DBItem.cs" />
     <Compile Include="LogItem.cs" />
     <Compile Include="XDO.cs" />
+    <Compile Include="xdoDirectoryFinder.cs" />
     <Compile Include="xdoFileFinder.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
