@@ -37,10 +37,8 @@ namespace XDOErrorDetectorUI
                 case LOG.NOT_USED:
                     this.detail = "Unused file";
                     break;
-                case LOG.SUCCESS:
-                    break;
                 case LOG.WARN_CASE_INSENSITIVE:
-                    this.detail = "Case-Insensitive";
+                    this.detail = "Case sensitive error";
                     break;
             }
         }

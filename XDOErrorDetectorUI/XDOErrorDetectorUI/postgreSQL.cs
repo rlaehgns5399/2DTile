@@ -11,7 +11,6 @@ namespace XDOErrorDetectorUI
 {
     enum LOG
     {
-        SUCCESS,
         ERR_NOT_EXIST,
         WARN_CASE_INSENSITIVE,
         NOT_USED,
