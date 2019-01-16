@@ -22,7 +22,35 @@ namespace XDOErrorDetectorUI
             for(uint i = 0; i < header.objCount; i++)
             {
                 Obj item = new Obj();
-                br.ReadBytes(4);
+                item.version = br.ReadBytes(4);
+                item.type = br.ReadByte();
+                var keyLen = br.ReadByte();
+                if (keyLen > 0)
+                {
+                    item.key = new string(br.ReadChars(keyLen));
+                }
+                item.centerPos_x = br.ReadDouble();
+                item.centerPos_y = br.ReadDouble();
+                item.altitude = br.ReadSingle();
+                item.minX = br.ReadDouble();
+                item.minY = br.ReadDouble();
+                item.minZ = br.ReadDouble();
+                item.maxX = br.ReadDouble();
+                item.maxY = br.ReadDouble();
+                item.maxZ = br.ReadDouble();
+                item.ImgLevel = br.ReadByte();
+
+                var dataFileLen = br.ReadByte();
+                if(dataFileLen > 0)
+                {
+                    item.dataFile = new string(br.ReadChars(dataFileLen));
+                }
+
+                var imgFileNameLen = br.ReadByte();
+                if(imgFileNameLen > 0)
+                {
+                    item.imgFileName = new string(br.ReadChars(imgFileNameLen));
+                }
                 body.Add(item);
             }
         }
@@ -30,30 +58,27 @@ namespace XDOErrorDetectorUI
 
     class header
     {
-        public uint level { get; set; }
-        public uint IDX { get; set; }
-        public uint IDY { get; set; }
-        public uint objCount { get; set; }
+        public uint level;
+        public uint IDX;
+        public uint IDY;
+        public uint objCount;
     }
     class Obj
     {
-        public byte[] version { get; set; }
-        public byte type { get; set; }
-        public byte keyLen { get; set; }
-        public string key { get; set; }
-        public double centerPos_x { get; set; }
-        public double centerPos_y { get; set; }
-        public float altitude { get; set; }
-        public double minX { get; set; }
-        public double minY { get; set; }
-        public double minZ { get; set; }
-        public double maxX { get; set; }
-        public double maxY { get; set; }
-        public double maxZ { get; set; }
-        public byte ImgLevel { get; set; }
-        public byte dataFileLen { get; set; }
-        public string dataFile { get; set; }
-        public byte imgFileNameLen{ get; set; }
-        public string imgFileName { get; set; }
+        public byte[] version;
+        public byte type;
+        public string key;
+        public double centerPos_x;
+        public double centerPos_y;
+        public float altitude;
+        public double minX;
+        public double minY;
+        public double minZ;
+        public double maxX;
+        public double maxY;
+        public double maxZ;
+        public byte ImgLevel;
+        public string dataFile;
+        public string imgFileName;
     }
 }

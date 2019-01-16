@@ -79,6 +79,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="DAT.cs" />
     <Compile Include="DB.cs" />
     <Compile Include="DBItem.cs" />
     <Compile Include="LogItem.cs" />
