@@ -296,7 +296,7 @@ namespace XDOErrorDetectorUI
                         DBInsertCount += hashMap.Count;
                         LogInsertCount += LogList.Count;
 
-                        Console.WriteLine(hashMap.Count + "/" + LogList.Count);
+                        // Console.WriteLine(hashMap.Count + "/" + LogList.Count);
                         return;
                     }
                 }
