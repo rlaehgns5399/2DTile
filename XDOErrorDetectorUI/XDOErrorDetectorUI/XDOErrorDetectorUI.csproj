@@ -84,8 +84,8 @@
     <Compile Include="DBItem.cs" />
     <Compile Include="LogItem.cs" />
     <Compile Include="XDO.cs" />
-    <Compile Include="xdoDirectoryFinder.cs" />
-    <Compile Include="xdoFileFinder.cs" />
+    <Compile Include="DirectoryFinder.cs" />
+    <Compile Include="FileFinder.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

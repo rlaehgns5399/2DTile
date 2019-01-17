@@ -25,12 +25,12 @@ namespace XDOErrorDetectorUI
 
         public string search(string table, string path)
         {
-            var directorySet = new xdoDirectoryFinder(path).run();
+            var directorySet = new DirectoryFinder(path).run(EXT.XDO);
             foreach (string directory in directorySet)
             {
                 // XDO 파일을 주어진 경로로 부터 모두 다 찾음
-                var xdoFileReader = new xdoFileFinder(directory);
-                var xdoFileList = xdoFileReader.run();
+                var xdoFileReader = new FileFinder(directory);
+                var xdoFileList = xdoFileReader.run(EXT.XDO);
                 // DB에 저장할 hashMap 구성
                 var hashMap = new Dictionary<string, DBItem>();
                 var imageSet = new HashSet<string>();

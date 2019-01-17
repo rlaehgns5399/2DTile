@@ -7,30 +7,30 @@ using System.IO;
 
 namespace XDOErrorDetectorUI
 {
-    class xdoDirectoryFinder
+    class DirectoryFinder
     {
         string url;
         HashSet<string> folderSet = new HashSet<string>();
-        public xdoDirectoryFinder(string url)
+        public DirectoryFinder(string url)
         {
             this.url = url;
         }
-        public HashSet<string> run()
+        public HashSet<string> run(EXT option)
         {
-            search(folderSet, this.url);
+            search(folderSet, this.url, option);
             return folderSet;
         }
-        public void search(HashSet<string> set, string url)
+        public void search(HashSet<string> set, string url, EXT option)
         {
             try
             {
                 foreach (string tempDirectoryName in Directory.GetDirectories(url))
                 {
-                    if(Directory.GetFiles(tempDirectoryName, "*.xdo").Length > 0)
+                    if (Directory.GetFiles(tempDirectoryName, "*." + ((EXT)option).ToString(), SearchOption.TopDirectoryOnly).Length > 0)
                     {
                         set.Add(tempDirectoryName);
                     }
-                    search(set, tempDirectoryName);
+                    search(set, tempDirectoryName, option);
                 }
             }
             catch (Exception e)
