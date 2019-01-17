@@ -95,12 +95,12 @@ namespace XDOErrorDetectorUI
                             imageSet.Add(imgFile);
                     }
                 }
-                this.logList = writeDBwithXDOLog(table, hashMap, imageSet);
-                writeDBwithXDOInfo(table, hashMap, this.logList);
+                this.logList = writeDBwithXDOLog(hashMap, imageSet);
+                writeDBwithXDOInfo(hashMap, this.logList);
             }
             return "데이터 " + DBInsertCount + "/" + LogInsertCount + "개가 " + table + "에 삽입되었습니다.";
         }
-        public List<LogItem> writeDBwithXDOLog(string table, Dictionary<string, DBItem> hashMap, HashSet<string> imageSet)
+        public List<LogItem> writeDBwithXDOLog(Dictionary<string, DBItem> hashMap, HashSet<string> imageSet)
         {
             var log = new List<LogItem>();
             foreach(KeyValuePair<string, DBItem> key in hashMap)
@@ -207,7 +207,7 @@ namespace XDOErrorDetectorUI
             }
             return log;
         }
-        public void writeDBwithXDOInfo(string table, Dictionary<string, DBItem> hashMap, List<LogItem> LogList)
+        public void writeDBwithXDOInfo(Dictionary<string, DBItem> hashMap, List<LogItem> LogList)
         {
             using (var conn = connection())
             {
@@ -218,7 +218,7 @@ namespace XDOErrorDetectorUI
                     {
                         cmd.Connection = conn;
 
-                        cmd.CommandText = "INSERT INTO " + table + " (\"Level\", \"X\", \"Y\", \"fileName\", \"ObjectID\", \"Key\", \"ObjBox_minX\", \"ObjBox_minY\", \"ObjBox_minZ\", \"ObjBox_maxX\", \"ObjBox_maxY\", \"ObjBox_maxZ\", \"Altitude\", \"FaceNum\", \"XDOVersion\", \"VertexCount\", \"IndexedCount\", \"ImageLevel\", \"ImageName\") " +
+                        cmd.CommandText = "INSERT INTO " + table_xdo + " (\"Level\", \"X\", \"Y\", \"fileName\", \"ObjectID\", \"Key\", \"ObjBox_minX\", \"ObjBox_minY\", \"ObjBox_minZ\", \"ObjBox_maxX\", \"ObjBox_maxY\", \"ObjBox_maxZ\", \"Altitude\", \"FaceNum\", \"XDOVersion\", \"VertexCount\", \"IndexedCount\", \"ImageLevel\", \"ImageName\") " +
                             @"VALUES(@Level, @X, @Y, @fileName, @ObjectID, @Key, @ObjBox_minX, @ObjBox_minY, @ObjBox_minZ, @ObjBox_maxX, @ObjBox_maxY, @ObjBox_maxZ, @Altitude, @FaceNum, @XDOVersion, @VertexCount, @IndexedCount, @ImageLevel, @ImageName)";
                         cmd.Parameters.Add(new NpgsqlParameter("Level", NpgsqlDbType.Integer));
                         cmd.Parameters.Add(new NpgsqlParameter("X", NpgsqlDbType.Text));
@@ -271,7 +271,7 @@ namespace XDOErrorDetectorUI
                         }
 
                         cmd.Parameters.Clear();
-                        cmd.CommandText = "INSERT INTO " + table + "_log" + " (\"level\", \"Y\",\"X\", \"filename\", \"facenum\", \"imgname\", \"found\", \"detail\") " +
+                        cmd.CommandText = "INSERT INTO " + table_xdo_log + " (\"level\", \"Y\",\"X\", \"filename\", \"facenum\", \"imgname\", \"found\", \"detail\") " +
                             @"VALUES(@level, @Y, @X, @filename, @facenum, @imgname, @found, @detail)";
                         cmd.Parameters.Add(new NpgsqlParameter("level", NpgsqlDbType.Text));
                         cmd.Parameters.Add(new NpgsqlParameter("Y", NpgsqlDbType.Text));
