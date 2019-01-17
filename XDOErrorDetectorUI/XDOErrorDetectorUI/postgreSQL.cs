@@ -23,8 +23,14 @@ namespace XDOErrorDetectorUI
         private int DBInsertCount = 0;
         private int LogInsertCount = 0;
 
+        public string table_xdo;
+        public string table_xdo_log;
+        public string table_dat;
+        public string table_dat_log;
+
         public string search(string table, string path)
         {
+
             var directorySet = new DirectoryFinder(path).run(EXT.XDO);
             foreach (string directory in directorySet)
             {
@@ -308,7 +314,7 @@ namespace XDOErrorDetectorUI
             }
         }
 
-        public List<DBItem> loadTable(string table)
+        public List<DBItem> loadTable()
         {
             var list = new List<DBItem>();
             using (var conn = connection())
@@ -319,7 +325,7 @@ namespace XDOErrorDetectorUI
                     using (var cmd = new NpgsqlCommand())
                     {
                         cmd.Connection = conn;
-                        cmd.CommandText = "select * from " + table;
+                        cmd.CommandText = "select * from " + table_xdo;
                         
                         using(var reader = cmd.ExecuteReader())
                         {
@@ -361,7 +367,7 @@ namespace XDOErrorDetectorUI
 
             return list;
         }
-        public List<LogItem> loadLogTable(string table)
+        public List<LogItem> loadLogTable()
         {
             var list = new List<LogItem>();
             using (var conn = connection())
@@ -372,7 +378,7 @@ namespace XDOErrorDetectorUI
                     using (var cmd = new NpgsqlCommand())
                     {
                         cmd.Connection = conn;
-                        cmd.CommandText = "select * from " + table + "_log";
+                        cmd.CommandText = "select * from " + table_xdo_log;
 
                         using (var reader = cmd.ExecuteReader())
                         {
@@ -401,7 +407,7 @@ namespace XDOErrorDetectorUI
 
             return list;
         }
-        public string createTable(string tablename)
+        public string createTable()
         {
             using (var conn = connection())
             {
@@ -411,7 +417,7 @@ namespace XDOErrorDetectorUI
                     using (var cmd = new NpgsqlCommand())
                     {
                         cmd.Connection = conn;
-                        cmd.CommandText = "CREATE TABLE public." + tablename + "(" +
+                        cmd.CommandText = "CREATE TABLE public." + table_xdo + "(" +
                             "\"Level\" integer," +
                             "\"X\" text," +
                             "\"Y\" text," +
@@ -432,7 +438,7 @@ namespace XDOErrorDetectorUI
                             "\"ImageLevel\" integer[]," +
                             "\"ImageName\" text[]" +
                             ")";
-                        cmd.CommandText += "; CREATE TABLE public." + tablename + "_log" + "(" +
+                        cmd.CommandText += "; CREATE TABLE public." + table_xdo_log + "(" +
                             "\"level\" text," +
                             "\"X\" text," +
                             "\"Y\" text," +
@@ -442,8 +448,39 @@ namespace XDOErrorDetectorUI
                             "\"found\" text," +
                             "\"detail\" text" +
                             ")";
+                        cmd.CommandText += ";CREATE TABLE public." + table_dat + "(" +
+                            "\"level\" integer," +
+                            "\"IDX\" integer," +
+                            "\"IDY\" integer," +
+                            "\"filename\" text, " +
+                            "\"ObjCount\" integer   ," + 
+                            "\"Version\" integer," +
+                            "\"Type\" integer," +
+                            "\"Key\" text," +
+                            "\"CenterPos_X\" double precision ," +
+                            "\"CenterPos_Y\" double precision  ," +
+                            "\"Altitude\" real," +
+                            "\"ImageLevel\" integer," +
+                            "\"dataFile\" text, " +
+                            "\"imgFileName\" text, " +
+                            "\"boxMinX\" double precision," +
+                            "\"boxMinY\" double precision," +
+                            "\"boxMinZ\" double precision," +
+                            "\"boxMaxX\" double precision," +
+                            "\"boxMaxY\" double precision," +
+                            "\"boxMaxZ\" double precision)";
+                        cmd.CommandText += ";CREATE TABLE public." + table_dat_log + "(" +
+                            "\"level\" text, " +
+                            "\"X\" text, " +
+                            "\"Y\" text, " +
+                            "\"filename\" text, " +
+                            "\"facenum\" integer, " +
+                            "\"xdoname\" text, " +
+                            "\"found\" text, " +
+                            "\"detail\" text" +
+                            ")";
                         cmd.ExecuteNonQuery();
-                        return tablename + ", " + tablename + @"_log가 성공적으로 생성되었습니다.";
+                        return table_dat + ", " + table_dat_log + ", " + table_xdo + ", " + table_xdo_log + "가 성공적으로 생성되었습니다.";
                     }
 
                 }
@@ -458,7 +495,7 @@ namespace XDOErrorDetectorUI
         {
             return new NpgsqlConnection("Host=" + info.Host + ";Port=" + info.Port + ";Username=" + info.Username + ";Password=" + info.Password + ";Database=" + info.Database);
         }
-        public string clearTable(string tablename)
+        public string clearTable()
         {
             using (var conn = connection())
             {
@@ -468,7 +505,10 @@ namespace XDOErrorDetectorUI
                     using (var cmd = new NpgsqlCommand())
                     {
                         cmd.Connection = conn;
-                        cmd.CommandText = "delete from " + tablename + "; delete from " + tablename + "_log";
+                        cmd.CommandText = "delete from " + table_xdo + ";" +
+                            "delete from " + table_xdo_log + ";" +
+                            "delete from " + table_dat + ";" +
+                            "delete from " + table_dat_log + ";" ;
                         cmd.ExecuteNonQuery();
                         return "Table을 성공적으로 초기화하였습니다.";
                     }
@@ -479,7 +519,7 @@ namespace XDOErrorDetectorUI
                 }
             }
         }
-        public string deleteTable(string tablename)
+        public string deleteTable()
         {
             using (var conn = connection())
             {
@@ -489,7 +529,7 @@ namespace XDOErrorDetectorUI
                     using (var cmd = new NpgsqlCommand())
                     {
                         cmd.Connection = conn;
-                        cmd.CommandText = "drop table " + tablename + "," + tablename + "_log";
+                        cmd.CommandText = "drop table " + table_xdo + "," + table_xdo_log + "," + table_dat + "," + table_dat_log;
                         cmd.ExecuteNonQuery();
                         return "Table을 성공적으로 삭제하였습니다";
                     }

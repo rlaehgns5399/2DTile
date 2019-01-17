@@ -36,21 +36,14 @@ namespace XDOErrorDetectorUI
             folder_path.Text = @"C:\Users\KimDoHoon\Desktop\git\2DTile\XDOErrorDetector\data";
         }
 
-        /* Unused code
-        private void button_update_Click(object sender, RoutedEventArgs e)
-        {
-            sql.update();
-            label1.Content = "DB가 업데이트 되었습니다.";
-        }
-        */
-
         private void listView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
         }
         private void button_CreateTable_Click(object sender, RoutedEventArgs e)
         {
-            label1.Content = sql.createTable(textBox_table.Text);
+            setTableName(sql, textBox_table.Text);
+            label1.Content = sql.createTable();
         }
 
         private void button_Connect_Click(object sender, RoutedEventArgs e)
@@ -72,23 +65,28 @@ namespace XDOErrorDetectorUI
             textBox_port.IsEnabled = false;
         }
 
+        private void setTableName(postgreSQL sql, string table)
+        {
+            sql.table_dat = table + "_dat";
+            sql.table_dat_log = sql.table_dat + "_log";
+            sql.table_xdo = table + "_xdo";
+            sql.table_xdo_log = sql.table_xdo + "_log";
+        }
         private void button_ClearTable_Click(object sender, RoutedEventArgs e)
         {
-            label1.Content = sql.clearTable(textBox_table.Text);
+            setTableName(sql, textBox_table.Text);
+            label1.Content = sql.clearTable();
         }
 
         private void button_DeleteTable_Click(object sender, RoutedEventArgs e)
         {
-            label1.Content = sql.deleteTable(textBox_table.Text);
+            setTableName(sql, textBox_table.Text);
+            label1.Content = sql.deleteTable();
         }
-
-        private void button_view_Click(object sender, RoutedEventArgs e)
-        {
-            
-        }
-
+        
         private void button_search_Click(object sender, RoutedEventArgs e)
         {
+            setTableName(sql, textBox_table.Text);
             label1.Content = sql.search(textBox_table.Text, folder_path.Text);
         }
 
@@ -101,9 +99,10 @@ namespace XDOErrorDetectorUI
 
         private void button_load_Click(object sender, RoutedEventArgs e)
         {
+            setTableName(sql, textBox_table.Text);
             listView1.Items.Clear();
             listView_Log.Items.Clear();
-            var list = sql.loadTable(textBox_table.Text);
+            var list = sql.loadTable();
             
             foreach (var key in list)
             {
@@ -130,7 +129,7 @@ namespace XDOErrorDetectorUI
                 });
             }
 
-            var logList = sql.loadLogTable(textBox_table.Text);
+            var logList = sql.loadLogTable();
             foreach(var item in logList)
             {
                 listView_Log.Items.Add(item);
