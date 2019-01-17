@@ -35,11 +35,6 @@ namespace XDOErrorDetectorUI
             textBox_port.Text = "5433";
             folder_path.Text = @"C:\Users\KimDoHoon\Desktop\git\2DTile\XDOErrorDetector\data";
         }
-
-        private void listView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
         private void button_CreateTable_Click(object sender, RoutedEventArgs e)
         {
             setTableName(sql, textBox_table.Text);
@@ -87,7 +82,7 @@ namespace XDOErrorDetectorUI
         private void button_search_Click(object sender, RoutedEventArgs e)
         {
             setTableName(sql, textBox_table.Text);
-            label1.Content = sql.search(textBox_table.Text, folder_path.Text);
+            label1.Content = sql.search(folder_path.Text);
         }
 
         private void button_changefolder(object sender, RoutedEventArgs e)

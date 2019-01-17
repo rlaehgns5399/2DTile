@@ -28,17 +28,61 @@ namespace XDOErrorDetectorUI
         public string table_dat;
         public string table_dat_log;
 
-        public string search(string table, string path)
+        public string search(string path)
         {
+            var DATdirectorySet = new DirectoryFinder(path).run(EXT.DAT);
 
-            var directorySet = new DirectoryFinder(path).run(EXT.XDO);
-            foreach (string directory in directorySet)
+            foreach(string DATFolderPath in DATdirectorySet)
+            {
+                var DATFileList = new FileFinder(DATFolderPath).run(EXT.DAT);
+
+                var hashMap = new Dictionary<string, DATDBItem>();
+                foreach (string datFile in DATFileList)
+                {
+                    var dat = new DAT(datFile);
+                    var baseDirectory = new FileInfo(datFile).Directory.FullName;
+
+                    var dat_DBItem = new DATDBItem();
+
+                    dat_DBItem.level = dat.header.level;
+                    dat_DBItem.idx = dat.header.IDX;
+                    dat_DBItem.idy = dat.header.IDY;
+                    dat_DBItem.objCount = dat.header.objCount;
+                    for (int i = 0; i < (int)dat_DBItem.objCount; i++)
+                    {
+                        var version = dat.body[i].version;
+                        var version_string = Int32.Parse((int)version[0] + "" + (int)version[1] + "" + (int)version[2] + "" + (int)version[3]);
+                        dat_DBItem.version.Add(version_string);
+                        dat_DBItem.key.Add(dat.body[i].key);
+                        dat_DBItem.centerPos.Add( new double[] { dat.body[i].centerPos_x, dat.body[i].centerPos_y });
+                        dat_DBItem.altitude.Add(dat.body[i].altitude);
+                        dat_DBItem.box.Add(new double[] {
+                            dat.body[i].minX,
+                            dat.body[i].minY,
+                            dat.body[i].minZ,
+                            dat.body[i].maxX,
+                            dat.body[i].maxY,
+                            dat.body[i].maxZ
+                        });
+                        dat_DBItem.imgLevel.Add(dat.body[i].ImgLevel);
+                        dat_DBItem.dataFile.Add(dat.body[i].dataFile);
+                        dat_DBItem.imgFileName.Add(dat.body[i].imgFileName);
+                    }
+
+
+                }
+            }
+
+
+
+            var XDOdirectorySet = new DirectoryFinder(path).run(EXT.XDO);
+            foreach (string directory in XDOdirectorySet)
             {
                 // XDO 파일을 주어진 경로로 부터 모두 다 찾음
                 var xdoFileReader = new FileFinder(directory);
                 var xdoFileList = xdoFileReader.run(EXT.XDO);
                 // DB에 저장할 hashMap 구성
-                var hashMap = new Dictionary<string, DBItem>();
+                var hashMap = new Dictionary<string, XDODBItem>();
                 var imageSet = new HashSet<string>();
 
                 // XDO(v3.0.0.2) Read -> 이미지 집합 및 1 DBItem row 생성
@@ -49,7 +93,7 @@ namespace XDOErrorDetectorUI
                     var xdo = new XDO(xdoFile);
                     var baseDirectory = new FileInfo(xdo.url).Directory.FullName;
 
-                    var xdo_dbItem = new DBItem();
+                    var xdo_dbItem = new XDODBItem();
 
 
                     var xy = new FileInfo(xdoFile).Directory.Name;
@@ -98,12 +142,12 @@ namespace XDOErrorDetectorUI
                 this.logList = writeDBwithXDOLog(hashMap, imageSet);
                 writeDBwithXDOInfo(hashMap, this.logList);
             }
-            return "데이터 " + DBInsertCount + "/" + LogInsertCount + "개가 " + table + "에 삽입되었습니다.";
+            return "데이터 " + DBInsertCount + "/" + LogInsertCount + "개가 추가되었습니다.";
         }
-        public List<LogItem> writeDBwithXDOLog(Dictionary<string, DBItem> hashMap, HashSet<string> imageSet)
+        public List<LogItem> writeDBwithXDOLog(Dictionary<string, XDODBItem> hashMap, HashSet<string> imageSet)
         {
             var log = new List<LogItem>();
-            foreach(KeyValuePair<string, DBItem> key in hashMap)
+            foreach(KeyValuePair<string, XDODBItem> key in hashMap)
             {
                 var level = new FileInfo(key.Key).Directory.Parent.Parent.Name;
                 var xy = new FileInfo(key.Key).Directory.Name;
@@ -207,7 +251,7 @@ namespace XDOErrorDetectorUI
             }
             return log;
         }
-        public void writeDBwithXDOInfo(Dictionary<string, DBItem> hashMap, List<LogItem> LogList)
+        public void writeDBwithXDOInfo(Dictionary<string, XDODBItem> hashMap, List<LogItem> LogList)
         {
             using (var conn = connection())
             {
@@ -242,7 +286,7 @@ namespace XDOErrorDetectorUI
 
                         cmd.Prepare();
 
-                        foreach (KeyValuePair<String, DBItem> key in hashMap)
+                        foreach (KeyValuePair<String, XDODBItem> key in hashMap)
                         {
                             Object[] obj_container = {
                                 key.Value.level,
@@ -314,9 +358,9 @@ namespace XDOErrorDetectorUI
             }
         }
 
-        public List<DBItem> loadTable()
+        public List<XDODBItem> loadTable()
         {
-            var list = new List<DBItem>();
+            var list = new List<XDODBItem>();
             using (var conn = connection())
             {
                 try
@@ -331,7 +375,7 @@ namespace XDOErrorDetectorUI
                         {
                             while (reader.Read())
                             {
-                                var item = new DBItem();
+                                var item = new XDODBItem();
                                 item.level = int.Parse(reader["level"].ToString());
                                 item.X = reader["X"].ToString();
                                 item.Y = reader["Y"].ToString();

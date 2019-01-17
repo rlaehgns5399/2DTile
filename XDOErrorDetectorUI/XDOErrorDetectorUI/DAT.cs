@@ -9,8 +9,8 @@ namespace XDOErrorDetectorUI
 {
     class DAT
     {
-        header header = new header();
-        List<Obj> body = new List<Obj>();
+        public header header = new header();
+        public List<Obj> body = new List<Obj>();
         public DAT(string url)
         {
             BinaryReader br = new BinaryReader(File.Open(url, FileMode.Open));

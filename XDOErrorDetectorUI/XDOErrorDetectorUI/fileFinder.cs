@@ -30,9 +30,9 @@ namespace XDOErrorDetectorUI
         {
             try
             {
-                foreach (string xdoName in Directory.GetFiles(url, "*." + ((EXT)option).ToString()))
+                foreach (string Name in Directory.GetFiles(url, "*." + ((EXT)option).ToString()).Where(s => s.Contains("index.dat") == false))
                 {
-                    list.Add(xdoName);
+                    list.Add(Name);
                 }
             }
             catch (Exception e)
