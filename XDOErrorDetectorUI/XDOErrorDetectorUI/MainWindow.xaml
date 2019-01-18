@@ -32,19 +32,14 @@
                     <ListView x:Name="dat_log_listview" Height="214" Margin="11,5,10,0" VerticalAlignment="Top">
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="FileName" DisplayMemberBinding="{Binding FileName}"/>
                                 <GridViewColumn Header="Level" DisplayMemberBinding="{Binding Level}"/>
                                 <GridViewColumn Header="IDY" DisplayMemberBinding="{Binding IDY}"/>
                                 <GridViewColumn Header="IDX" DisplayMemberBinding="{Binding IDX}"/>
-                                <GridViewColumn Header="Obj Count" DisplayMemberBinding="{Binding objCount}"/>
-                                <GridViewColumn Header="Key" DisplayMemberBinding="{Binding Key}"/>
-                                <GridViewColumn Header="ImgLevel" DisplayMemberBinding="{Binding ImgLevel}"/>
-                                <GridViewColumn Header="Version" DisplayMemberBinding="{Binding Version}"/>
-                                <GridViewColumn Header="XDO" DisplayMemberBinding="{Binding XDO}"/>
-                                <GridViewColumn Header="XDO Texture" DisplayMemberBinding="{Binding imgFileName}"/>
-                                <GridViewColumn Header="CenterPos" DisplayMemberBinding="{Binding CenterPos}"/>
-                                <GridViewColumn Header="Altitude" DisplayMemberBinding="{Binding Altitude}"/>
-                                <GridViewColumn Header="BBox" DisplayMemberBinding="{Binding BBox}"/>
+                                <GridViewColumn Header="FileName" DisplayMemberBinding="{Binding fileName}"/>
+                                <GridViewColumn Header="FaceNum" DisplayMemberBinding="{Binding faceNum}"/>
+                                <GridViewColumn Header="DAT - want" DisplayMemberBinding="{Binding XDOName}"/>
+                                <GridViewColumn Header="Found" DisplayMemberBinding="{Binding Found}"/>
+                                <GridViewColumn Header="Detail" DisplayMemberBinding="{Binding Detail}"/>
                             </GridView>
                         </ListView.View>
                     </ListView>

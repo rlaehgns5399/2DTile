@@ -44,17 +44,18 @@ namespace XDOErrorDetectorUI
 
                     var dat_DBItem = new DATDBItem();
 
-                    dat_DBItem.level = dat.header.level;
-                    dat_DBItem.idx = dat.header.IDX;
-                    dat_DBItem.idy = dat.header.IDY;
-                    dat_DBItem.objCount = dat.header.objCount;
-                    for (int i = 0; i < (int)dat_DBItem.objCount; i++)
+                    dat_DBItem.level = (int)dat.header.level;
+                    dat_DBItem.idx = (int)dat.header.IDX;
+                    dat_DBItem.idy = (int)dat.header.IDY;
+                    dat_DBItem.objCount = (int)dat.header.objCount;
+                    for (int i = 0; i < dat_DBItem.objCount; i++)
                     {
                         var version = dat.body[i].version;
                         var version_string = Int32.Parse((int)version[0] + "" + (int)version[1] + "" + (int)version[2] + "" + (int)version[3]);
                         dat_DBItem.version.Add(version_string);
                         dat_DBItem.key.Add(dat.body[i].key);
-                        dat_DBItem.centerPos.Add( new double[] { dat.body[i].centerPos_x, dat.body[i].centerPos_y });
+                        double[] centerPosItem = { dat.body[i].centerPos_x, dat.body[i].centerPos_y };
+                        dat_DBItem.centerPos.Add(centerPosItem);
                         dat_DBItem.altitude.Add(dat.body[i].altitude);
                         dat_DBItem.box.Add(new double[] {
                             dat.body[i].minX,
@@ -69,8 +70,9 @@ namespace XDOErrorDetectorUI
                         dat_DBItem.imgFileName.Add(dat.body[i].imgFileName);
                     }
 
-
+                    hashMap.Add(datFile, dat_DBItem);
                 }
+                writeDBwithDATinfo(hashMap);
             }
 
 
@@ -143,6 +145,98 @@ namespace XDOErrorDetectorUI
                 writeDBwithXDOInfo(hashMap, this.logList);
             }
             return "데이터 " + DBInsertCount + "/" + LogInsertCount + "개가 추가되었습니다.";
+        }
+        public void writeDBwithDATinfo(Dictionary<string, DATDBItem> hashMap)
+        {
+            using (var conn = connection())
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new NpgsqlCommand())
+                    {
+                        cmd.Connection = conn;
+
+                        cmd.CommandText = "INSERT INTO " + table_dat + 
+                            "(\"level\",        \"IDX\",    \"IDY\",    \"filename\",   \"ObjCount\",   \"Version\",    \"Key\",    \"CenterPos_X\",    \"CenterPos_Y\",    \"Altitude\",   \"ImageLevel\", \"dataFile\",   \"imgFileName\",    \"boxMinX\",    \"boxMinY\",    \"boxMinZ\",    \"boxMaxX\",    \"boxMaxY\",    \"boxMaxZ\")" +
+                            @"VALUES(@Level,    @IDX,       @IDY,       @fileName,      @ObjCount,      @Version,       @Key,       @CenterPos_X,       @CenterPos_Y,       @Altitude,      @ImageLevel,    @dataFile,      @imgFileName,       @boxMinX,       @boxMinY,       @boxMinZ,       @boxMaxX,       @boxMaxY,       @boxMaxZ)";
+                        cmd.Parameters.Add(new NpgsqlParameter("Level", NpgsqlDbType.Integer));
+                        cmd.Parameters.Add(new NpgsqlParameter("IDX", NpgsqlDbType.Integer));
+                        cmd.Parameters.Add(new NpgsqlParameter("IDY", NpgsqlDbType.Integer));
+                        cmd.Parameters.Add(new NpgsqlParameter("fileName", NpgsqlDbType.Text));
+                        cmd.Parameters.Add(new NpgsqlParameter("ObjCount", NpgsqlDbType.Integer));
+                        cmd.Parameters.Add(new NpgsqlParameter("Version", NpgsqlDbType.Array | NpgsqlDbType.Integer));
+                        cmd.Parameters.Add(new NpgsqlParameter("Key", NpgsqlDbType.Array | NpgsqlDbType.Text));
+                        cmd.Parameters.Add(new NpgsqlParameter("CenterPos_X", NpgsqlDbType.Array | NpgsqlDbType.Double));
+                        cmd.Parameters.Add(new NpgsqlParameter("CenterPos_Y", NpgsqlDbType.Array | NpgsqlDbType.Double));
+                        cmd.Parameters.Add(new NpgsqlParameter("Altitude", NpgsqlDbType.Array | NpgsqlDbType.Real));
+                        cmd.Parameters.Add(new NpgsqlParameter("ImageLevel", NpgsqlDbType.Array | NpgsqlDbType.Integer));
+                        cmd.Parameters.Add(new NpgsqlParameter("dataFile", NpgsqlDbType.Array | NpgsqlDbType.Text));
+                        cmd.Parameters.Add(new NpgsqlParameter("imgFileName", NpgsqlDbType.Array | NpgsqlDbType.Text));
+                        cmd.Parameters.Add(new NpgsqlParameter("boxMinX", NpgsqlDbType.Array | NpgsqlDbType.Double));
+                        cmd.Parameters.Add(new NpgsqlParameter("boxMinY", NpgsqlDbType.Array | NpgsqlDbType.Double));
+                        cmd.Parameters.Add(new NpgsqlParameter("boxMinZ", NpgsqlDbType.Array | NpgsqlDbType.Double));
+                        cmd.Parameters.Add(new NpgsqlParameter("boxMaxX", NpgsqlDbType.Array | NpgsqlDbType.Double));
+                        cmd.Parameters.Add(new NpgsqlParameter("boxMaxY", NpgsqlDbType.Array | NpgsqlDbType.Double));
+                        cmd.Parameters.Add(new NpgsqlParameter("boxMaxZ", NpgsqlDbType.Array | NpgsqlDbType.Double));
+                        cmd.Prepare();
+
+                        foreach (KeyValuePair<String, DATDBItem> key in hashMap)
+                        {
+                            List<double>[] centerpos = new List<double>[2];
+                            centerpos[0] = new List<double>();
+                            centerpos[1] = new List<double>();
+                            for (int i = 0; i < key.Value.centerPos.Count; i++)
+                            {
+                                centerpos[0].Add(key.Value.centerPos[i][0]);
+                                centerpos[1].Add(key.Value.centerPos[i][1]);
+                            }
+                            List<double>[] box = new List<double>[6];
+                            box[0] = new List<double>();
+                            box[1] = new List<double>();
+                            box[2] = new List<double>();
+                            box[3] = new List<double>();
+                            box[4] = new List<double>();
+                            box[5] = new List<double>();
+                            for (int i = 0; i < key.Value.box.Count; i++)
+                            {
+                                for (int j = 0; j < box.Length; j++)
+                                    box[j].Add(key.Value.box[i][j]);
+                            }
+                            Object[] obj_container = {
+                                key.Value.level,
+                                key.Value.idx,
+                                key.Value.idy,
+                                new FileInfo(key.Key).Name,
+                                key.Value.objCount,
+                                key.Value.version.ToArray(),
+                                key.Value.key.ToArray(),
+                                centerpos[0].ToArray(),
+                                centerpos[1].ToArray(),
+                                key.Value.altitude.ToArray(),
+                                key.Value.imgLevel.ToArray(),
+                                key.Value.dataFile.ToArray(),
+                                key.Value.imgFileName.ToArray(),
+                                box[0].ToArray(),
+                                box[1].ToArray(),
+                                box[2].ToArray(),
+                                box[3].ToArray(),
+                                box[4].ToArray(),
+                                box[5].ToArray()
+                            };
+                            for (int i = 0; i < cmd.Parameters.Count; i++)
+                                cmd.Parameters[i].Value = obj_container[i];
+                            cmd.ExecuteNonQuery();
+                        }
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    return;
+                }
+            }
         }
         public List<LogItem> writeDBwithXDOLog(Dictionary<string, XDODBItem> hashMap, HashSet<string> imageSet)
         {
@@ -498,21 +592,20 @@ namespace XDOErrorDetectorUI
                             "\"IDY\" integer," +
                             "\"filename\" text, " +
                             "\"ObjCount\" integer   ," + 
-                            "\"Version\" integer," +
-                            "\"Type\" integer," +
-                            "\"Key\" text," +
-                            "\"CenterPos_X\" double precision ," +
-                            "\"CenterPos_Y\" double precision  ," +
-                            "\"Altitude\" real," +
-                            "\"ImageLevel\" integer," +
-                            "\"dataFile\" text, " +
-                            "\"imgFileName\" text, " +
-                            "\"boxMinX\" double precision," +
-                            "\"boxMinY\" double precision," +
-                            "\"boxMinZ\" double precision," +
-                            "\"boxMaxX\" double precision," +
-                            "\"boxMaxY\" double precision," +
-                            "\"boxMaxZ\" double precision)";
+                            "\"Version\" integer[]," +
+                            "\"Key\" text[]," +
+                            "\"CenterPos_X\" double precision[] ," +
+                            "\"CenterPos_Y\" double precision[]  ," +
+                            "\"Altitude\" real[]," +
+                            "\"ImageLevel\" integer[]," +
+                            "\"dataFile\" text[], " +
+                            "\"imgFileName\" text[], " +
+                            "\"boxMinX\" double precision[]," +
+                            "\"boxMinY\" double precision[]," +
+                            "\"boxMinZ\" double precision[]," +
+                            "\"boxMaxX\" double precision[]," +
+                            "\"boxMaxY\" double precision[]," +
+                            "\"boxMaxZ\" double precision[])";
                         cmd.CommandText += ";CREATE TABLE public." + table_dat_log + "(" +
                             "\"level\" text, " +
                             "\"X\" text, " +

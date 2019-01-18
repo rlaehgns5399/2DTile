@@ -27,10 +27,10 @@ namespace XDOErrorDetectorUI
 
     class DATDBItem
     {
-        public uint level;
-        public uint idx;
-        public uint idy;
-        public uint objCount;
+        public int level;
+        public int idx;
+        public int idy;
+        public int objCount;
         public List<int> version = new List<int>();
         public List<string> key = new List<string>();
         public List<double[]> centerPos = new List<double[]>();
