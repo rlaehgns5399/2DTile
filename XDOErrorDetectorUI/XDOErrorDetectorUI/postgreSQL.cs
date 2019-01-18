@@ -37,6 +37,7 @@ namespace XDOErrorDetectorUI
                 var DATFileList = new FileFinder(DATFolderPath).run(EXT.DAT);
 
                 var hashMap = new Dictionary<string, DATDBItem>();
+
                 foreach (string datFile in DATFileList)
                 {
                     var dat = new DAT(datFile);
@@ -73,6 +74,7 @@ namespace XDOErrorDetectorUI
                     hashMap.Add(datFile, dat_DBItem);
                 }
                 writeDBwithDATinfo(hashMap);
+                checkDATError(hashMap);
             }
 
 
@@ -146,6 +148,41 @@ namespace XDOErrorDetectorUI
             }
             return "데이터 " + DBInsertCount + "/" + LogInsertCount + "개가 추가되었습니다.";
         }
+        public void checkDATError(Dictionary<string, DATDBItem> hashMap)
+        {
+            foreach(KeyValuePair<string, DATDBItem> item in hashMap)
+            {
+                var baseURL = new FileInfo(item.Key).Directory.FullName;
+                var DATName = Path.GetFileNameWithoutExtension(item.Key);
+
+                var duplicatedList = item.Value.dataFile.GroupBy(x => x).Where(g => g.Count() > 1).Select(y => y.Key).ToList();
+                if(duplicatedList.Count > 0)
+                {
+                    // xdo 중복 사용
+                }
+                for(int i = 0; i < item.Value.objCount; i++)
+                {
+                    var targetXDOURL = baseURL + @"\" + DATName + @"\" + item.Value.dataFile[i];
+                    if (File.Exists(targetXDOURL))
+                    {
+                        if(Path.GetFullPath(targetXDOURL) == Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(targetXDOURL)), Path.GetFileName(Path.GetFullPath(targetXDOURL))).Single())
+                        {
+                            
+                        }
+                        else
+                        {
+                            Console.Write(Path.GetFullPath(targetXDOURL));
+                            Console.WriteLine(Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(targetXDOURL)), Path.GetFileName(Path.GetFullPath(targetXDOURL))).Single());
+                            Console.WriteLine("다름ㅋ");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("[x] " + targetXDOURL);// xdo no
+                    }
+                }
+            }
+        }
         public void writeDBwithDATinfo(Dictionary<string, DATDBItem> hashMap)
         {
             using (var conn = connection())
@@ -183,26 +220,23 @@ namespace XDOErrorDetectorUI
 
                         foreach (KeyValuePair<String, DATDBItem> key in hashMap)
                         {
-                            List<double>[] centerpos = new List<double>[2];
-                            centerpos[0] = new List<double>();
-                            centerpos[1] = new List<double>();
-                            for (int i = 0; i < key.Value.centerPos.Count; i++)
-                            {
-                                centerpos[0].Add(key.Value.centerPos[i][0]);
-                                centerpos[1].Add(key.Value.centerPos[i][1]);
-                            }
-                            List<double>[] box = new List<double>[6];
-                            box[0] = new List<double>();
-                            box[1] = new List<double>();
-                            box[2] = new List<double>();
-                            box[3] = new List<double>();
-                            box[4] = new List<double>();
-                            box[5] = new List<double>();
-                            for (int i = 0; i < key.Value.box.Count; i++)
-                            {
-                                for (int j = 0; j < box.Length; j++)
-                                    box[j].Add(key.Value.box[i][j]);
-                            }
+                            var centerpos_x = new List<double>();
+                            centerpos_x.AddRange(key.Value.centerPos.Select(x => x[0]));
+                            var centerpos_y = new List<double>();
+                            centerpos_y.AddRange(key.Value.centerPos.Select(x => x[1]));
+
+                            var minX = new List<double>();
+                            var minY = new List<double>();
+                            var minZ = new List<double>();
+                            var maxX = new List<double>();
+                            var maxY = new List<double>();
+                            var maxZ = new List<double>();
+                            minX.AddRange(key.Value.box.Select(x => x[0]));
+                            minY.AddRange(key.Value.box.Select(x => x[1]));
+                            minZ.AddRange(key.Value.box.Select(x => x[2]));
+                            maxX.AddRange(key.Value.box.Select(x => x[3]));
+                            maxY.AddRange(key.Value.box.Select(x => x[4]));
+                            maxZ.AddRange(key.Value.box.Select(x => x[5]));
                             Object[] obj_container = {
                                 key.Value.level,
                                 key.Value.idx,
@@ -211,18 +245,18 @@ namespace XDOErrorDetectorUI
                                 key.Value.objCount,
                                 key.Value.version.ToArray(),
                                 key.Value.key.ToArray(),
-                                centerpos[0].ToArray(),
-                                centerpos[1].ToArray(),
+                                centerpos_x.ToArray(),
+                                centerpos_y.ToArray(),
                                 key.Value.altitude.ToArray(),
                                 key.Value.imgLevel.ToArray(),
                                 key.Value.dataFile.ToArray(),
                                 key.Value.imgFileName.ToArray(),
-                                box[0].ToArray(),
-                                box[1].ToArray(),
-                                box[2].ToArray(),
-                                box[3].ToArray(),
-                                box[4].ToArray(),
-                                box[5].ToArray()
+                                minX.ToArray(),
+                                minY.ToArray(),
+                                minZ.ToArray(),
+                                maxX.ToArray(),
+                                maxY.ToArray(),
+                                maxZ.ToArray()
                             };
                             for (int i = 0; i < cmd.Parameters.Count; i++)
                                 cmd.Parameters[i].Value = obj_container[i];
