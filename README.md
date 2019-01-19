@@ -111,9 +111,7 @@ If you want to use, just modify `Point` class codes.
 
 # XDOErrorDectectorUI
 
-![image](https://user-images.githubusercontent.com/26527826/51008523-7c370d00-158f-11e9-876e-9ba8b16ebde2.png)
-
-This program's purposes are showing XDO's inner data & checking its referred texture files.
+This program's purposes are showing DAT, XDO's inner data & checking its referred texture files.
 
 You can input information for connecting DB(using `PostgreSQL`). if the connection is successful, you can set table where you access.
 
@@ -123,8 +121,8 @@ you can create, delete, clear table you inputted.
 
 - load data into listview
 
-`검색 및 DB에 저장(XDO Search & Save at DB)` does:
+`검색 및 DB에 저장(DAT, XDO Search & Save at DB)` does:
 
-- The program will find recursively XDO files in given folder(beware about out of memory)
-- The program will parse XDO files, check texture error, and make a note unused textures.
+- The program will find recursively DAT, XDO files in given folder(beware about out of memory)
+- The program will parse DAT, XDO files, check texture error, and make a note unused textures.
 - After above that, it will save data at DB
