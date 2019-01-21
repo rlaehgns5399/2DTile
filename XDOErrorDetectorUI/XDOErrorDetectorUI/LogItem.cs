@@ -6,22 +6,69 @@ using System.Threading.Tasks;
 
 namespace XDOErrorDetectorUI
 {
+    public enum LOG
+    {
+        ERR_NOT_EXIST,
+        WARN_CASE_INSENSITIVE,
+        NOT_USED,
+        XDO_LEVEL_ERROR,
+        DUPLICATE_XDO
+    }
     class LogItem
     {
         public LOG type { get; set; }
         public string filename { get; set; }
-        public int facenum { get; set; }
-        public string imgname { get; set; }
+        public string xdoname { get; set; }
         public string detail { get; set; }
         public string found { get; set; }
         public string Y { get; set; }
         public string X { get; set; }
         public string level { get; set; }
-        public LogItem()
+    }
+    class DATLogItem : LogItem
+    {
+        public string objCount { get; set; }
+        public DATLogItem() { }
+        public DATLogItem(string level, string y, string x, LOG type, string filename, string xdoname, string found)
+        {
+            this.level = level;
+            this.Y = y;
+            this.X = x;
+            this.type = type;
+            this.filename = filename;
+            this.xdoname = xdoname;
+            this.found = found;
+            switch (this.type)
+            {
+                case LOG.ERR_NOT_EXIST:
+                    this.detail = "Not exist";
+                    break;
+                case LOG.NOT_USED:
+                    this.detail = "Unused file";
+                    break;
+                case LOG.WARN_CASE_INSENSITIVE:
+                    this.detail = "Case sensitive error";
+                    break;
+                case LOG.DUPLICATE_XDO:
+                    this.detail = "DAT has XDO which are duplicated";
+                    break;
+            }
+        }
+        public DATLogItem(string level, string y, string x, LOG type, string filename, string xdoname, string found, string objCount) : this(level,  y, x, type, filename, xdoname, found)
+        {
+            this.objCount = objCount;
+        }
+    }
+    class XDOLogItem : LogItem
+    {
+
+        public int facenum { get; set; }
+        public string imgname { get; set; }
+        public XDOLogItem()
         {
 
         }
-        public LogItem(string level, string y, string x, LOG type, string filename, int facenum, string imgname, string found)
+        public XDOLogItem(string level, string y, string x, LOG type, string filename, int facenum, string imgname, string found)
         {
             this.level = level;
             this.Y = y;
@@ -44,7 +91,7 @@ namespace XDOErrorDetectorUI
                     break;
             }
         }
-        public LogItem(string level, string y, string x, LOG type, string filename, int facenum, string imgname, string found, List<int> lv_checker) : this(level, y, x, type, filename, facenum, imgname, found)
+        public XDOLogItem(string level, string y, string x, LOG type, string filename, int facenum, string imgname, string found, List<int> lv_checker) : this(level, y, x, type, filename, facenum, imgname, found)
         {
             switch (this.type)
             {

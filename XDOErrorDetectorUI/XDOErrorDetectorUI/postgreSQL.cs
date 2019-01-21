@@ -9,17 +9,10 @@ using NpgsqlTypes;
 
 namespace XDOErrorDetectorUI
 {
-    enum LOG
-    {
-        ERR_NOT_EXIST,
-        WARN_CASE_INSENSITIVE,
-        NOT_USED,
-        XDO_LEVEL_ERROR
-    }
     class postgreSQL
     {
         public DB info;
-        public List<LogItem> logList;
+        public List<XDOLogItem> logList;
         private int DBInsertCount = 0;
         private int LogInsertCount = 0;
 
@@ -37,6 +30,7 @@ namespace XDOErrorDetectorUI
                 var DATFileList = new FileFinder(DATFolderPath).run(EXT.DAT);
 
                 var hashMap = new Dictionary<string, DATDBItem>();
+                var xdoSet = new HashSet<string>();
 
                 foreach (string datFile in DATFileList)
                 {
@@ -72,9 +66,16 @@ namespace XDOErrorDetectorUI
                     }
 
                     hashMap.Add(datFile, dat_DBItem);
+
+                    foreach (var xdoFile in Directory.GetFiles(baseDirectory + @"\" + Path.GetFileNameWithoutExtension(datFile)))
+                    {
+                        if (xdoFile.ToLower().Contains(".xdo")) {
+                            xdoSet.Add(xdoFile);
+                        }
+                    }
                 }
                 writeDBwithDATinfo(hashMap);
-                checkDATError(hashMap);
+                checkDATError(hashMap, xdoSet);
             }
 
 
@@ -148,39 +149,59 @@ namespace XDOErrorDetectorUI
             }
             return "데이터 " + DBInsertCount + "/" + LogInsertCount + "개가 추가되었습니다.";
         }
-        public void checkDATError(Dictionary<string, DATDBItem> hashMap)
+        public void checkDATError(Dictionary<string, DATDBItem> hashMap, HashSet<string> xdoSet)
         {
+            var log = new List<DATLogItem>();
             foreach(KeyValuePair<string, DATDBItem> item in hashMap)
             {
                 var baseURL = new FileInfo(item.Key).Directory.FullName;
                 var DATName = Path.GetFileNameWithoutExtension(item.Key);
 
-                var duplicatedList = item.Value.dataFile.GroupBy(x => x).Where(g => g.Count() > 1).Select(y => y.Key).ToList();
-                if(duplicatedList.Count > 0)
+                var level = new FileInfo(item.Key).Directory.Parent.Name;
+                var xy = DATName.Split('_'); // y : xy[0], x : xy[1]
+
+                var xdoSet_forRemove = new HashSet<string>();
+                
+                var duplicatedReferenceList = item.Value.dataFile.GroupBy(x => x).Where(g => g.Count() > 1).Select(y => y.Key).ToList();
+                if(duplicatedReferenceList.Count > 0)
                 {
                     // xdo 중복 사용
+                    foreach (string duplicatedListItem in duplicatedReferenceList)
+                        log.Add(new DATLogItem(level, xy[0], xy[1], LOG.DUPLICATE_XDO, new FileInfo(item.Key).Name, duplicatedListItem, ""));
                 }
                 for(int i = 0; i < item.Value.objCount; i++)
                 {
                     var targetXDOURL = baseURL + @"\" + DATName + @"\" + item.Value.dataFile[i];
+                    var DAT_xdo = Path.GetFullPath(targetXDOURL);
+                    var objCountString = i + "/" + item.Value.objCount;
                     if (File.Exists(targetXDOURL))
                     {
-                        if(Path.GetFullPath(targetXDOURL) == Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(targetXDOURL)), Path.GetFileName(Path.GetFullPath(targetXDOURL))).Single())
+                        var REAL_xdo = Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(targetXDOURL)), Path.GetFileName(Path.GetFullPath(targetXDOURL))).Single();
+                        if (DAT_xdo == REAL_xdo)
                         {
-                            
+                            // 정상
+                            xdoSet_forRemove.Add(REAL_xdo);
                         }
                         else
                         {
-                            Console.Write(Path.GetFullPath(targetXDOURL));
-                            Console.WriteLine(Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(targetXDOURL)), Path.GetFileName(Path.GetFullPath(targetXDOURL))).Single());
-                            Console.WriteLine("다름ㅋ");
+                            // XDO 대소문자
+                            log.Add(new DATLogItem(level, xy[0], xy[1], LOG.WARN_CASE_INSENSITIVE, new FileInfo(item.Key).Name, new FileInfo(DAT_xdo).Name, new FileInfo(REAL_xdo).Name, objCountString));
+                            xdoSet_forRemove.Add(REAL_xdo);
                         }
                     }
                     else
                     {
-                        Console.WriteLine("[x] " + targetXDOURL);// xdo no
+                        log.Add(new DATLogItem(level, xy[0], xy[1], LOG.ERR_NOT_EXIST, new FileInfo(item.Key).Name, new FileInfo(DAT_xdo).Name, "", objCountString));
                     }
                 }
+
+                xdoSet.RemoveWhere(s => xdoSet_forRemove.Contains(s));
+            }
+
+            foreach(string xdo in xdoSet)
+            {
+                // 참조 안되는 XDO
+                log.Add(new DATLogItem("", "", "", LOG.NOT_USED, "", new FileInfo(xdo).Name, ""));
             }
         }
         public void writeDBwithDATinfo(Dictionary<string, DATDBItem> hashMap)
@@ -272,9 +293,9 @@ namespace XDOErrorDetectorUI
                 }
             }
         }
-        public List<LogItem> writeDBwithXDOLog(Dictionary<string, XDODBItem> hashMap, HashSet<string> imageSet)
+        public List<XDOLogItem> writeDBwithXDOLog(Dictionary<string, XDODBItem> hashMap, HashSet<string> imageSet)
         {
-            var log = new List<LogItem>();
+            var log = new List<XDOLogItem>();
             foreach(KeyValuePair<string, XDODBItem> key in hashMap)
             {
                 var level = new FileInfo(key.Key).Directory.Parent.Parent.Name;
@@ -300,7 +321,7 @@ namespace XDOErrorDetectorUI
                         else if (imgURL.ToLower().Equals(imageSetElement.ToLower()))
                         {
                             // lower/upper Case 오류
-                            log.Add(new LogItem(level, name[0], name[1], LOG.WARN_CASE_INSENSITIVE, new FileInfo(key.Key).Name, i, key.Value.ImageName[i], new FileInfo(imageSetElement).Name));
+                            log.Add(new XDOLogItem(level, name[0], name[1], LOG.WARN_CASE_INSENSITIVE, new FileInfo(key.Key).Name, i, key.Value.ImageName[i], new FileInfo(imageSetElement).Name));
                             imageSet_forRemove.Add(imageSetElement);
                             basecount++;
                             break;
@@ -309,7 +330,7 @@ namespace XDOErrorDetectorUI
                     if(basecount == 0)
                     {
                         // texture가 없음
-                        log.Add(new LogItem(level, name[0], name[1], LOG.ERR_NOT_EXIST, new FileInfo(key.Key).Name, i, key.Value.ImageName[i], ""));
+                        log.Add(new XDOLogItem(level, name[0], name[1], LOG.ERR_NOT_EXIST, new FileInfo(key.Key).Name, i, key.Value.ImageName[i], ""));
                     }
 
 
@@ -354,7 +375,7 @@ namespace XDOErrorDetectorUI
                                 // lower/upper Case 오류
                                 // xdo level 체크를 위해 수를 세어야함
                                 lv_checker.Remove(j);
-                                log.Add(new LogItem(level, name[0], name[1], LOG.WARN_CASE_INSENSITIVE, new FileInfo(key.Key).Name, i, new FileInfo(imgLodUrl).Name, new FileInfo(imageSetElement).Name));
+                                log.Add(new XDOLogItem(level, name[0], name[1], LOG.WARN_CASE_INSENSITIVE, new FileInfo(key.Key).Name, i, new FileInfo(imgLodUrl).Name, new FileInfo(imageSetElement).Name));
                                 imageSet_forRemove.Add(imageSetElement);
                                 count++;
                                 break;
@@ -365,7 +386,7 @@ namespace XDOErrorDetectorUI
                     if (count != imageNum)
                     {
                         // if(갯수가 차이가 나면) level error
-                        log.Add(new LogItem(level, name[0], name[1], LOG.XDO_LEVEL_ERROR, new FileInfo(key.Key).Name, i, new FileInfo(imgURL).Name.Replace(".", "_?."), "", lv_checker));
+                        log.Add(new XDOLogItem(level, name[0], name[1], LOG.XDO_LEVEL_ERROR, new FileInfo(key.Key).Name, i, new FileInfo(imgURL).Name.Replace(".", "_?."), "", lv_checker));
                     }
                 }
                 foreach(string t in imageSet_forRemove) {
@@ -375,11 +396,11 @@ namespace XDOErrorDetectorUI
             foreach(string remainImage in imageSet)
             {
                 // 쓰이지 않는 것들 여기서 처리 
-                log.Add(new LogItem("", "", "", LOG.NOT_USED, "", 0, "", new FileInfo(remainImage).Name));
+                log.Add(new XDOLogItem("", "", "", LOG.NOT_USED, "", 0, "", new FileInfo(remainImage).Name));
             }
             return log;
         }
-        public void writeDBwithXDOInfo(Dictionary<string, XDODBItem> hashMap, List<LogItem> LogList)
+        public void writeDBwithXDOInfo(Dictionary<string, XDODBItem> hashMap, List<XDOLogItem> LogList)
         {
             using (var conn = connection())
             {
@@ -455,7 +476,7 @@ namespace XDOErrorDetectorUI
                         cmd.Parameters.Add(new NpgsqlParameter("detail", NpgsqlDbType.Text));
                         cmd.Prepare();
 
-                        foreach (LogItem item in LogList)
+                        foreach (XDOLogItem item in LogList)
                         {
                             Object[] obj_container = {
                                 item.level,
@@ -539,9 +560,9 @@ namespace XDOErrorDetectorUI
 
             return list;
         }
-        public List<LogItem> loadLogTable()
+        public List<XDOLogItem> loadLogTable()
         {
-            var list = new List<LogItem>();
+            var list = new List<XDOLogItem>();
             using (var conn = connection())
             {
                 try
@@ -556,7 +577,7 @@ namespace XDOErrorDetectorUI
                         {
                             while (reader.Read())
                             {
-                                var item = new LogItem();
+                                var item = new XDOLogItem();
                                 item.level = reader["level"].ToString();
                                 item.X = reader["X"].ToString();
                                 item.Y = reader["Y"].ToString();
