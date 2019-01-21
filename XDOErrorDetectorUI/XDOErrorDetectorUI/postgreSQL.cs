@@ -12,9 +12,12 @@ namespace XDOErrorDetectorUI
     class postgreSQL
     {
         public DB info;
-        public List<XDOLogItem> logList;
-        private int DBInsertCount = 0;
-        private int LogInsertCount = 0;
+        public List<XDOLogItem> XDOLogList;
+        public List<DATLogItem> DATLogList;
+        private int xdoDBInsertCount = 0;
+        private int xdoLogInsertCount = 0;
+        private int datDBInsertCount = 0;
+        private int datLogInsertCount = 0;
 
         public string table_xdo;
         public string table_xdo_log;
@@ -43,23 +46,22 @@ namespace XDOErrorDetectorUI
                     dat_DBItem.idx = (int)dat.header.IDX;
                     dat_DBItem.idy = (int)dat.header.IDY;
                     dat_DBItem.objCount = (int)dat.header.objCount;
+                    dat_DBItem.datFileName = dat.header.datFilename;
                     for (int i = 0; i < dat_DBItem.objCount; i++)
                     {
                         var version = dat.body[i].version;
                         var version_string = Int32.Parse((int)version[0] + "" + (int)version[1] + "" + (int)version[2] + "" + (int)version[3]);
                         dat_DBItem.version.Add(version_string);
                         dat_DBItem.key.Add(dat.body[i].key);
-                        double[] centerPosItem = { dat.body[i].centerPos_x, dat.body[i].centerPos_y };
-                        dat_DBItem.centerPos.Add(centerPosItem);
+                        dat_DBItem.centerPos_X.Add(dat.body[i].centerPos_x);
+                        dat_DBItem.centerPos_Y.Add(dat.body[i].centerPos_y);
                         dat_DBItem.altitude.Add(dat.body[i].altitude);
-                        dat_DBItem.box.Add(new double[] {
-                            dat.body[i].minX,
-                            dat.body[i].minY,
-                            dat.body[i].minZ,
-                            dat.body[i].maxX,
-                            dat.body[i].maxY,
-                            dat.body[i].maxZ
-                        });
+                        dat_DBItem.minX.Add(dat.body[i].minX);
+                        dat_DBItem.minY.Add(dat.body[i].minY);
+                        dat_DBItem.minZ.Add(dat.body[i].minZ);
+                        dat_DBItem.maxX.Add(dat.body[i].maxX);
+                        dat_DBItem.maxY.Add(dat.body[i].maxY);
+                        dat_DBItem.maxZ.Add(dat.body[i].maxZ);
                         dat_DBItem.imgLevel.Add(dat.body[i].ImgLevel);
                         dat_DBItem.dataFile.Add(dat.body[i].dataFile);
                         dat_DBItem.imgFileName.Add(dat.body[i].imgFileName);
@@ -74,8 +76,9 @@ namespace XDOErrorDetectorUI
                         }
                     }
                 }
-                writeDBwithDATinfo(hashMap);
-                checkDATError(hashMap, xdoSet);
+
+                this.DATLogList = checkDATError(hashMap, xdoSet);
+                writeDBwithDATinfo(hashMap, this.DATLogList);
             }
 
 
@@ -144,12 +147,12 @@ namespace XDOErrorDetectorUI
                             imageSet.Add(imgFile);
                     }
                 }
-                this.logList = writeDBwithXDOLog(hashMap, imageSet);
-                writeDBwithXDOInfo(hashMap, this.logList);
+                this.XDOLogList = checkXDOError(hashMap, imageSet);
+                writeDBwithXDOInfo(hashMap, this.XDOLogList);
             }
-            return "데이터 " + DBInsertCount + "/" + LogInsertCount + "개가 추가되었습니다.";
+            return "데이터 " + datDBInsertCount + "/" + datLogInsertCount + "/" + xdoDBInsertCount + "/" + xdoLogInsertCount + "개가 추가되었습니다.";
         }
-        public void checkDATError(Dictionary<string, DATDBItem> hashMap, HashSet<string> xdoSet)
+        public List<DATLogItem> checkDATError(Dictionary<string, DATDBItem> hashMap, HashSet<string> xdoSet)
         {
             var log = new List<DATLogItem>();
             foreach(KeyValuePair<string, DATDBItem> item in hashMap)
@@ -167,7 +170,7 @@ namespace XDOErrorDetectorUI
                 {
                     // xdo 중복 사용
                     foreach (string duplicatedListItem in duplicatedReferenceList)
-                        log.Add(new DATLogItem(level, xy[0], xy[1], LOG.DUPLICATE_XDO, new FileInfo(item.Key).Name, duplicatedListItem, ""));
+                        log.Add(new DATLogItem(level, xy[0], xy[1], LOG.DUPLICATE_XDO, new FileInfo(item.Key).Name, duplicatedListItem, "", ""));
                 }
                 for(int i = 0; i < item.Value.objCount; i++)
                 {
@@ -201,10 +204,11 @@ namespace XDOErrorDetectorUI
             foreach(string xdo in xdoSet)
             {
                 // 참조 안되는 XDO
-                log.Add(new DATLogItem("", "", "", LOG.NOT_USED, "", new FileInfo(xdo).Name, ""));
+                log.Add(new DATLogItem("", "", "", LOG.NOT_USED, "", new FileInfo(xdo).Name, "", ""));
             }
+            return log;
         }
-        public void writeDBwithDATinfo(Dictionary<string, DATDBItem> hashMap)
+        public void writeDBwithDATinfo(Dictionary<string, DATDBItem> hashMap, List<DATLogItem> log)
         {
             using (var conn = connection())
             {
@@ -241,23 +245,6 @@ namespace XDOErrorDetectorUI
 
                         foreach (KeyValuePair<String, DATDBItem> key in hashMap)
                         {
-                            var centerpos_x = new List<double>();
-                            centerpos_x.AddRange(key.Value.centerPos.Select(x => x[0]));
-                            var centerpos_y = new List<double>();
-                            centerpos_y.AddRange(key.Value.centerPos.Select(x => x[1]));
-
-                            var minX = new List<double>();
-                            var minY = new List<double>();
-                            var minZ = new List<double>();
-                            var maxX = new List<double>();
-                            var maxY = new List<double>();
-                            var maxZ = new List<double>();
-                            minX.AddRange(key.Value.box.Select(x => x[0]));
-                            minY.AddRange(key.Value.box.Select(x => x[1]));
-                            minZ.AddRange(key.Value.box.Select(x => x[2]));
-                            maxX.AddRange(key.Value.box.Select(x => x[3]));
-                            maxY.AddRange(key.Value.box.Select(x => x[4]));
-                            maxZ.AddRange(key.Value.box.Select(x => x[5]));
                             Object[] obj_container = {
                                 key.Value.level,
                                 key.Value.idx,
@@ -266,34 +253,65 @@ namespace XDOErrorDetectorUI
                                 key.Value.objCount,
                                 key.Value.version.ToArray(),
                                 key.Value.key.ToArray(),
-                                centerpos_x.ToArray(),
-                                centerpos_y.ToArray(),
+                                key.Value.centerPos_X.ToArray(),
+                                key.Value.centerPos_Y.ToArray(),
                                 key.Value.altitude.ToArray(),
                                 key.Value.imgLevel.ToArray(),
                                 key.Value.dataFile.ToArray(),
                                 key.Value.imgFileName.ToArray(),
-                                minX.ToArray(),
-                                minY.ToArray(),
-                                minZ.ToArray(),
-                                maxX.ToArray(),
-                                maxY.ToArray(),
-                                maxZ.ToArray()
+                                key.Value.minX.ToArray(),
+                                key.Value.minY.ToArray(),
+                                key.Value.minZ.ToArray(),
+                                key.Value.maxX.ToArray(),
+                                key.Value.maxY.ToArray(),
+                                key.Value.maxZ.ToArray()
                             };
                             for (int i = 0; i < cmd.Parameters.Count; i++)
                                 cmd.Parameters[i].Value = obj_container[i];
                             cmd.ExecuteNonQuery();
                         }
-                        return;
+
+                        cmd.Parameters.Clear();
+
+                        cmd.CommandText = "INSERT INTO " + table_dat_log + " (\"level\", \"Y\",\"X\", \"filename\", \"objCount\", \"xdoname\", \"found\", \"detail\") " +
+                        @"VALUES(@level, @Y, @X, @filename, @objCount, @xdoname, @found, @detail)";
+                        cmd.Parameters.Add(new NpgsqlParameter("level", NpgsqlDbType.Text));
+                        cmd.Parameters.Add(new NpgsqlParameter("Y", NpgsqlDbType.Text));
+                        cmd.Parameters.Add(new NpgsqlParameter("X", NpgsqlDbType.Text));
+                        cmd.Parameters.Add(new NpgsqlParameter("filename", NpgsqlDbType.Text));
+                        cmd.Parameters.Add(new NpgsqlParameter("objCount", NpgsqlDbType.Text));
+                        cmd.Parameters.Add(new NpgsqlParameter("xdoname", NpgsqlDbType.Text));
+                        cmd.Parameters.Add(new NpgsqlParameter("found", NpgsqlDbType.Text));
+                        cmd.Parameters.Add(new NpgsqlParameter("detail", NpgsqlDbType.Text));
+                        cmd.Prepare();
+
+                        foreach (DATLogItem item in log)
+                        {
+                            Object[] obj_log_container = {
+                                item.level,
+                                item.Y,
+                                item.X,
+                                item.filename,
+                                item.objCount,
+                                item.xdoname,
+                                item.found,
+                                item.detail
+                            };
+                            for (int i = 0; i < cmd.Parameters.Count; i++)
+                                cmd.Parameters[i].Value = obj_log_container[i];
+                            cmd.ExecuteNonQuery();
+                        }
+                        datDBInsertCount += hashMap.Count;
+                        datLogInsertCount += log.Count;
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex);
-                    return;
                 }
             }
         }
-        public List<XDOLogItem> writeDBwithXDOLog(Dictionary<string, XDODBItem> hashMap, HashSet<string> imageSet)
+        public List<XDOLogItem> checkXDOError(Dictionary<string, XDODBItem> hashMap, HashSet<string> imageSet)
         {
             var log = new List<XDOLogItem>();
             foreach(KeyValuePair<string, XDODBItem> key in hashMap)
@@ -492,8 +510,8 @@ namespace XDOErrorDetectorUI
                                 cmd.Parameters[i].Value = obj_container[i];
                             cmd.ExecuteNonQuery();
                         }
-                        DBInsertCount += hashMap.Count;
-                        LogInsertCount += LogList.Count;
+                        xdoDBInsertCount += hashMap.Count;
+                        xdoLogInsertCount += LogList.Count;
 
                         // Console.WriteLine(hashMap.Count + "/" + LogList.Count);
                         return;
@@ -507,7 +525,7 @@ namespace XDOErrorDetectorUI
             }
         }
 
-        public List<XDODBItem> loadTable()
+        public List<XDODBItem> loadXDOTable()
         {
             var list = new List<XDODBItem>();
             using (var conn = connection())
@@ -557,10 +575,99 @@ namespace XDOErrorDetectorUI
                     Console.WriteLine(ex);
                 }
             }
+            return list;
+        }
+        public List<DATDBItem> loadDATTable()
+        {
+            var list = new List<DATDBItem>();
+            using (var conn = connection())
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new NpgsqlCommand())
+                    {
+                        cmd.Connection = conn;
+                        cmd.CommandText = "select * from " + table_dat;
+
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var item = new DATDBItem();
+                                item.level = int.Parse(reader["level"].ToString());
+                                item.idx = int.Parse(reader["IDX"].ToString());
+                                item.idy = int.Parse(reader["IDY"].ToString());
+                                item.datFileName = reader["filename"].ToString();
+                                item.objCount = int.Parse(reader["objCount"].ToString());
+                                item.key = ((string[])reader["Key"]).ToList();
+                                item.version = ((int[])reader["version"]).ToList();
+                                item.centerPos_X = ((double[])reader["CenterPos_X"]).ToList();
+                                item.centerPos_Y = ((double[])reader["CenterPos_Y"]).ToList();
+                                item.altitude = ((float[])reader["Altitude"]).ToList();
+                                item.imgLevel = ((int[])reader["ImageLevel"]).ToList();
+                                item.dataFile = ((string[])reader["dataFile"]).ToList();
+                                item.imgFileName = ((string[])reader["imgFileName"]).ToList();
+                                item.minX = ((double[])reader["boxMinX"]).ToList();
+                                item.minY = ((double[])reader["boxMinY"]).ToList();
+                                item.minZ = ((double[])reader["boxMinZ"]).ToList();
+                                item.maxX = ((double[])reader["boxMaxX"]).ToList();
+                                item.maxY = ((double[])reader["boxMaxY"]).ToList();
+                                item.maxZ = ((double[])reader["boxMaxZ"]).ToList();
+                                list.Add(item);
+                            }
+                        }
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+            return list;
+        }
+        public List<DATLogItem> loadDATLogTable()
+        {
+            var list = new List<DATLogItem>();
+            using (var conn = connection())
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new NpgsqlCommand())
+                    {
+                        cmd.Connection = conn;
+                        cmd.CommandText = "select * from " + table_dat_log;
+
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var item = new DATLogItem();
+                                item.level = reader["level"].ToString();
+                                item.X = reader["X"].ToString();
+                                item.Y = reader["Y"].ToString();
+                                item.filename = reader["filename"].ToString();
+                                item.found = reader["found"].ToString();
+                                item.xdoname = reader["xdoname"].ToString();
+                                item.detail = reader["detail"].ToString();
+                                item.objCount = reader["objCount"].ToString();
+                                list.Add(item);
+                            }
+                        }
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
 
             return list;
         }
-        public List<XDOLogItem> loadLogTable()
+        public List<XDOLogItem> loadXDOLogTable()
         {
             var list = new List<XDOLogItem>();
             using (var conn = connection())
@@ -666,7 +773,7 @@ namespace XDOErrorDetectorUI
                             "\"X\" text, " +
                             "\"Y\" text, " +
                             "\"filename\" text, " +
-                            "\"facenum\" integer, " +
+                            "\"objCount\" text, " +
                             "\"xdoname\" text, " +
                             "\"found\" text, " +
                             "\"detail\" text" +

@@ -97,11 +97,13 @@ namespace XDOErrorDetectorUI
             setTableName(sql, textBox_table.Text);
             listView1.Items.Clear();
             listView_Log.Items.Clear();
-            var list = sql.loadTable();
+            dat_info_listview.Items.Clear();
+            dat_log_listview.Items.Clear();
+            var list = sql.loadXDOTable();
             
             foreach (var key in list)
             {
-                listView1.Items.Add(new myItem {
+                listView1.Items.Add(new myXDOItem {
                     FileName = key.minifiedName,
                     Level = key.level,
                     X = key.X,
@@ -124,15 +126,47 @@ namespace XDOErrorDetectorUI
                 });
             }
 
-            var logList = sql.loadLogTable();
+            var logList = sql.loadXDOLogTable();
             foreach(var item in logList)
             {
                 listView_Log.Items.Add(item);
             }
 
-            label1.Content = "데이터 개수 " + list.Count + "/" + logList.Count + "개를 불러왔습니다.";
+            var datInfoList = sql.loadDATTable();
+            foreach (var item in datInfoList)
+            {
+                dat_info_listview.Items.Add(new myDATItem
+                {
+                    FileName = item.datFileName,
+                    Level = item.level,
+                    IDX = item.idx.ToString(),
+                    IDY = item.idy.ToString(),
+                    ObjCount = item.objCount,
+                    Key = String.Join(", ", item.key.ToArray()),
+                    Altitude = String.Join(", ", item.altitude.ToArray()),
+                    XDO = String.Join(", ", item.dataFile.ToArray()),
+                    Version = String.Join(", ", item.version.ToArray()),
+                    imgFileName = String.Join(", ", item.imgFileName.ToArray()),
+                    ImgLevel = String.Join(", ", item.imgLevel.ToArray()),
+                    minX = String.Join(", ", item.minX.ToArray()),
+                    minY = String.Join(", ", item.minY.ToArray()),
+                    minZ = String.Join(", ", item.minZ.ToArray()),
+                    maxX = String.Join(", ", item.maxX.ToArray()),
+                    maxY = String.Join(", ", item.maxY.ToArray()),
+                    maxZ = String.Join(", ", item.maxZ.ToArray()),
+                    CenterPos_X = String.Join(", ", item.centerPos_X.ToArray()),
+                    CenterPos_Y = String.Join(", ", item.centerPos_Y.ToArray())
+                });
+            }
+
+            var datLogList = sql.loadDATLogTable();
+            foreach (var item in datLogList)
+            {
+                dat_log_listview.Items.Add(item);
+            }
+            label1.Content = "데이터 개수 " + datInfoList.Count + "/" + datLogList.Count + "/" + list.Count + "/" + logList.Count + "개를 불러왔습니다.";
         }
-        public class myItem
+        public class myXDOItem
         {
             public string FileName { get; set; }
             public int Level { get; set; }
@@ -153,6 +187,28 @@ namespace XDOErrorDetectorUI
             public string IndexedCount { get; set; }
             public string ImageLevel { get; set; }
             public string ImageName { get; set; }
+        }
+        public class myDATItem
+        {
+            public string FileName { get; set; }
+            public int Level { get; set; }
+            public string IDX { get; set; }
+            public string IDY { get; set; }
+            public int ObjCount { get; set; }
+            public string ImgLevel { get; set; }
+            public string Key { get; set; }
+            public string Version { get; set; }
+            public string CenterPos_X { get; set; }
+            public string CenterPos_Y { get; set; }
+            public string Altitude { get; set; }
+            public string XDO { get; set; }
+            public string imgFileName { get; set; }
+            public string minX { get; set; }
+            public string minY { get; set; }
+            public string minZ { get; set; }
+            public string maxX { get; set; }
+            public string maxY { get; set; }
+            public string maxZ { get; set; }
         }
     }
 }

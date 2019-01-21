@@ -18,7 +18,7 @@ namespace XDOErrorDetectorUI
             header.IDX = br.ReadUInt32();
             header.IDY = br.ReadUInt32();
             header.objCount = br.ReadUInt32();
-
+            header.datFilename = new FileInfo(url).Name;
             for(uint i = 0; i < header.objCount; i++)
             {
                 Obj item = new Obj();
@@ -62,6 +62,7 @@ namespace XDOErrorDetectorUI
         public uint IDX;
         public uint IDY;
         public uint objCount;
+        public string datFilename;
     }
     class Obj
     {

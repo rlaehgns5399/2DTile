@@ -29,8 +29,9 @@ namespace XDOErrorDetectorUI
     {
         public string objCount { get; set; }
         public DATLogItem() { }
-        public DATLogItem(string level, string y, string x, LOG type, string filename, string xdoname, string found)
+        public DATLogItem(string level, string y, string x, LOG type, string filename, string xdoname, string found, string objCount)
         {
+            this.objCount = objCount;
             this.level = level;
             this.Y = y;
             this.X = x;
@@ -53,10 +54,6 @@ namespace XDOErrorDetectorUI
                     this.detail = "DAT has XDO which are duplicated";
                     break;
             }
-        }
-        public DATLogItem(string level, string y, string x, LOG type, string filename, string xdoname, string found, string objCount) : this(level,  y, x, type, filename, xdoname, found)
-        {
-            this.objCount = objCount;
         }
     }
     class XDOLogItem : LogItem
