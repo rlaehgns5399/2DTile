@@ -39,8 +39,8 @@
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Level" DisplayMemberBinding="{Binding level}"/>
-                                <GridViewColumn Header="IDY" DisplayMemberBinding="{Binding Y}"/>
-                                <GridViewColumn Header="IDX" DisplayMemberBinding="{Binding X}"/>
+                                <GridViewColumn Header="Y" DisplayMemberBinding="{Binding Y}"/>
+                                <GridViewColumn Header="X" DisplayMemberBinding="{Binding X}"/>
                                 <GridViewColumn Header="FileName" DisplayMemberBinding="{Binding filename}"/>
                                 <GridViewColumn Header="Obj No/Total Obj" DisplayMemberBinding="{Binding objCount}"/>
                                 <GridViewColumn Header="DAT - want" DisplayMemberBinding="{Binding xdoname}"/>
