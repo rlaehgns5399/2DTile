@@ -94,6 +94,9 @@
                 </ListView>
                 </StackPanel>
             </TabItem>
+            <TabItem Header="Version Check">
+                
+            </TabItem>
         </TabControl>
        
         <Label x:Name="label1" Content="Label" HorizontalAlignment="Left" Height="34" Margin="11,166,0,0" VerticalAlignment="Top" Width="997"/>
@@ -118,6 +121,7 @@
         <Button x:Name="btn_load" IsEnabled="False" Content="테이블 불러오기" HorizontalAlignment="Left" Height="31" Margin="744,63,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="-0.017,-0.442" Click="button_load_Click"/>
         <TextBox x:Name="textBox_port" HorizontalAlignment="Left" Height="18" Margin="75,115,0,0" TextWrapping="Wrap" Text="default port" VerticalAlignment="Top" Width="147"/>
         <TextBlock x:Name="textBlock_Copy4" HorizontalAlignment="Left" Margin="11,115,0,0" TextWrapping="Wrap" Text="Port" VerticalAlignment="Top" Height="18" Width="59"/>
+        <Button x:Name="btn_check_version_error" IsEnabled="False" Content="DAT-XDO 버전 체크" HorizontalAlignment="Left" Height="31" Margin="615,63,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="-0.017,-0.442" Click="button_DatXdo_check_Click"/>
 
 
     </Grid>

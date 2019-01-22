@@ -51,6 +51,7 @@ namespace XDOErrorDetectorUI
             btn_searchtable.IsEnabled = true;
             textBox_table.IsEnabled = true;
             btn_load.IsEnabled = true;
+            btn_check_version_error.IsEnabled = true;
 
             btn_connection.IsEnabled = false;
             textBox_host.IsEnabled = false;
@@ -209,6 +210,11 @@ namespace XDOErrorDetectorUI
             public string maxX { get; set; }
             public string maxY { get; set; }
             public string maxZ { get; set; }
+        }
+
+        private void button_DatXdo_check_Click(object sender, RoutedEventArgs e)
+        {
+            // check start
         }
     }
 }

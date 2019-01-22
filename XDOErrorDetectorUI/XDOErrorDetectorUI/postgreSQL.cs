@@ -204,7 +204,7 @@ namespace XDOErrorDetectorUI
             foreach(string xdo in xdoSet)
             {
                 // 참조 안되는 XDO
-                log.Add(new DATLogItem("", "", "", LOG.NOT_USED, "", new FileInfo(xdo).Name, "", ""));
+                log.Add(new DATLogItem("", "", "", LOG.NOT_USED, "", "", new FileInfo(xdo).Name, ""));
             }
             return log;
         }
