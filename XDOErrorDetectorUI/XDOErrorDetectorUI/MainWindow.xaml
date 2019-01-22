@@ -95,7 +95,19 @@
                 </StackPanel>
             </TabItem>
             <TabItem Header="Version Check">
-
+                <ListView x:Name="listView_version" Height="502" Margin="11,5,10.4,0" VerticalAlignment="Top">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Level" DisplayMemberBinding="{Binding level}"/>
+                            <GridViewColumn Header="Y" DisplayMemberBinding="{Binding y}"/>
+                            <GridViewColumn Header="X" DisplayMemberBinding="{Binding x}"/>
+                            <GridViewColumn Header="DAT" DisplayMemberBinding="{Binding datname}"/>
+                            <GridViewColumn Header="DAT - Version" DisplayMemberBinding="{Binding DATversion}"/>
+                            <GridViewColumn Header="XDO" DisplayMemberBinding="{Binding xdoname}"/>
+                            <GridViewColumn Header="XDO - Version" DisplayMemberBinding="{Binding XDOversion}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
             </TabItem>
         </TabControl>
 

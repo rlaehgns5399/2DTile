@@ -225,7 +225,18 @@ namespace XDOErrorDetectorUI
 
         private void button_DatXdo_check_Click(object sender, RoutedEventArgs e)
         {
-            // check start
+            listView_version.Items.Clear();
+            setTableName(sql, textBox_table.Text);
+
+            int min = int.Parse(textBox_Min.Text);
+            int max = int.Parse(textBox_Max.Text);
+
+            var list = sql.checkVersion(folder_path.Text, min, max);
+            foreach(var item in list)
+            {
+                listView_version.Items.Add(item);
+            }
+
         }
     }
 }

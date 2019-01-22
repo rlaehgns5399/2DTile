@@ -20,12 +20,11 @@ namespace XDOErrorDetectorUI
         public float altitude;
         public byte faceNum;
         public int XDOVersion;
+        public bool isEnd;
         public XDO(string url)
         {
             this.url = url;
             BinaryReader br = new BinaryReader(File.Open(this.url, FileMode.Open));
-
-
             // type
             this.XDOType = br.ReadByte();
             // ObjectID
@@ -61,14 +60,12 @@ namespace XDOErrorDetectorUI
 
             if (temp == 0)
             {
-                // Console.WriteLine("XDO version 3.0.0.1");
                 this.XDOVersion = 1;
                 br.BaseStream.Position -= 5;
                 this.mesh.Add(new XDOMesh(br));
             }
             else
             {
-                // Console.WriteLine("XDO version 3.0.0.2");
                 this.XDOVersion = 2;
                 br.BaseStream.Position -= 4;
                 for (int i = 0; i < this.faceNum; i++)
@@ -77,6 +74,52 @@ namespace XDOErrorDetectorUI
                 }
             }
 
+            br.Close();
+        }
+        public XDO(string url, int ver)
+        {
+            this.url = url;
+            BinaryReader br = new BinaryReader(File.Open(this.url, FileMode.Open));
+            try
+            {
+                // type
+                this.XDOType = br.ReadByte();
+                // ObjectID
+                this.ObjectID = br.ReadUInt32();
+                // KeyLen
+                this.KeyLen = br.ReadByte();
+                // Key
+                this.Key = System.Text.Encoding.UTF8.GetString(br.ReadBytes(this.KeyLen));
+                // ObjBox
+                this.minX = br.ReadDouble();
+                this.minY = br.ReadDouble();
+                this.minZ = br.ReadDouble();
+                this.maxX = br.ReadDouble();
+                this.maxY = br.ReadDouble();
+                this.maxZ = br.ReadDouble();
+                // Altitude
+                this.altitude = br.ReadSingle();
+
+                if (ver == 3001)
+                {
+                    this.mesh.Add(new XDOMesh(br));
+                }
+
+                if (ver == 3002)
+                {
+                    this.faceNum = br.ReadByte();
+                    for (int i = 0; i < this.faceNum; i++)
+                    {
+                        this.mesh.Add(new XDOMesh(br));
+                    }
+                }
+
+                this.isEnd = br.BaseStream.Length == br.BaseStream.Position;
+            }
+            catch (Exception e)
+            {
+                this.isEnd = false;
+            }
             br.Close();
         }
     }

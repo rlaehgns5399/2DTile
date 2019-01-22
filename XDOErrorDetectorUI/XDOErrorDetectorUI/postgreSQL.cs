@@ -26,6 +26,11 @@ namespace XDOErrorDetectorUI
 
         public string search(string path, int min, int max)
         {
+            xdoDBInsertCount = 0;
+            xdoLogInsertCount = 0;
+            datDBInsertCount = 0;
+            datLogInsertCount = 0;
+
             var DATdirectorySet = new DirectoryFinder(path, min, max).run(EXT.DAT);
 
             foreach(string DATFolderPath in DATdirectorySet)
@@ -839,6 +844,62 @@ namespace XDOErrorDetectorUI
                 }
             }
         }
+        public List<CheckVersionListItem> checkVersion(string path, int min, int max)
+        {
+            var list = new List<CheckVersionListItem>();
+            var count = 0;
+            var DATdirectorySet = new DirectoryFinder(path, min, max).run(EXT.DAT);
+
+            foreach (string DATFolderPath in DATdirectorySet)
+            {
+                var DATFileList = new FileFinder(DATFolderPath).run(EXT.DAT);
+                var hashMap = new Dictionary<string, DAT>();
+
+                foreach (string datFile in DATFileList)
+                {
+                    var dat = new DAT(datFile);
+                    var baseDirectory = new FileInfo(datFile).Directory.FullName;
+                    
+                    for(int i = 0; i < dat.body.Count; i++)
+                    {
+                        var xdoFileName = dat.body[i].dataFile;
+                        var xdoURL = baseDirectory + @"\" + Path.GetFileNameWithoutExtension(datFile) + @"\" + xdoFileName;
+                        var version = Int32.Parse((int)dat.body[i].version[0] + "" + (int)dat.body[i].version[1] + "" + (int)dat.body[i].version[2] + "" + (int)dat.body[i].version[3]);
+                        if (File.Exists(xdoURL))
+                        {
+                            XDO xdo = new XDO(xdoURL, version);
+                            var logItem = new CheckVersionListItem();
+                            logItem.level = new FileInfo(xdoURL).Directory.Parent.Parent.Name;
+                            var y_x = new FileInfo(xdoURL).Directory.Name.Split('_');
+                            logItem.y = y_x[0];
+                            logItem.x = y_x[1];
+                            logItem.datname = new FileInfo(datFile).Name;
+                            logItem.DATversion = version.ToString();
+                            logItem.xdoname = xdoFileName;
+                            if (!xdo.isEnd && version == 3001)
+                            {
+                                logItem.XDOversion = 3002.ToString();
+                                list.Add(logItem);
+                            }
+                            else if(!xdo.isEnd && version == 3002)
+                            {
+                                logItem.XDOversion = 3001.ToString();
+                                list.Add(logItem);
+                            }
+                            else
+                            {
+                                Console.WriteLine("request: " + xdoURL + "(" + version + ")");
+                                Console.WriteLine("response: " + xdo.isEnd);
+                            }
+                        }
+
+                        count++;
+                    }
+                }
+            }
+            Console.WriteLine(list.Count + "/" + count);
+            return list;
+        } 
         public string connect()
         {
             using (var conn = connection())
