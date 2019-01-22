@@ -24,9 +24,9 @@ namespace XDOErrorDetectorUI
         public string table_dat;
         public string table_dat_log;
 
-        public string search(string path)
+        public string search(string path, int min, int max)
         {
-            var DATdirectorySet = new DirectoryFinder(path).run(EXT.DAT);
+            var DATdirectorySet = new DirectoryFinder(path, min, max).run(EXT.DAT);
 
             foreach(string DATFolderPath in DATdirectorySet)
             {
@@ -83,7 +83,7 @@ namespace XDOErrorDetectorUI
 
 
 
-            var XDOdirectorySet = new DirectoryFinder(path).run(EXT.XDO);
+            var XDOdirectorySet = new DirectoryFinder(path, min, max).run(EXT.XDO);
             foreach (string directory in XDOdirectorySet)
             {
                 // XDO 파일을 주어진 경로로 부터 모두 다 찾음

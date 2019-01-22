@@ -82,8 +82,19 @@ namespace XDOErrorDetectorUI
         
         private void button_search_Click(object sender, RoutedEventArgs e)
         {
+            int min, max;
             setTableName(sql, textBox_table.Text);
-            label1.Content = sql.search(folder_path.Text);
+            if(!int.TryParse(textBox_Min.Text, out min))
+            {
+                System.Windows.Forms.MessageBox.Show("Min level 값을 정수형으로 변환할 수 없습니다. 0으로 검색합니다.");
+                min = 0;
+            }
+            if(!int.TryParse(textBox_Max.Text, out max))
+            {
+                System.Windows.Forms.MessageBox.Show("Max level 값을 정수형으로 변환할 수 없습니다. 0으로 검색합니다.");
+                max = 0;
+            }
+            label1.Content = sql.search(folder_path.Text, min, max);
         }
 
         private void button_changefolder(object sender, RoutedEventArgs e)
