@@ -80,11 +80,11 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="CheckVersionListItem.cs" />
-    <Compile Include="DAT.cs" />
+    <Compile Include="ReadDAT.cs" />
     <Compile Include="DB.cs" />
     <Compile Include="DBItem.cs" />
     <Compile Include="LogItem.cs" />
-    <Compile Include="XDO.cs" />
+    <Compile Include="ReadXDO.cs" />
     <Compile Include="DirectoryFinder.cs" />
     <Compile Include="FileFinder.cs" />
     <Page Include="MainWindow.xaml">

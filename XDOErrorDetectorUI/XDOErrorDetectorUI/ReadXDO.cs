@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace XDOErrorDetectorUI
 {
-    class XDO
+    class ReadXDO
     {
         public List<XDOMesh> mesh = new List<XDOMesh>();
         public String url;
@@ -21,7 +21,7 @@ namespace XDOErrorDetectorUI
         public byte faceNum;
         public int XDOVersion;
         public bool isEnd;
-        public XDO(string url)
+        public ReadXDO(string url)
         {
             this.url = url;
             BinaryReader br = new BinaryReader(File.Open(this.url, FileMode.Open));
@@ -76,7 +76,7 @@ namespace XDOErrorDetectorUI
 
             br.Close();
         }
-        public XDO(string url, int ver)
+        public ReadXDO(string url, int ver)
         {
             this.url = url;
             BinaryReader br = new BinaryReader(File.Open(this.url, FileMode.Open));

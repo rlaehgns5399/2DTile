@@ -7,12 +7,14 @@ using System.IO;
 
 namespace XDOErrorDetectorUI
 {
-    class DAT
+    class ReadDAT
     {
+        public string url;
         public header header = new header();
         public List<Obj> body = new List<Obj>();
-        public DAT(string url)
+        public ReadDAT(string url)
         {
+            this.url = url;
             BinaryReader br = new BinaryReader(File.Open(url, FileMode.Open));
             header.level = br.ReadUInt32();
             header.IDX = br.ReadUInt32();
@@ -53,6 +55,7 @@ namespace XDOErrorDetectorUI
                 }
                 body.Add(item);
             }
+            br.Close();
         }
     }
 

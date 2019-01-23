@@ -14,6 +14,7 @@ namespace XDOErrorDetectorUI
         public DB info;
         public List<XDOLogItem> XDOLogList;
         public List<DATLogItem> DATLogList;
+        public Dictionary<LOG, List<ReadDAT>> repairDatDictionary;
         private int xdoDBInsertCount = 0;
         private int xdoLogInsertCount = 0;
         private int datDBInsertCount = 0;
@@ -26,6 +27,10 @@ namespace XDOErrorDetectorUI
 
         public string search(string path, int min, int max)
         {
+            repairDatDictionary = new Dictionary<LOG, List<ReadDAT>>();
+            repairDatDictionary[LOG.WARN_CASE_INSENSITIVE] = new List<ReadDAT>();
+            repairDatDictionary[LOG.DUPLICATE_XDO] = new List<ReadDAT>();
+            repairDatDictionary[LOG.ERR_NOT_EXIST] = new List<ReadDAT>();
             xdoDBInsertCount = 0;
             xdoLogInsertCount = 0;
             datDBInsertCount = 0;
@@ -42,7 +47,7 @@ namespace XDOErrorDetectorUI
 
                 foreach (string datFile in DATFileList)
                 {
-                    var dat = new DAT(datFile);
+                    var dat = new ReadDAT(datFile);
                     var baseDirectory = new FileInfo(datFile).Directory.FullName;
 
                     var dat_DBItem = new DATDBItem();
@@ -103,7 +108,7 @@ namespace XDOErrorDetectorUI
                 // 비효율적으로 제작
                 foreach (var xdoFile in xdoFileList)
                 {
-                    var xdo = new XDO(xdoFile);
+                    var xdo = new ReadXDO(xdoFile);
                     var baseDirectory = new FileInfo(xdo.url).Directory.FullName;
 
                     var xdo_dbItem = new XDODBItem();
@@ -160,7 +165,8 @@ namespace XDOErrorDetectorUI
         public List<DATLogItem> checkDATError(Dictionary<string, DATDBItem> hashMap, HashSet<string> xdoSet)
         {
             var log = new List<DATLogItem>();
-            foreach(KeyValuePair<string, DATDBItem> item in hashMap)
+
+            foreach (KeyValuePair<string, DATDBItem> item in hashMap)
             {
                 var baseURL = new FileInfo(item.Key).Directory.FullName;
                 var DATName = Path.GetFileNameWithoutExtension(item.Key);
@@ -176,6 +182,7 @@ namespace XDOErrorDetectorUI
                     // xdo 중복 사용
                     foreach (string duplicatedListItem in duplicatedReferenceList)
                         log.Add(new DATLogItem(level, xy[0], xy[1], LOG.DUPLICATE_XDO, new FileInfo(item.Key).Name, duplicatedListItem, "", ""));
+                    repairDatDictionary[LOG.DUPLICATE_XDO].Add(new ReadDAT(item.Key));
                 }
                 for(int i = 0; i < item.Value.objCount; i++)
                 {
@@ -195,11 +202,13 @@ namespace XDOErrorDetectorUI
                             // XDO 대소문자
                             log.Add(new DATLogItem(level, xy[0], xy[1], LOG.WARN_CASE_INSENSITIVE, new FileInfo(item.Key).Name, new FileInfo(DAT_xdo).Name, new FileInfo(REAL_xdo).Name, objCountString));
                             xdoSet_forRemove.Add(REAL_xdo);
+                            repairDatDictionary[LOG.WARN_CASE_INSENSITIVE].Add(new ReadDAT(item.Key));
                         }
                     }
                     else
                     {
                         log.Add(new DATLogItem(level, xy[0], xy[1], LOG.ERR_NOT_EXIST, new FileInfo(item.Key).Name, new FileInfo(DAT_xdo).Name, "", objCountString));
+                        repairDatDictionary[LOG.ERR_NOT_EXIST].Add(new ReadDAT(item.Key));
                     }
                 }
 
@@ -331,8 +340,6 @@ namespace XDOErrorDetectorUI
                 var baseURL = new FileInfo(key.Key).Directory.FullName;
                 for (var i = 0; i < key.Value.FaceNum; i++)
                 {
-                    Console.WriteLine(key.Key);
-                    Console.WriteLine(key.Value.XDOVersion);
                     var imgURL = baseURL + "\\" + key.Value.ImageName[i];
                     var basecount = 0;
 
@@ -860,11 +867,11 @@ namespace XDOErrorDetectorUI
             foreach (string DATFolderPath in DATdirectorySet)
             {
                 var DATFileList = new FileFinder(DATFolderPath).run(EXT.DAT);
-                var hashMap = new Dictionary<string, DAT>();
+                var hashMap = new Dictionary<string, ReadDAT>();
 
                 foreach (string datFile in DATFileList)
                 {
-                    var dat = new DAT(datFile);
+                    var dat = new ReadDAT(datFile);
                     var baseDirectory = new FileInfo(datFile).Directory.FullName;
                     
                     for(int i = 0; i < dat.body.Count; i++)
@@ -874,7 +881,7 @@ namespace XDOErrorDetectorUI
                         var version = Int32.Parse((int)dat.body[i].version[0] + "" + (int)dat.body[i].version[1] + "" + (int)dat.body[i].version[2] + "" + (int)dat.body[i].version[3]);
                         if (File.Exists(xdoURL))
                         {
-                            XDO xdo = new XDO(xdoURL, version);
+                            var xdo = new ReadXDO(xdoURL, version);
                             var logItem = new CheckVersionListItem();
                             logItem.level = new FileInfo(xdoURL).Directory.Parent.Parent.Name;
                             var y_x = new FileInfo(xdoURL).Directory.Name.Split('_');
@@ -895,8 +902,8 @@ namespace XDOErrorDetectorUI
                             }
                             else
                             {
-                                Console.WriteLine("request: " + xdoURL + "(" + version + ")");
-                                Console.WriteLine("response: " + xdo.isEnd);
+                                // Console.WriteLine("request: " + xdoURL + "(" + version + ")");
+                                // Console.WriteLine("response: " + xdo.isEnd);
                             }
                         }
 
@@ -919,6 +926,48 @@ namespace XDOErrorDetectorUI
                 catch (Exception e)
                 {
                     return "DB 접속 실패";
+                }
+            }
+        }
+
+        public void repair()
+        {
+            foreach (KeyValuePair<LOG, List<ReadDAT>> key in repairDatDictionary)
+            {
+                switch (key.Key)
+                {
+                    case LOG.DUPLICATE_XDO:
+                        var removeLater = new List<int>();
+                        foreach(var readDAT in key.Value)
+                        {
+                            var dataFileList = new List<string>();
+                            for (int i = 0; i < readDAT.body.Count; i++)
+                                dataFileList.Add(readDAT.body[i].dataFile);
+                            var duplicates = dataFileList.Select((t, i) => new { Index = i, Text = t }).GroupBy(g => g.Text).Where(g => g.Count() > 1);
+                            foreach(var group in duplicates)
+                            {
+                                int count = 0;
+                                foreach(var x in group)
+                                {
+                                    if (count++ == 0) continue;
+                                    removeLater.Add(x.Index);
+                                }
+                            }
+
+
+                            foreach (var index in removeLater)
+                            {
+                                readDAT.body.RemoveAt(index);
+                            }
+
+                            new WriteDAT(readDAT);
+                        }
+                        
+                        break;
+                    case LOG.ERR_NOT_EXIST:
+                        break;
+                    case LOG.WARN_CASE_INSENSITIVE:
+                        break;
                 }
             }
         }

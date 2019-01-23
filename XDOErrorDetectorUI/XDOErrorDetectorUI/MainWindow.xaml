@@ -139,6 +139,7 @@
         <TextBox x:Name="textBox_Max" HorizontalAlignment="Left" Height="19" Margin="847,98,0,0" TextWrapping="Wrap" Text="15" VerticalAlignment="Top" Width="20"/>
         <TextBlock x:Name="textBlock2" HorizontalAlignment="Left" Height="23" Margin="750,100,0,0" TextWrapping="Wrap" Text="Min:" VerticalAlignment="Top" Width="29"/>
         <TextBlock x:Name="textBlock2_Copy" HorizontalAlignment="Left" Height="23" Margin="818,100,0,0" TextWrapping="Wrap" Text="Max:" VerticalAlignment="Top" Width="29"/>
+        <Button x:Name="btn_repair" IsEnabled="False" Content="DAT 오류 치료" HorizontalAlignment="Left" Height="31" Margin="614,132,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="-0.017,-0.442" Click="button_repair_Click"/>
 
 
     </Grid>

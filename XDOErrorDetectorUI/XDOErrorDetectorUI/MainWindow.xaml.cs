@@ -95,6 +95,7 @@ namespace XDOErrorDetectorUI
                 max = 0;
             }
             label1.Content = sql.search(folder_path.Text, min, max);
+            btn_repair.IsEnabled = true;
         }
 
         private void button_changefolder(object sender, RoutedEventArgs e)
@@ -237,6 +238,12 @@ namespace XDOErrorDetectorUI
                 listView_version.Items.Add(item);
             }
 
+        }
+
+        private void button_repair_Click(object sender, RoutedEventArgs e)
+        {
+            setTableName(sql, textBox_table.Text);
+            sql.repair();
         }
     }
 }
