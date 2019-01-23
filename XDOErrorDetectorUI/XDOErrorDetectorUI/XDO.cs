@@ -55,7 +55,7 @@ namespace XDOErrorDetectorUI
             }
             else
             {
-                this.faceNum = 0;
+                this.faceNum = 1;
             }
 
             if (temp == 0)

@@ -209,7 +209,9 @@ namespace XDOErrorDetectorUI
             foreach(string xdo in xdoSet)
             {
                 // 참조 안되는 XDO
-                log.Add(new DATLogItem("", "", "", LOG.NOT_USED, "", "", new FileInfo(xdo).Name, ""));
+                var fileinfo = new FileInfo(xdo);
+                var y_x = fileinfo.Directory.Name.Split('_');
+                log.Add(new DATLogItem(fileinfo.Directory.Parent.Parent.Name, y_x[0], y_x[0], LOG.NOT_USED, "", "", new FileInfo(xdo).Name, ""));
             }
             return log;
         }
@@ -329,6 +331,8 @@ namespace XDOErrorDetectorUI
                 var baseURL = new FileInfo(key.Key).Directory.FullName;
                 for (var i = 0; i < key.Value.FaceNum; i++)
                 {
+                    Console.WriteLine(key.Key);
+                    Console.WriteLine(key.Value.XDOVersion);
                     var imgURL = baseURL + "\\" + key.Value.ImageName[i];
                     var basecount = 0;
 
@@ -418,8 +422,11 @@ namespace XDOErrorDetectorUI
             }
             foreach(string remainImage in imageSet)
             {
-                // 쓰이지 않는 것들 여기서 처리 
-                log.Add(new XDOLogItem("", "", "", LOG.NOT_USED, "", 0, "", new FileInfo(remainImage).Name));
+                // 쓰이지 않는 것들 여기서 처리
+                // 이미지 경로가 xdo와 같이 있는 "정상적인 상황"이라면 잘 동작할 것이다
+                var fileinfo = new FileInfo(remainImage);
+                var y_x = fileinfo.Directory.Name.Split('_');
+                log.Add(new XDOLogItem(fileinfo.Directory.Parent.Parent.Name , y_x[0], y_x[1], LOG.NOT_USED, "", 0, "", new FileInfo(remainImage).Name));
             }
             return log;
         }
