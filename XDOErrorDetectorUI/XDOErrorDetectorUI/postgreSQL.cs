@@ -937,9 +937,9 @@ namespace XDOErrorDetectorUI
                 switch (key.Key)
                 {
                     case LOG.DUPLICATE_XDO:
-                        var removeLater = new List<int>();
                         foreach(var readDAT in key.Value)
                         {
+                            var removeLater = new List<int>();
                             var dataFileList = new List<string>();
                             for (int i = 0; i < readDAT.body.Count; i++)
                                 dataFileList.Add(readDAT.body[i].dataFile);
@@ -954,8 +954,8 @@ namespace XDOErrorDetectorUI
                                 }
                             }
 
-
-                            foreach (var index in removeLater)
+                            
+                            foreach (var index in removeLater.OrderByDescending(x=>x))
                             {
                                 readDAT.body.RemoveAt(index);
                             }

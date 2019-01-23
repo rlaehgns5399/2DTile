@@ -26,10 +26,10 @@ namespace XDOErrorDetectorUI
                 Obj item = new Obj();
                 item.version = br.ReadBytes(4);
                 item.type = br.ReadByte();
-                var keyLen = br.ReadByte();
-                if (keyLen > 0)
+                item.KeyLen = br.ReadByte();
+                if (item.KeyLen > 0)
                 {
-                    item.key = new string(br.ReadChars(keyLen));
+                    item.key = new string(br.ReadChars(item.KeyLen));
                 }
                 item.centerPos_x = br.ReadDouble();
                 item.centerPos_y = br.ReadDouble();
@@ -42,16 +42,16 @@ namespace XDOErrorDetectorUI
                 item.maxZ = br.ReadDouble();
                 item.ImgLevel = br.ReadByte();
 
-                var dataFileLen = br.ReadByte();
-                if(dataFileLen > 0)
+                item.dataFileLen = br.ReadByte();
+                if(item.dataFileLen > 0)
                 {
-                    item.dataFile = new string(br.ReadChars(dataFileLen));
+                    item.dataFile = new string(br.ReadChars(item.dataFileLen));
                 }
 
-                var imgFileNameLen = br.ReadByte();
-                if(imgFileNameLen > 0)
+                item.imgFileNameLen = br.ReadByte();
+                if(item.imgFileNameLen > 0)
                 {
-                    item.imgFileName = new string(br.ReadChars(imgFileNameLen));
+                    item.imgFileName = new string(br.ReadChars(item.imgFileNameLen));
                 }
                 body.Add(item);
             }
@@ -71,6 +71,7 @@ namespace XDOErrorDetectorUI
     {
         public byte[] version;
         public byte type;
+        public byte KeyLen;
         public string key;
         public double centerPos_x;
         public double centerPos_y;
@@ -82,7 +83,9 @@ namespace XDOErrorDetectorUI
         public double maxY;
         public double maxZ;
         public byte ImgLevel;
+        public byte dataFileLen;
         public string dataFile;
+        public byte imgFileNameLen;
         public string imgFileName;
     }
 }
