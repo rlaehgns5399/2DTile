@@ -9,13 +9,25 @@ namespace XDOErrorDetectorUI
 {
     class WriteDAT
     {
-        public WriteDAT(ReadDAT dat)
+        public WriteDAT(ReadDAT dat, string option)
         {
-            this.run(dat);
+            this.run(dat, option);
         }
-        private void run(ReadDAT dat)
+        private void run(ReadDAT dat, string option)
         {
-            var bw = new BinaryWriter(File.Open(dat.url + ".bak", FileMode.Create));
+            BinaryWriter bw = null;
+            if (option.Equals("backup"))
+            {
+                try
+                {
+                    File.Move(dat.url, dat.url + ".backup");
+                }
+                catch(Exception e)
+                {
+
+                }
+                bw = new BinaryWriter(File.Open(dat.url, FileMode.Create));
+            } 
             bw.Write(dat.header.level);
             bw.Write(dat.header.IDX);
             bw.Write(dat.header.IDY);

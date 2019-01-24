@@ -972,6 +972,11 @@ namespace XDOErrorDetectorUI
                                     removeLater.Add(i);
                                 }
                             }
+
+                            foreach (var index in removeLater.OrderByDescending(x => x))
+                            {
+                                readDAT.body.RemoveAt(index);
+                            }
                             break;
                         case LOG.WARN_CASE_INSENSITIVE:
                             for(int i = 0; i < dataFileList.Count; i++)
@@ -993,7 +998,7 @@ namespace XDOErrorDetectorUI
                             break;
                     }
 
-                    new WriteDAT(readDAT);
+                    new WriteDAT(readDAT, "backup");
                 }
             }
         }
