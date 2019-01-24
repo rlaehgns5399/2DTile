@@ -934,40 +934,66 @@ namespace XDOErrorDetectorUI
         {
             foreach (KeyValuePair<LOG, List<ReadDAT>> key in repairDatDictionary)
             {
-                switch (key.Key)
+
+                foreach (var readDAT in key.Value)
                 {
-                    case LOG.DUPLICATE_XDO:
-                        foreach(var readDAT in key.Value)
-                        {
-                            var removeLater = new List<int>();
-                            var dataFileList = new List<string>();
-                            for (int i = 0; i < readDAT.body.Count; i++)
-                                dataFileList.Add(readDAT.body[i].dataFile);
+                    var removeLater = new List<int>();
+                    var dataFileList = new List<string>();
+                    for (int i = 0; i < readDAT.body.Count; i++)
+                        dataFileList.Add(readDAT.body[i].dataFile);
+                    switch (key.Key)
+                    {
+                        case LOG.DUPLICATE_XDO:
                             var duplicates = dataFileList.Select((t, i) => new { Index = i, Text = t }).GroupBy(g => g.Text).Where(g => g.Count() > 1);
-                            foreach(var group in duplicates)
+                            foreach (var group in duplicates)
                             {
                                 int count = 0;
-                                foreach(var x in group)
+                                foreach (var x in group)
                                 {
                                     if (count++ == 0) continue;
                                     removeLater.Add(x.Index);
                                 }
                             }
 
-                            
-                            foreach (var index in removeLater.OrderByDescending(x=>x))
+
+                            foreach (var index in removeLater.OrderByDescending(x => x))
                             {
                                 readDAT.body.RemoveAt(index);
                             }
 
-                            new WriteDAT(readDAT);
-                        }
-                        
-                        break;
-                    case LOG.ERR_NOT_EXIST:
-                        break;
-                    case LOG.WARN_CASE_INSENSITIVE:
-                        break;
+                            
+                            break;
+                        case LOG.ERR_NOT_EXIST:
+                            for (int i = 0; i < dataFileList.Count; i++)
+                            {
+                                var xdo = Path.Combine(new FileInfo(readDAT.url).Directory.FullName, Path.GetFileNameWithoutExtension(readDAT.url), dataFileList[i]);
+                                if (!File.Exists(xdo))
+                                {
+                                    removeLater.Add(i);
+                                }
+                            }
+                            break;
+                        case LOG.WARN_CASE_INSENSITIVE:
+                            for(int i = 0; i < dataFileList.Count; i++)
+                            {
+                                var DAT_xdo = Path.Combine(new FileInfo(readDAT.url).Directory.FullName, Path.GetFileNameWithoutExtension(readDAT.url), dataFileList[i]);
+                                DAT_xdo = Path.GetFullPath(DAT_xdo);
+                                if (File.Exists(DAT_xdo))
+                                {
+                                    var REAL_xdo = Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(DAT_xdo)), Path.GetFileName(Path.GetFullPath(DAT_xdo))).Single();
+                                    if(DAT_xdo != REAL_xdo)
+                                    {
+                                        var realXDOName = new FileInfo(REAL_xdo).Name;
+                                        readDAT.body[i].dataFile = realXDOName;
+                                        readDAT.body[i].dataFileLen = (byte)realXDOName.Length;
+                                    }
+                                }
+                               
+                            }
+                            break;
+                    }
+
+                    new WriteDAT(readDAT);
                 }
             }
         }
