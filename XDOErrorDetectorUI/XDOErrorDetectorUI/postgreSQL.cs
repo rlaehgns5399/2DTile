@@ -930,7 +930,7 @@ namespace XDOErrorDetectorUI
             }
         }
 
-        public void repair()
+        public int repair()
         {
             foreach (KeyValuePair<LOG, List<ReadDAT>> key in repairDatDictionary)
             {
@@ -1001,6 +1001,12 @@ namespace XDOErrorDetectorUI
                     new WriteDAT(readDAT, "backup");
                 }
             }
+            return repairDatDictionary.Count;
+        }
+
+        public void makeGLTF()
+        {
+
         }
     }
     

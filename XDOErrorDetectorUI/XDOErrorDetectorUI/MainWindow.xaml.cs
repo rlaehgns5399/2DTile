@@ -243,7 +243,14 @@ namespace XDOErrorDetectorUI
         private void button_repair_Click(object sender, RoutedEventArgs e)
         {
             setTableName(sql, textBox_table.Text);
-            sql.repair();
+            int count =  sql.repair();
+            label1.Content = count + "개의 DAT 파일이 고쳐졌습니다. 원본 파일은 .backup으로 백업되었습니다.";
+        }
+
+        private void button_GLTF_GLB(object sender, RoutedEventArgs e)
+        {
+            setTableName(sql, textBox_table.Text);
+            sql.makeGLTF();
         }
     }
 }
