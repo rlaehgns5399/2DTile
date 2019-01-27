@@ -126,3 +126,8 @@ you can create, delete, clear table you inputted.
 - The program will find recursively DAT, XDO files in given folder(beware about out of memory)
 - The program will parse DAT, XDO files, check texture error, and make a note unused textures.
 - After above that, it will save data at DB
+
+`DAT 치료(DAT Repair)` does:
+- The program will check DAT file having errors
+- It will try to repair DAT file & make backup files.
+- To repair is as follows: When DAT has duplicate xdo, When the XDO in DAT doesn't really exist(it will modify its list), When DAT has case-sensitive errors.
