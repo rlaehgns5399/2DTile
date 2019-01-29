@@ -159,7 +159,7 @@ namespace XDOErrorDetectorUI
                 list_normal.Add(new Vector3(nx, ny, nz));
 
                 if (nx == 0.0f && ny == 0.0f && nz == 0.0f)
-                    nx = ny = nz = 0.0f;
+                    nx = ny = nz = 0.5f;
 
                 var n = Math.Abs((float)Math.Sqrt(nx * nx + ny * ny + nz * nz));
 
