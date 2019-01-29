@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace XDOErrorDetectorUI
 {
-    class ReadXDO
+    public class ReadXDO
     {
         public List<XDOMesh> mesh = new List<XDOMesh>();
         public String url;
@@ -134,9 +134,11 @@ namespace XDOErrorDetectorUI
         public float vertex_minX, vertex_minY, vertex_minZ, vertex_maxX, vertex_maxY, vertex_maxZ;
         public float normal_minX, normal_minY, normal_minZ, normal_maxX, normal_maxY, normal_maxZ;
         public float texture_minU, texture_minV, texture_maxU, texture_maxV;
+        public ushort indice_min, indice_max;
+
         public uint vertexCount;
         public uint indexedCount;
-        Color32 Color;
+        public Color32 Color;
         public byte ImageLevel;
         public byte ImageNameLen;
         public String imageName;
@@ -195,6 +197,11 @@ namespace XDOErrorDetectorUI
             {
                 list_indice.Add(br.ReadUInt16());
             }
+
+            // getting Min&Max indice
+            indice_min = list_indice.Min();
+            indice_max = list_indice.Max();
+
             // Color
             var readColor = br.ReadUInt32();
             byte A = (byte)((readColor >> 24) & 0xFF);

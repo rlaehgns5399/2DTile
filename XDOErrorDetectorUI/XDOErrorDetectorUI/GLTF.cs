@@ -42,20 +42,20 @@ namespace XDOErrorDetectorUI
                 BinaryWriter w = new BinaryWriter(fs);
 
                 // bin - first step -> INDICES
-                foreach (var t in xdo.mesh[i].indexed)
+                foreach (var t in xdo.mesh[i].list_indice)
                 {
                     w.Write(t);
                 }
 
                 // 4 bytes padding
                 int byte4_align_index = 0;
-                if ((xdo.mesh[i].indexed.Count * 2) % 4 != 0)
+                if ((xdo.mesh[i].list_indice.Count * 2) % 4 != 0)
                 {
-                    byte4_align_index = (xdo.mesh[i].indexed.Count * 2) % 4;
+                    byte4_align_index = (xdo.mesh[i].list_indice.Count * 2) % 4;
                     // 4 byte padding, uv list can be multiple of 2 not 4.
                     for (int padding_iterator = 0; padding_iterator < byte4_align_index; padding_iterator++) w.Write((byte)0);
 
-                    if (debug) Console.WriteLine("IndexList: " + xdo.mesh[i].indexed.Count * 2 + " + " + byte4_align_index + "bytes. aligned 4 bytes(" + (xdo.mesh[i].indexed.Count * 2 + byte4_align_index) + ")");
+                    if (debug) Console.WriteLine("IndexList: " + xdo.mesh[i].list_indice.Count * 2 + " + " + byte4_align_index + "bytes. aligned 4 bytes(" + (xdo.mesh[i].list_indice.Count * 2 + byte4_align_index) + ")");
                 }
 
                 // bin - second step -> Vertex(Position)
@@ -67,7 +67,7 @@ namespace XDOErrorDetectorUI
                 }
 
                 // bin - third step - Normals
-                foreach (var t in xdo.mesh[i].list_normal)
+                foreach (var t in xdo.mesh[i].list_normal_modifed)
                 {
 
                     w.Write(t.x);
@@ -90,7 +90,7 @@ namespace XDOErrorDetectorUI
                 faceElements.Add(JToken.FromObject(new
                 {
                     Color = xdo.mesh[i].Color,
-                    ImageLevel = xdo.Meshes[i].ImageLevel
+                    ImageLevel = xdo.mesh[i].ImageLevel
                 }));
 
 
@@ -202,7 +202,7 @@ namespace XDOErrorDetectorUI
                 // JArray images = new JArray();
                 JToken imageToken = JToken.FromObject(new
                 {
-                    uri = xdo.Meshes[i].ImageName
+                    uri = xdo.mesh[i].imageName
                 });
                 images.Add(imageToken);
 
@@ -215,8 +215,8 @@ namespace XDOErrorDetectorUI
 
                 // JArray accessor = new JArray();
 
-                ushort[] index_min = { xdo.Meshes[i].index_min_max[0] };
-                ushort[] index_max = { xdo.Meshes[i].index_min_max[1] };
+                ushort[] index_min = { xdo.mesh[i].indice_min };
+                ushort[] index_max = { xdo.mesh[i].indice_max };
 
 
                 /*  ComponentType           Type            Num of components
@@ -233,7 +233,7 @@ namespace XDOErrorDetectorUI
                     bufferView = 0 + i * 4,
                     name = xdo.Key + "_indexes",
                     componentType = 5123,                   // WebGLConstants.USHORT = 5123
-                    count = xdo.Meshes[i].Index.Count,
+                    count = xdo.mesh[i].list_indice.Count,
                     min = index_min,
                     max = index_max,
                     type = "SCALAR"
@@ -242,48 +242,48 @@ namespace XDOErrorDetectorUI
                 float[] vertex_min = new float[3];
                 float[] vertex_max = new float[3];
 
-                vertex_min[0] = xdo.Meshes[i].vertex_min_max[0].x;
-                vertex_min[1] = xdo.Meshes[i].vertex_min_max[0].y;
-                vertex_min[2] = xdo.Meshes[i].vertex_min_max[0].z;
-                vertex_max[0] = xdo.Meshes[i].vertex_min_max[1].x;
-                vertex_max[1] = xdo.Meshes[i].vertex_min_max[1].y;
-                vertex_max[2] = xdo.Meshes[i].vertex_min_max[1].z;
+                vertex_min[0] = xdo.mesh[i].vertex_minX;
+                vertex_min[1] = xdo.mesh[i].vertex_minY;
+                vertex_min[2] = xdo.mesh[i].vertex_minZ;
+                vertex_max[0] = xdo.mesh[i].vertex_maxX;
+                vertex_max[1] = xdo.mesh[i].vertex_maxY;
+                vertex_max[2] = xdo.mesh[i].vertex_maxZ;
 
                 JObject vertexToken = JObject.FromObject(new
                 {
                     bufferView = 1 + i * 4,
                     name = xdo.Key + "_positions",
                     componentType = 5126,                   // WebGLConstants.FLOAT = 5126
-                    count = xdo.Meshes[i].Vertex.Count,
+                    count = xdo.mesh[i].list_vertex.Count,
                     min = vertex_min,
                     max = vertex_max,
                     type = "VEC3"
                 });
 
-                float[] normal_min = { xdo.Meshes[i].normal_min_max[0].x, xdo.Meshes[i].normal_min_max[0].y, xdo.Meshes[i].normal_min_max[0].z };
-                float[] normal_max = { xdo.Meshes[i].normal_min_max[1].x, xdo.Meshes[i].normal_min_max[1].y, xdo.Meshes[i].normal_min_max[1].z };
+                float[] normal_min = { xdo.mesh[i].normal_minX, xdo.mesh[i].normal_minY, xdo.mesh[i].normal_minZ };
+                float[] normal_max = { xdo.mesh[i].normal_maxX, xdo.mesh[i].normal_maxY, xdo.mesh[i].normal_maxZ };
 
                 JObject normalToken = JObject.FromObject(new
                 {
                     bufferView = 2 + i * 4,
                     name = xdo.Key + "_normals",
                     componentType = 5126,                   // WebGLConstants.FLOAT = 5126
-                    count = xdo.Meshes[i].Normals.Count,
+                    count = xdo.mesh[i].list_normal_modifed.Count,
                     min = normal_min,
                     max = normal_max,
                     type = "VEC3"
 
                 });
 
-                float[] texture_min = { xdo.Meshes[i].texture_min_max[0].x, xdo.Meshes[i].texture_min_max[0].y };
-                float[] texture_max = { xdo.Meshes[i].texture_min_max[1].x, xdo.Meshes[i].texture_min_max[1].y };
+                float[] texture_min = { xdo.mesh[i].texture_minU, xdo.mesh[i].texture_minV };
+                float[] texture_max = { xdo.mesh[i].texture_maxU, xdo.mesh[i].texture_maxV };
 
                 JObject textureToken = JObject.FromObject(new
                 {
                     bufferView = 3 + i * 4,
                     name = xdo.Key + "_textureUVs",
                     componentType = 5126,                   // WebGLConstants.FLOAT = 5126
-                    count = xdo.Meshes[i].UV.Count,
+                    count = xdo.mesh[i].list_texture.Count,
                     min = texture_min,
                     max = texture_max,
                     type = "VEC2"
@@ -301,10 +301,10 @@ namespace XDOErrorDetectorUI
                 // define bufferViews
                 // JArray bufferViewElements = new JArray();
 
-                int ic = xdo.Meshes[i].Index.Count;
-                int vc = xdo.Meshes[i].Vertex.Count;
-                int nc = xdo.Meshes[i].Normals.Count;
-                int tc = xdo.Meshes[i].UV.Count;
+                int ic = xdo.mesh[i].list_indice.Count;
+                int vc = xdo.mesh[i].list_vertex.Count;
+                int nc = xdo.mesh[i].list_normal_modifed.Count;
+                int tc = xdo.mesh[i].list_texture.Count;
                 JToken bufferViewArrayElementIndex = JToken.FromObject(new
                 {
                     buffer = i,
@@ -352,14 +352,14 @@ namespace XDOErrorDetectorUI
                 buffersElements.Add(buffersArrayElements);
 
             }
-            double[] bbox = { xdo.MinX, xdo.MinY, xdo.MinZ, xdo.MaxX, xdo.MaxY, xdo.MaxZ };
+            double[] bbox = { xdo.minX, xdo.minY, xdo.minZ, xdo.maxX, xdo.maxY, xdo.maxZ };
             JToken assets = JToken.FromObject(new
             {
                 Type = xdo.XDOType,
                 ObjectID = xdo.ObjectID,
                 Key = xdo.Key,
                 ObjBox = bbox,
-                Altitude = xdo.Altitude,
+                Altitude = xdo.altitude,
                 FaceNum = xdo.faceNum,
                 Face = faceElements
             });
