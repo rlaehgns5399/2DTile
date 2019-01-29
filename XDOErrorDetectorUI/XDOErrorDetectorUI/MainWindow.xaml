@@ -141,6 +141,7 @@
         <TextBlock x:Name="textBlock2_Copy" HorizontalAlignment="Left" Height="23" Margin="818,100,0,0" TextWrapping="Wrap" Text="Max:" VerticalAlignment="Top" Width="29"/>
         <Button x:Name="btn_repair" IsEnabled="False" Content="DAT 오류 치료" HorizontalAlignment="Left" Height="31" Margin="614,132,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="-0.017,-0.442" Click="button_repair_Click"/>
         <Button x:Name="btn_toGLTF" IsEnabled="False" Content="XDO -> GLTF / GLB" HorizontalAlignment="Left" Height="31" Margin="485,132,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="-0.017,-0.442" Click="button_GLTF_GLB"/>
+        <CheckBox x:Name="checkbox_tableClear" Content="저장 전에 테이블 리셋" HorizontalAlignment="Left" Height="43" Margin="873,71,0,0" VerticalAlignment="Top" Width="145" IsChecked="True"/>
 
 
     </Grid>

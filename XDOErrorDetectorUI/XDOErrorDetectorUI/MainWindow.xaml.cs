@@ -94,6 +94,10 @@ namespace XDOErrorDetectorUI
                 System.Windows.Forms.MessageBox.Show("Max level 값을 정수형으로 변환할 수 없습니다. 0으로 검색합니다.");
                 max = 0;
             }
+            if(checkbox_tableClear.IsChecked == true)
+            {
+                sql.clearTable();
+            }
             label1.Content = sql.search(folder_path.Text, min, max);
             btn_repair.IsEnabled = true;
         }

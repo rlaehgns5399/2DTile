@@ -128,6 +128,9 @@ namespace XDOErrorDetectorUI
         public List<Vector3> list_vertex = new List<Vector3>();
         public List<Vector3> list_normal = new List<Vector3>();
         public List<Vector2> list_texture = new List<Vector2>();
+        public List<ushort> list_indice = new List<ushort>();
+
+        public float vertex_minX, vertex_minY, vertex_minZ, vertex_maxX, vertex_maxY, vertex_maxZ;
 
         public uint vertexCount;
         public uint indexedCount;
@@ -135,9 +138,7 @@ namespace XDOErrorDetectorUI
         public byte ImageLevel;
         public byte ImageNameLen;
         public String imageName;
-
-        public List<ushort> indexed = new List<ushort>();
-
+        
         public XDOMesh(BinaryReader br)
         {
             // vertexCount
@@ -149,11 +150,18 @@ namespace XDOErrorDetectorUI
                 list_normal.Add(new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle()));
                 list_texture.Add(new Vector2(br.ReadSingle(), br.ReadSingle()));
             }
+            // getting Min&Max XYZ | UV
+            vertex_minX = list_vertex.Select(x => x[0]).Min();
+            vertex_maxX = list_vertex.Select(x => x[0]).Max();
+            vertex_minY = list_vertex.Select(x => x[1]).Min();
+            vertex_maxY = list_vertex.Select(x => x[1]).Max();
+            vertex_minZ = list_vertex.Select(x => x[2]).Min();
+            vertex_maxZ = list_vertex.Select(x => x[2]).Max();
             // indexedCount
             this.indexedCount = br.ReadUInt32();
             for (int i = 0; i < indexedCount; i++)
             {
-                indexed.Add(br.ReadUInt16());
+                list_indice.Add(br.ReadUInt16());
             }
             // Color
             var readColor = br.ReadUInt32();
