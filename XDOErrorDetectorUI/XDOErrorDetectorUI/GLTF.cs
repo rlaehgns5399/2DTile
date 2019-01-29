@@ -38,7 +38,7 @@ namespace XDOErrorDetectorUI
             for (int i = 0; i < xdo.faceNum; i++)
             {
                 // make bin file
-                FileStream fs = new FileStream(file_path + file_name + "_" + i + ".bin", FileMode.Create);
+                FileStream fs = new FileStream(Path.Combine(file_path, file_name) + "_" + i + ".bin", FileMode.Create);
                 BinaryWriter w = new BinaryWriter(fs);
 
                 // bin - first step -> INDICES
@@ -382,7 +382,7 @@ namespace XDOErrorDetectorUI
             container.Add("buffers", buffersElements);
             //Console.WriteLine(container.ToString());
 
-            StreamWriter sw = new StreamWriter(file_path + file_name + ".gltf");
+            StreamWriter sw = new StreamWriter(Path.Combine(file_path, file_name) + ".gltf");
             sw.Write(container.ToString());
             sw.Close();
         }

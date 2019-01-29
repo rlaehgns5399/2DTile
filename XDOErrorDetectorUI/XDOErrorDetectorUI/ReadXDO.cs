@@ -123,7 +123,7 @@ namespace XDOErrorDetectorUI
             br.Close();
         }
     }
-    class XDOMesh
+    public class XDOMesh
     {
         public List<Vector3> list_vertex = new List<Vector3>();
         public List<Vector3> list_normal = new List<Vector3>();

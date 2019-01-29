@@ -52,6 +52,7 @@ namespace XDOErrorDetectorUI
             textBox_table.IsEnabled = true;
             btn_load.IsEnabled = true;
             btn_check_version_error.IsEnabled = true;
+            btn_toGLTF.IsEnabled = true;
 
             btn_connection.IsEnabled = false;
             textBox_host.IsEnabled = false;
@@ -254,7 +255,7 @@ namespace XDOErrorDetectorUI
         private void button_GLTF_GLB(object sender, RoutedEventArgs e)
         {
             setTableName(sql, textBox_table.Text);
-            sql.makeGLTF();
+            sql.makeGLTF(folder_path.Text, int.Parse(textBox_Min.Text), int.Parse(textBox_Max.Text));
         }
     }
 }

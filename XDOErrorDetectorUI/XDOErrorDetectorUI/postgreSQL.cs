@@ -833,6 +833,7 @@ namespace XDOErrorDetectorUI
                 }
                 catch (Exception e)
                 {
+                    Console.WriteLine(e);
                     return "초기화 실패";
                 }
             }
@@ -854,6 +855,7 @@ namespace XDOErrorDetectorUI
                 }
                 catch (Exception e)
                 {
+                    Console.WriteLine(e);
                     return "삭제 실패";
                 }
             }
@@ -925,6 +927,7 @@ namespace XDOErrorDetectorUI
                 }
                 catch (Exception e)
                 {
+                    Console.WriteLine(e);
                     return "DB 접속 실패";
                 }
             }
@@ -1004,9 +1007,22 @@ namespace XDOErrorDetectorUI
             return repairDatDictionary.Count;
         }
 
-        public void makeGLTF()
+        public void makeGLTF(string path, int min, int max)
         {
+            var df = new DirectoryFinder(path, min, max).run(EXT.XDO);
 
+            foreach (string XDOPath in df)
+            {
+                var XDOFileList = new FileFinder(XDOPath).run(EXT.XDO);
+
+                foreach(var xdofile in XDOFileList)
+                {
+                    var filename = new FileInfo(xdofile).Name;
+                    var directory = new FileInfo(xdofile).Directory.FullName;
+                    new GLTF(new ReadXDO(xdofile), filename, directory);
+                    Console.WriteLine(Path.Combine(directory, filename));
+                }
+            }
         }
     }
     
