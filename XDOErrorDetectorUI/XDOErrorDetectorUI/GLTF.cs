@@ -158,7 +158,8 @@ namespace XDOErrorDetectorUI
                 // define material
                 // JArray materials = new JArray();
                 float[] emissiveFactor = { 0.0f, 0.0f, 0.0f };
-
+                var color = xdo.mesh[i].Color;
+                float[] baseColorFactor = { color.r / 255.0f , color.g / 255.0f, color.b / 255.0f, color.a / 255.0f };
                 JToken index = JToken.FromObject(new
                 {
                     index = i,
@@ -168,7 +169,8 @@ namespace XDOErrorDetectorUI
                 {
                     baseColorTexture = index,
                     metallicFactor = 0.0,
-                    roughnessFactor = 1.0
+                    roughnessFactor = 1.0,
+                    baseColorFactor = baseColorFactor
                 });
                 JToken materialsElement = JToken.FromObject(new
                 {
