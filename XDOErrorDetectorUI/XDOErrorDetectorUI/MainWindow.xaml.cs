@@ -23,6 +23,7 @@ namespace XDOErrorDetectorUI
     public partial class MainWindow : Window
     {
         postgreSQL sql;
+        bool clickSearch = false, clickCheckVersion = false;
         public MainWindow()
         {
             InitializeComponent();
@@ -100,9 +101,12 @@ namespace XDOErrorDetectorUI
                 sql.clearTable();
             }
             label1.Content = sql.search(folder_path.Text, min, max);
-            btn_repair.IsEnabled = true;
-        }
+            clickSearch = true;
 
+            if(clickSearch && clickCheckVersion)
+                btn_repair.IsEnabled = true;
+        }
+        
         private void button_changefolder(object sender, RoutedEventArgs e)
         {
             var folderDialog = new FolderBrowserDialog();
@@ -242,7 +246,9 @@ namespace XDOErrorDetectorUI
             {
                 listView_version.Items.Add(item);
             }
-
+            clickCheckVersion = true;
+            if (clickSearch && clickCheckVersion)
+                btn_repair.IsEnabled = true;
         }
 
         private void button_repair_Click(object sender, RoutedEventArgs e)

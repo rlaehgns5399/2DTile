@@ -127,21 +127,21 @@
         <Button x:Name="btn_createtable" IsEnabled="False" Content="테이블 생성" HorizontalAlignment="Left" Height="41" Margin="332,23,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_CreateTable_Click"/>
         <Button x:Name="btn_deletetable" IsEnabled="False" Content="테이블 삭제" HorizontalAlignment="Left" Height="36" Margin="332,71,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_DeleteTable_Click"/>
         <Button x:Name="btn_cleartable" IsEnabled="False" Content="테이블 초기화" HorizontalAlignment="Left" Height="41" Margin="332,115,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_ClearTable_Click"/>
-        <Button x:Name="btn_searchtable" IsEnabled="False" Content="검색 및 DB에 저장" HorizontalAlignment="Left" Height="31" Margin="873,92,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="-0.017,-0.442" Click="button_search_Click"/>
+        <Button x:Name="btn_searchtable" IsEnabled="False" Content="검색 및 DB에 저장" HorizontalAlignment="Left" Height="31" Margin="743,92,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="-0.017,-0.442" Click="button_search_Click"/>
         <Button x:Name="button" Content="폴더 선택" HorizontalAlignment="Left" Margin="908,23,0,0" VerticalAlignment="Top" Width="89" Click="button_changefolder" Height="31"/>
         <TextBlock x:Name="folder_path" HorizontalAlignment="Left" Margin="440,23,0,0" TextWrapping="Wrap" Text="폴더 경로" VerticalAlignment="Top" Height="31" Width="454"/>
         <Button x:Name="btn_load" IsEnabled="False" Content="테이블 불러오기" HorizontalAlignment="Left" Height="31" Margin="873,132,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="-0.017,-0.442" Click="button_load_Click"/>
         <TextBox x:Name="textBox_port" HorizontalAlignment="Left" Height="18" Margin="75,115,0,0" TextWrapping="Wrap" Text="default port" VerticalAlignment="Top" Width="147"/>
         <TextBlock x:Name="textBlock_Copy4" HorizontalAlignment="Left" Margin="11,115,0,0" TextWrapping="Wrap" Text="Port" VerticalAlignment="Top" Height="18" Width="59"/>
-        <Button x:Name="btn_check_version_error" IsEnabled="False" Content="DAT-XDO 버전 체크" HorizontalAlignment="Left" Height="31" Margin="743,132,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="-0.017,-0.442" Click="button_DatXdo_check_Click"/>
-        <TextBox x:Name="textBox_Min" HorizontalAlignment="Left" Height="19" Margin="779,99,0,0" TextWrapping="Wrap" Text="15" VerticalAlignment="Top" Width="20" RenderTransformOrigin="0.43,0.526"/>
-        <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" Height="19" Margin="804,98,0,0" TextWrapping="Wrap" Text="~" VerticalAlignment="Top" Width="14"/>
-        <TextBox x:Name="textBox_Max" HorizontalAlignment="Left" Height="19" Margin="847,98,0,0" TextWrapping="Wrap" Text="15" VerticalAlignment="Top" Width="20"/>
-        <TextBlock x:Name="textBlock2" HorizontalAlignment="Left" Height="23" Margin="750,100,0,0" TextWrapping="Wrap" Text="Min:" VerticalAlignment="Top" Width="29"/>
-        <TextBlock x:Name="textBlock2_Copy" HorizontalAlignment="Left" Height="23" Margin="818,100,0,0" TextWrapping="Wrap" Text="Max:" VerticalAlignment="Top" Width="29"/>
-        <Button x:Name="btn_repair" IsEnabled="False" Content="DAT 오류 치료" HorizontalAlignment="Left" Height="31" Margin="614,132,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="-0.017,-0.442" Click="button_repair_Click"/>
-        <Button x:Name="btn_toGLTF" IsEnabled="False" Content="XDO -> GLTF / GLB" HorizontalAlignment="Left" Height="31" Margin="485,132,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="-0.017,-0.442" Click="button_GLTF_GLB"/>
-        <CheckBox x:Name="checkbox_tableClear" Content="저장 전에 테이블 리셋" HorizontalAlignment="Left" Height="43" Margin="873,71,0,0" VerticalAlignment="Top" Width="145" IsChecked="True"/>
+        <Button x:Name="btn_check_version_error" IsEnabled="False" Content="DAT-XDO 버전 체크" HorizontalAlignment="Left" Height="31" Margin="873,92,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="-0.017,-0.442" Click="button_DatXdo_check_Click"/>
+        <TextBox x:Name="textBox_Min" HorizontalAlignment="Left" Height="19" Margin="649,99,0,0" TextWrapping="Wrap" Text="15" VerticalAlignment="Top" Width="20" RenderTransformOrigin="0.43,0.526"/>
+        <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" Height="19" Margin="674,98,0,0" TextWrapping="Wrap" Text="~" VerticalAlignment="Top" Width="14"/>
+        <TextBox x:Name="textBox_Max" HorizontalAlignment="Left" Height="19" Margin="717,98,0,0" TextWrapping="Wrap" Text="15" VerticalAlignment="Top" Width="20"/>
+        <TextBlock x:Name="textBlock2" HorizontalAlignment="Left" Height="23" Margin="620,100,0,0" TextWrapping="Wrap" Text="Min:" VerticalAlignment="Top" Width="29"/>
+        <TextBlock x:Name="textBlock2_Copy" HorizontalAlignment="Left" Height="23" Margin="688,100,0,0" TextWrapping="Wrap" Text="Max:" VerticalAlignment="Top" Width="29"/>
+        <Button x:Name="btn_repair" IsEnabled="False" Content="DAT/XDO 오류 치료" HorizontalAlignment="Left" Height="31" Margin="743,132,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="-0.017,-0.442" Click="button_repair_Click"/>
+        <Button x:Name="btn_toGLTF" IsEnabled="False" Content="XDO -> GLTF / GLB" HorizontalAlignment="Left" Height="31" Margin="614,132,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="-0.017,-0.442" Click="button_GLTF_GLB"/>
+        <CheckBox x:Name="checkbox_tableClear" Content="저장 전에 테이블 리셋" HorizontalAlignment="Left" Height="43" Margin="743,71,0,0" VerticalAlignment="Top" Width="145" IsChecked="True"/>
 
 
     </Grid>

@@ -15,6 +15,7 @@ namespace XDOErrorDetectorUI
         public List<XDOLogItem> XDOLogList;
         public List<DATLogItem> DATLogList;
         public Dictionary<LOG, List<ReadDAT>> repairDatDictionary;
+        public Dictionary<LOG, List<RepairXDO>> repairXdoDictionary;
         private int xdoDBInsertCount = 0;
         private int xdoLogInsertCount = 0;
         private int datDBInsertCount = 0;
@@ -28,9 +29,16 @@ namespace XDOErrorDetectorUI
         public string search(string path, int min, int max)
         {
             repairDatDictionary = new Dictionary<LOG, List<ReadDAT>>();
+            repairXdoDictionary = new Dictionary<LOG, List<RepairXDO>>();
+            
+            repairXdoDictionary[LOG.WARN_CASE_INSENSITIVE] = new List<RepairXDO>();
+            repairXdoDictionary[LOG.XDO_LEVEL_ERROR] = new List<RepairXDO>();
+            repairXdoDictionary[LOG.ERR_NOT_EXIST] = new List<RepairXDO>();
+
             repairDatDictionary[LOG.WARN_CASE_INSENSITIVE] = new List<ReadDAT>();
             repairDatDictionary[LOG.DUPLICATE_XDO] = new List<ReadDAT>();
             repairDatDictionary[LOG.ERR_NOT_EXIST] = new List<ReadDAT>();
+
             xdoDBInsertCount = 0;
             xdoLogInsertCount = 0;
             datDBInsertCount = 0;
@@ -357,6 +365,7 @@ namespace XDOErrorDetectorUI
                             // lower/upper Case 오류
                             log.Add(new XDOLogItem(level, name[0], name[1], LOG.WARN_CASE_INSENSITIVE, new FileInfo(key.Key).Name, i, key.Value.ImageName[i], new FileInfo(imageSetElement).Name));
                             imageSet_forRemove.Add(imageSetElement);
+                            repairXdoDictionary[LOG.WARN_CASE_INSENSITIVE].Add(new RepairXDO(new ReadXDO(key.Key), new FileInfo(imageSetElement).Name));
                             basecount++;
                             break;
                         }
@@ -412,6 +421,7 @@ namespace XDOErrorDetectorUI
                                 log.Add(new XDOLogItem(level, name[0], name[1], LOG.WARN_CASE_INSENSITIVE, new FileInfo(key.Key).Name, i, new FileInfo(imgLodUrl).Name, new FileInfo(imageSetElement).Name));
                                 imageSet_forRemove.Add(imageSetElement);
                                 count++;
+                                repairXdoDictionary[LOG.WARN_CASE_INSENSITIVE].Add(new RepairXDO(new ReadXDO(key.Key), new FileInfo(imageSetElement).Name));
                                 break;
                             }
                         }
@@ -896,11 +906,13 @@ namespace XDOErrorDetectorUI
                             {
                                 logItem.XDOversion = 3002.ToString();
                                 list.Add(logItem);
+                                repairXdoDictionary[LOG.XDO_VERSION_ERROR].Add(new RepairXDO(new ReadXDO(xdoURL), logItem.DATversion));
                             }
                             else if(!xdo.isEnd && version == 3002)
                             {
                                 logItem.XDOversion = 3001.ToString();
                                 list.Add(logItem);
+                                repairXdoDictionary[LOG.XDO_VERSION_ERROR].Add(new RepairXDO(new ReadXDO(xdoURL), logItem.DATversion));
                             }
                             else
                             {

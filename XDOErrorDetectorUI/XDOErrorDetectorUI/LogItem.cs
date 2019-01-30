@@ -12,7 +12,8 @@ namespace XDOErrorDetectorUI
         WARN_CASE_INSENSITIVE,
         NOT_USED,
         XDO_LEVEL_ERROR,
-        DUPLICATE_XDO
+        DUPLICATE_XDO,
+        XDO_VERSION_ERROR
     }
     class LogItem
     {

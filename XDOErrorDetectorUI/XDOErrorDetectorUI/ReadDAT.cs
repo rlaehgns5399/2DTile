@@ -7,7 +7,7 @@ using System.IO;
 
 namespace XDOErrorDetectorUI
 {
-    class ReadDAT
+    public class ReadDAT
     {
         public string url;
         public header header = new header();
