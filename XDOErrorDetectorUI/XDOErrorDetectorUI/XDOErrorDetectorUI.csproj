@@ -92,6 +92,7 @@
     <Compile Include="ReadXDO.cs" />
     <Compile Include="DirectoryFinder.cs" />
     <Compile Include="FileFinder.cs" />
+    <Compile Include="Repair.cs" />
     <Compile Include="WriteDAT.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

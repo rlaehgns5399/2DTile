@@ -1016,7 +1016,40 @@ namespace XDOErrorDetectorUI
                     new WriteDAT(readDAT, "backup");
                 }
             }
-            return repairDatDictionary.Count;
+
+
+            foreach(KeyValuePair<LOG, List<RepairXDO>> key in repairXdoDictionary)
+            {
+                foreach(var readXDO in key.Value)
+                {
+                    var xdo = readXDO.xdo;
+                    switch (key.Key)
+                    {
+                        case LOG.XDO_VERSION_ERROR:
+
+                            break;
+                        case LOG.WARN_CASE_INSENSITIVE:
+                            for(int i = 0; i < xdo.mesh.Count; i++)
+                            {
+                                var xdo_img = Path.GetFullPath(Path.Combine(new FileInfo(xdo.url).Directory.FullName, Path.GetFileNameWithoutExtension(xdo.url), xdo.mesh[i].imageName));
+                                if (File.Exists(xdo_img))
+                                {
+                                    var real_img = Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(xdo_img)), Path.GetFileName(Path.GetFullPath(xdo_img))).Single();
+                                    if (xdo_img != real_img)
+                                    {
+                                        var realImgName = new FileInfo(real_img).Name;
+                                        xdo.mesh[i].imageName = realImgName;
+                                        xdo.mesh[i].ImageNameLen = (byte)realImgName.Length;
+                                    }
+                                }
+                            }
+                            break;
+                    }
+
+                    new WriteXDO(xdo, "backup", null);
+                }
+            }
+            return repairDatDictionary.Count + repairXdoDictionary.Count;
         }
 
         public void makeGLTF(string path, int min, int max)

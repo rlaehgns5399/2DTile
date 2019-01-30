@@ -20,7 +20,7 @@ namespace XDOErrorDetectorUI
             {
                 try
                 {
-                    File.Move(dat.url, dat.url + ".backup");
+                    File.Move(dat.url, dat.url + "." + option);
                 }
                 catch(Exception e)
                 {
