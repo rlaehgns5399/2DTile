@@ -59,7 +59,7 @@ namespace XDOErrorDetectorUI
         }
     }
 
-    class header
+    public class header
     {
         public uint level;
         public uint IDX;
@@ -67,7 +67,7 @@ namespace XDOErrorDetectorUI
         public uint objCount;
         public string datFilename;
     }
-    class Obj
+    public class Obj
     {
         public byte[] version;
         public byte type;

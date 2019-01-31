@@ -142,7 +142,9 @@ namespace XDOErrorDetectorUI
         public byte ImageLevel;
         public byte ImageNameLen;
         public String imageName;
-        
+        public uint nailLen;
+
+        public byte[] nailImage;
         public XDOMesh(BinaryReader br)
         {
             // vertexCount
@@ -218,8 +220,8 @@ namespace XDOErrorDetectorUI
             {
                 this.imageName = Encoding.UTF8.GetString(br.ReadBytes(this.ImageNameLen));
                 // for what?
-                var nailLen = br.ReadUInt32();
-                var image = br.ReadBytes((int)nailLen);
+                this.nailLen = br.ReadUInt32();
+                this.nailImage = br.ReadBytes((int)this.nailLen);
             }
             else
             {

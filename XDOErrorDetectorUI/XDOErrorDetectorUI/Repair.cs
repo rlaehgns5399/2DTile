@@ -10,12 +10,18 @@ namespace XDOErrorDetectorUI
     {
         public ReadXDO xdo;
         public string reference;
+        public int index = -1;
         public RepairXDO(ReadXDO xdo, string reference)
         {
             this.xdo = xdo;
             this.reference = reference;
         }
+        public RepairXDO(ReadXDO xdo, string reference, int index) : this(xdo, reference)
+        {
+            this.index = index;
+        }
     }
+
     public class RepairDAT
     {
         public ReadDAT dat;
@@ -25,5 +31,6 @@ namespace XDOErrorDetectorUI
             this.dat = dat;
             this.reference = reference;
         }
+        
     }
 }

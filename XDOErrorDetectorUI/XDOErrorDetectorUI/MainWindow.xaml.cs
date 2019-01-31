@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Forms;
-
+using System.IO;
 
 namespace XDOErrorDetectorUI
 {
@@ -258,10 +258,51 @@ namespace XDOErrorDetectorUI
             label1.Content = count + "개의 DAT 파일이 고쳐졌습니다. 원본 파일은 .backup으로 백업되었습니다.";
         }
 
+        private void button_reset_click(object sender, RoutedEventArgs e)
+        {
+            var set = new HashSet<string>();
+            repairBackup(set, folder_path.Text);
+            foreach (var s in set)
+            {
+                Console.WriteLine(s);
+                var withoutbackup = s.Split(new string[] { ".backup" }, StringSplitOptions.None);
+                if (File.Exists(withoutbackup[0])) { 
+                    File.Delete(withoutbackup[0]);
+                }
+                File.Move(s, withoutbackup[0]);
+            }
+                
+        }
+
         private void button_GLTF_GLB(object sender, RoutedEventArgs e)
         {
             setTableName(sql, textBox_table.Text);
             sql.makeGLTF(folder_path.Text, int.Parse(textBox_Min.Text), int.Parse(textBox_Max.Text));
+        }
+
+
+        private void repairBackup(HashSet<string> set, string path)
+        {
+            try
+            {
+                foreach (var tempDirectoryName in Directory.GetDirectories(path))
+                {
+                    var k = Directory.GetFiles(tempDirectoryName, "*.backup", SearchOption.TopDirectoryOnly);
+                    if (k.Length > 0)
+                    {
+                        foreach (var file in k)
+                        {
+                            if(!file.Contains(".dat"))
+                                set.Add(file);
+                        }
+                    }
+                    repairBackup(set, tempDirectoryName);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.Write(e.ToString());
+            }
         }
     }
 }

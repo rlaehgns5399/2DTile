@@ -35,14 +35,43 @@ namespace XDOErrorDetectorUI
             bw.Write(xdo.maxZ);
             bw.Write(xdo.altitude);
 
-            if(version != null) {
+            if(version == null) {
                 if(xdo.XDOVersion == 1) // xdo version 3.0.0.1
                 {
                     bw.Write(xdo.mesh[0].vertexCount);
+                    for (int j = 0; j < xdo.mesh[0].vertexCount; j++)
+                    {
+                        bw.Write(xdo.mesh[0].list_vertex[j].x);
+                        bw.Write(xdo.mesh[0].list_vertex[j].y);
+                        bw.Write(xdo.mesh[0].list_vertex[j].z);
 
+                        bw.Write(xdo.mesh[0].list_normal[j].x);
+                        bw.Write(xdo.mesh[0].list_normal[j].y);
+                        bw.Write(xdo.mesh[0].list_normal[j].z);
+
+                        bw.Write(xdo.mesh[0].list_texture[j].x);
+                        bw.Write(xdo.mesh[0].list_texture[j].y);
+                    }
+                    bw.Write(xdo.mesh[0].indexedCount);
+                    for (int j = 0; j < xdo.mesh[0].indexedCount; j++)
+                    {
+                        bw.Write(xdo.mesh[0].list_indice[j]);
+                    }
+                    bw.Write(xdo.mesh[0].Color.r);
+                    bw.Write(xdo.mesh[0].Color.g);
+                    bw.Write(xdo.mesh[0].Color.b);
+                    bw.Write(xdo.mesh[0].Color.a);
+                    bw.Write(xdo.mesh[0].ImageLevel);
+                    bw.Write(xdo.mesh[0].ImageNameLen);
+                    if (xdo.mesh[0].ImageNameLen > 0) {
+                        bw.Write(Encoding.UTF8.GetBytes(xdo.mesh[0].imageName));
+                        bw.Write(xdo.mesh[0].nailLen);
+                        bw.Write(xdo.mesh[0].nailImage);
+                    }
                 }
                 else if (xdo.XDOVersion == 2)
                 {
+                    bw.Write((byte)xdo.mesh.Count);
                     for(int i = 0; i < xdo.mesh.Count; i++)
                     {
                         bw.Write(xdo.mesh[i].vertexCount);
@@ -70,10 +99,86 @@ namespace XDOErrorDetectorUI
                         bw.Write(xdo.mesh[i].Color.a);
                         bw.Write(xdo.mesh[i].ImageLevel);
                         bw.Write(xdo.mesh[i].ImageNameLen);
-                        if(xdo.mesh[i].ImageNameLen > 0) bw.Write(Encoding.UTF8.GetBytes(xdo.mesh[i].imageName));
+                        if (xdo.mesh[i].ImageNameLen > 0)
+                        {
+                            bw.Write(Encoding.UTF8.GetBytes(xdo.mesh[i].imageName));
+                            bw.Write(xdo.mesh[i].nailLen);
+                            bw.Write(xdo.mesh[i].nailImage);
+                        }
                     }
                 }
             }
+            else if(version == "3001")
+            {
+                bw.Write(xdo.mesh[0].vertexCount);
+                for (int j = 0; j < xdo.mesh[0].vertexCount; j++)
+                {
+                    bw.Write(xdo.mesh[0].list_vertex[j].x);
+                    bw.Write(xdo.mesh[0].list_vertex[j].y);
+                    bw.Write(xdo.mesh[0].list_vertex[j].z);
+
+                    bw.Write(xdo.mesh[0].list_normal[j].x);
+                    bw.Write(xdo.mesh[0].list_normal[j].y);
+                    bw.Write(xdo.mesh[0].list_normal[j].z);
+
+                    bw.Write(xdo.mesh[0].list_texture[j].x);
+                    bw.Write(xdo.mesh[0].list_texture[j].y);
+                }
+                bw.Write(xdo.mesh[0].indexedCount);
+                for (int j = 0; j < xdo.mesh[0].indexedCount; j++)
+                {
+                    bw.Write(xdo.mesh[0].list_indice[j]);
+                }
+                bw.Write(xdo.mesh[0].Color.r);
+                bw.Write(xdo.mesh[0].Color.g);
+                bw.Write(xdo.mesh[0].Color.b);
+                bw.Write(xdo.mesh[0].Color.a);
+                bw.Write(xdo.mesh[0].ImageLevel);
+                bw.Write(xdo.mesh[0].ImageNameLen);
+                if (xdo.mesh[0].ImageNameLen > 0)
+                {
+                    bw.Write(Encoding.UTF8.GetBytes(xdo.mesh[0].imageName));
+                    bw.Write(xdo.mesh[0].nailLen);
+                    bw.Write(xdo.mesh[0].nailImage);
+                }
+            }
+            else if(version == "3002")
+            {
+                bw.Write((byte)1);
+                bw.Write(xdo.mesh[0].vertexCount);
+                for (int j = 0; j < xdo.mesh[0].vertexCount; j++)
+                {
+                    bw.Write(xdo.mesh[0].list_vertex[j].x);
+                    bw.Write(xdo.mesh[0].list_vertex[j].y);
+                    bw.Write(xdo.mesh[0].list_vertex[j].z);
+
+                    bw.Write(xdo.mesh[0].list_normal[j].x);
+                    bw.Write(xdo.mesh[0].list_normal[j].y);
+                    bw.Write(xdo.mesh[0].list_normal[j].z);
+
+                    bw.Write(xdo.mesh[0].list_texture[j].x);
+                    bw.Write(xdo.mesh[0].list_texture[j].y);
+                }
+                bw.Write(xdo.mesh[0].indexedCount);
+                for (int j = 0; j < xdo.mesh[0].indexedCount; j++)
+                {
+                    bw.Write(xdo.mesh[0].list_indice[j]);
+                }
+                bw.Write(xdo.mesh[0].Color.r);
+                bw.Write(xdo.mesh[0].Color.g);
+                bw.Write(xdo.mesh[0].Color.b);
+                bw.Write(xdo.mesh[0].Color.a);
+                bw.Write(xdo.mesh[0].ImageLevel);
+                bw.Write(xdo.mesh[0].ImageNameLen);
+                if (xdo.mesh[0].ImageNameLen > 0)
+                {
+                    bw.Write(Encoding.UTF8.GetBytes(xdo.mesh[0].imageName));
+                    bw.Write(xdo.mesh[0].nailLen);
+                    bw.Write(xdo.mesh[0].nailImage);
+                }
+            }
+
+            bw.Close();
         }
     }
 }

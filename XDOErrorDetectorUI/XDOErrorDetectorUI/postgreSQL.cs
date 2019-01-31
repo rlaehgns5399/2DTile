@@ -32,7 +32,7 @@ namespace XDOErrorDetectorUI
             repairXdoDictionary = new Dictionary<LOG, List<RepairXDO>>();
             
             repairXdoDictionary[LOG.WARN_CASE_INSENSITIVE] = new List<RepairXDO>();
-            repairXdoDictionary[LOG.XDO_LEVEL_ERROR] = new List<RepairXDO>();
+            repairXdoDictionary[LOG.XDO_VERSION_ERROR] = new List<RepairXDO>();
             repairXdoDictionary[LOG.ERR_NOT_EXIST] = new List<RepairXDO>();
 
             repairDatDictionary[LOG.WARN_CASE_INSENSITIVE] = new List<ReadDAT>();
@@ -365,7 +365,7 @@ namespace XDOErrorDetectorUI
                             // lower/upper Case 오류
                             log.Add(new XDOLogItem(level, name[0], name[1], LOG.WARN_CASE_INSENSITIVE, new FileInfo(key.Key).Name, i, key.Value.ImageName[i], new FileInfo(imageSetElement).Name));
                             imageSet_forRemove.Add(imageSetElement);
-                            repairXdoDictionary[LOG.WARN_CASE_INSENSITIVE].Add(new RepairXDO(new ReadXDO(key.Key), new FileInfo(imageSetElement).Name));
+                            repairXdoDictionary[LOG.WARN_CASE_INSENSITIVE].Add(new RepairXDO(new ReadXDO(key.Key), new FileInfo(imgURL).Name));
                             basecount++;
                             break;
                         }
@@ -421,7 +421,7 @@ namespace XDOErrorDetectorUI
                                 log.Add(new XDOLogItem(level, name[0], name[1], LOG.WARN_CASE_INSENSITIVE, new FileInfo(key.Key).Name, i, new FileInfo(imgLodUrl).Name, new FileInfo(imageSetElement).Name));
                                 imageSet_forRemove.Add(imageSetElement);
                                 count++;
-                                repairXdoDictionary[LOG.WARN_CASE_INSENSITIVE].Add(new RepairXDO(new ReadXDO(key.Key), new FileInfo(imageSetElement).Name));
+                                repairXdoDictionary[LOG.WARN_CASE_INSENSITIVE].Add(new RepairXDO(new ReadXDO(key.Key), new FileInfo(Path.Combine(baseURL, key.Value.ImageName[i])).Name, j));
                                 break;
                             }
                         }
@@ -1026,27 +1026,56 @@ namespace XDOErrorDetectorUI
                     switch (key.Key)
                     {
                         case LOG.XDO_VERSION_ERROR:
-
+                            new WriteXDO(xdo, "backup", readXDO.reference);
                             break;
                         case LOG.WARN_CASE_INSENSITIVE:
-                            for(int i = 0; i < xdo.mesh.Count; i++)
+                            if (readXDO.index >= 0)
                             {
-                                var xdo_img = Path.GetFullPath(Path.Combine(new FileInfo(xdo.url).Directory.FullName, Path.GetFileNameWithoutExtension(xdo.url), xdo.mesh[i].imageName));
-                                if (File.Exists(xdo_img))
+                                var imgName = Path.Combine(new FileInfo(xdo.url).Directory.FullName, readXDO.reference.Replace(".", "_" + readXDO.index + "."));
+                                Console.WriteLine(imgName);
+                                if (File.Exists(imgName))
                                 {
-                                    var real_img = Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(xdo_img)), Path.GetFileName(Path.GetFullPath(xdo_img))).Single();
-                                    if (xdo_img != real_img)
+                                    var real_img = Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(imgName)), Path.GetFileName(Path.GetFullPath(imgName))).Single();
+                                    if(imgName != real_img)
                                     {
-                                        var realImgName = new FileInfo(real_img).Name;
-                                        xdo.mesh[i].imageName = realImgName;
-                                        xdo.mesh[i].ImageNameLen = (byte)realImgName.Length;
+                                        File.Move(real_img, new FileInfo(real_img).Directory.FullName +  "temp.tmp");
+                                        File.Move(new FileInfo(real_img).Directory.FullName + "temp.tmp", imgName);
                                     }
                                 }
                             }
+                            else
+                            {
+                                var imgName = Path.Combine(new FileInfo(xdo.url).Directory.FullName, readXDO.reference);
+                                Console.WriteLine("basic\n" + imgName);
+                                if (File.Exists(imgName))
+                                {
+                                    var real_img = Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(imgName)), Path.GetFileName(Path.GetFullPath(imgName))).Single();
+                                    if (imgName != real_img)
+                                    {
+                                        File.Move(real_img, new FileInfo(real_img).Directory.FullName + "temp.tmp");
+                                        File.Move(new FileInfo(real_img).Directory.FullName + "temp.tmp", imgName);
+                                    }
+                                }
+                                //for (int i = 0; i < xdo.mesh.Count; i++)
+                                //{
+                                //    var xdo_img = Path.Combine(new FileInfo(readXDO.xdo.url).Directory.FullName, readXDO.reference);
+                                //    if (File.Exists(xdo_img))
+                                //    {
+                                //        var real_img = Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(xdo_img)), Path.GetFileName(Path.GetFullPath(xdo_img))).Single();
+                                //        if (xdo_img != real_img)
+                                //        {
+                                //            Console.WriteLine("+\t" + xdo_img);
+                                //            Console.WriteLine("+\t" + real_img);
+                                //            var realImgName = new FileInfo(real_img).Name;
+                                //            xdo.mesh[i].imageName = realImgName;
+                                //            xdo.mesh[i].ImageNameLen = (byte)realImgName.Length;
+                                //        }
+                                //    }
+                                //}
+                                //new WriteXDO(xdo, "backup", null);
+                            }
                             break;
                     }
-
-                    new WriteXDO(xdo, "backup", null);
                 }
             }
             return repairDatDictionary.Count + repairXdoDictionary.Count;
