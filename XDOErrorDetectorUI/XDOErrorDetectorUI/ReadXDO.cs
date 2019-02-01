@@ -24,57 +24,63 @@ namespace XDOErrorDetectorUI
         public ReadXDO(string url)
         {
             this.url = url;
-            BinaryReader br = new BinaryReader(File.Open(this.url, FileMode.Open));
-            // type
-            this.XDOType = br.ReadByte();
-            // ObjectID
-            this.ObjectID = br.ReadUInt32();
-            // KeyLen
-            this.KeyLen = br.ReadByte();
-            // Key
-            this.Key = System.Text.Encoding.UTF8.GetString(br.ReadBytes(this.KeyLen));
-            // ObjBox
-            this.minX = br.ReadDouble();
-            this.minY = br.ReadDouble();
-            this.minZ = br.ReadDouble();
-            this.maxX = br.ReadDouble();
-            this.maxY = br.ReadDouble();
-            this.maxZ = br.ReadDouble();
-            // Altitude
-            this.altitude = br.ReadSingle();
-            // faceNum
-            this.faceNum = br.ReadByte();
+            try
+            {
+                BinaryReader br = new BinaryReader(File.Open(this.url, FileMode.Open));
+                // type
+                this.XDOType = br.ReadByte();
+                // ObjectID
+                this.ObjectID = br.ReadUInt32();
+                // KeyLen
+                this.KeyLen = br.ReadByte();
+                // Key
+                this.Key = System.Text.Encoding.UTF8.GetString(br.ReadBytes(this.KeyLen));
+                // ObjBox
+                this.minX = br.ReadDouble();
+                this.minY = br.ReadDouble();
+                this.minZ = br.ReadDouble();
+                this.maxX = br.ReadDouble();
+                this.maxY = br.ReadDouble();
+                this.maxZ = br.ReadDouble();
+                // Altitude
+                this.altitude = br.ReadSingle();
+                // faceNum
+                this.faceNum = br.ReadByte();
 
-            byte[] versionChecker = br.ReadBytes(4);
-            int isZero = (int)versionChecker[3];
+                byte[] versionChecker = br.ReadBytes(4);
+                int isZero = (int)versionChecker[3];
 
-            int temp = 0;
-            if (isZero == 0)
-            {
-                temp = 1;
-            }
-            else
-            {
-                this.faceNum = 1;
-            }
-
-            if (temp == 0)
-            {
-                this.XDOVersion = 1;
-                br.BaseStream.Position -= 5;
-                this.mesh.Add(new XDOMesh(br));
-            }
-            else
-            {
-                this.XDOVersion = 2;
-                br.BaseStream.Position -= 4;
-                for (int i = 0; i < this.faceNum; i++)
+                int temp = 0;
+                if (isZero == 0)
                 {
+                    temp = 1;
+                }
+                else
+                {
+                    this.faceNum = 1;
+                }
+
+                if (temp == 0)
+                {
+                    this.XDOVersion = 1;
+                    br.BaseStream.Position -= 5;
                     this.mesh.Add(new XDOMesh(br));
                 }
-            }
+                else
+                {
+                    this.XDOVersion = 2;
+                    br.BaseStream.Position -= 4;
+                    for (int i = 0; i < this.faceNum; i++)
+                    {
+                        this.mesh.Add(new XDOMesh(br));
+                    }
+                }
 
-            br.Close();
+                br.Close();
+            } catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
         public ReadXDO(string url, int ver)
         {

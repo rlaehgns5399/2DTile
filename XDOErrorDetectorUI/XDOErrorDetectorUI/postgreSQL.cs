@@ -1038,8 +1038,16 @@ namespace XDOErrorDetectorUI
                                     var real_img = Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(imgName)), Path.GetFileName(Path.GetFullPath(imgName))).Single();
                                     if(imgName != real_img)
                                     {
+                                        for(int i = 0; i < xdo.mesh.Count; i++)
+                                        {
+                                            if (xdo.mesh[i].imageName.ToLower().Equals(readXDO.reference.ToLower()))
+                                            {
+                                                xdo.mesh[i].imageName = readXDO.reference.ToLower();
+                                                xdo.mesh[i].ImageNameLen = (byte)readXDO.reference.ToLower().Length;
+                                            }
+                                        }
                                         File.Move(real_img, new FileInfo(real_img).Directory.FullName +  "temp.tmp");
-                                        File.Move(new FileInfo(real_img).Directory.FullName + "temp.tmp", imgName);
+                                        File.Move(new FileInfo(real_img).Directory.FullName + "temp.tmp", imgName.ToLower());
                                     }
                                 }
                             }
@@ -1052,28 +1060,19 @@ namespace XDOErrorDetectorUI
                                     var real_img = Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(imgName)), Path.GetFileName(Path.GetFullPath(imgName))).Single();
                                     if (imgName != real_img)
                                     {
+                                        for(int i = 0; i < xdo.mesh.Count; i++)
+                                        {
+                                            if (xdo.mesh[i].imageName.ToLower().Equals(readXDO.reference.ToLower())) {
+                                                xdo.mesh[i].imageName = readXDO.reference.ToLower();
+                                                xdo.mesh[i].ImageNameLen = (byte)readXDO.reference.ToLower().Length;
+                                            }
+                                        }
                                         File.Move(real_img, new FileInfo(real_img).Directory.FullName + "temp.tmp");
-                                        File.Move(new FileInfo(real_img).Directory.FullName + "temp.tmp", imgName);
+                                        File.Move(new FileInfo(real_img).Directory.FullName + "temp.tmp", imgName.ToLower());
                                     }
                                 }
-                                //for (int i = 0; i < xdo.mesh.Count; i++)
-                                //{
-                                //    var xdo_img = Path.Combine(new FileInfo(readXDO.xdo.url).Directory.FullName, readXDO.reference);
-                                //    if (File.Exists(xdo_img))
-                                //    {
-                                //        var real_img = Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(xdo_img)), Path.GetFileName(Path.GetFullPath(xdo_img))).Single();
-                                //        if (xdo_img != real_img)
-                                //        {
-                                //            Console.WriteLine("+\t" + xdo_img);
-                                //            Console.WriteLine("+\t" + real_img);
-                                //            var realImgName = new FileInfo(real_img).Name;
-                                //            xdo.mesh[i].imageName = realImgName;
-                                //            xdo.mesh[i].ImageNameLen = (byte)realImgName.Length;
-                                //        }
-                                //    }
-                                //}
-                                //new WriteXDO(xdo, "backup", null);
                             }
+                            new WriteXDO(xdo, "", null);
                             break;
                     }
                 }

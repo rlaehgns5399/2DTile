@@ -21,8 +21,8 @@ namespace XDOErrorDetectorUI
                 {
 
                 }
-                bw = new BinaryWriter(File.Open(xdo.url, FileMode.Create));
             }
+            bw = new BinaryWriter(File.Open(xdo.url, FileMode.Create));
             bw.Write(xdo.XDOType);
             bw.Write(xdo.ObjectID);
             bw.Write(xdo.KeyLen);
