@@ -16,6 +16,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.ComponentModel;
 using System.Threading;
+using System.Diagnostics;
 
 namespace XDOErrorDetectorUI
 {
@@ -26,7 +27,7 @@ namespace XDOErrorDetectorUI
     {
         postgreSQL sql;
         bool clickSearch = false, clickCheckVersion = false;
-
+        Stopwatch watch = new Stopwatch();
         public MainWindow()
         {
             InitializeComponent();
@@ -44,7 +45,21 @@ namespace XDOErrorDetectorUI
         private void button_CreateTable_Click(object sender, RoutedEventArgs e)
         {
             setTableName(sql, textBox_table.Text);
-            label1.Content = sql.createTable();
+
+            var worker = new BackgroundWorker();
+            worker.DoWork += delegate (object o, DoWorkEventArgs args)
+            {
+                watch.Restart();
+                args.Result = sql.createTable();
+            };
+
+            worker.RunWorkerCompleted += delegate (object o, RunWorkerCompletedEventArgs args)
+            {
+                watch.Stop();
+                label1.Content = args.Result;
+                label1.Content += ms(watch);
+            };
+            worker.RunWorkerAsync();
         }
 
         private void button_Connect_Click(object sender, RoutedEventArgs e)
@@ -55,6 +70,7 @@ namespace XDOErrorDetectorUI
 
             worker.DoWork += delegate (object s, DoWorkEventArgs args)
             {
+                watch.Restart();
                 args.Result = sql.connect();
             };
 
@@ -76,6 +92,8 @@ namespace XDOErrorDetectorUI
                 textBox_password.IsEnabled = false;
                 textBox_database.IsEnabled = false;
                 textBox_port.IsEnabled = false;
+                watch.Stop();
+                label1.Content += ms(watch);
             };
 
             worker.RunWorkerAsync();
@@ -91,13 +109,44 @@ namespace XDOErrorDetectorUI
         private void button_ClearTable_Click(object sender, RoutedEventArgs e)
         {
             setTableName(sql, textBox_table.Text);
-            label1.Content = sql.clearTable();
-        }
 
+            var worker = new BackgroundWorker();
+            worker.DoWork += delegate (object o, DoWorkEventArgs args)
+            {
+                watch.Restart();
+                args.Result = sql.clearTable();
+            };
+
+            worker.RunWorkerCompleted += delegate (object o, RunWorkerCompletedEventArgs args)
+            {
+                watch.Stop();
+                label1.Content = args.Result;
+                label1.Content += ms(watch);
+            };
+            worker.RunWorkerAsync();
+        }
+        private string ms(Stopwatch sw)
+        {
+            return "(" + sw.ElapsedMilliseconds.ToString() + " ms)";
+        }
         private void button_DeleteTable_Click(object sender, RoutedEventArgs e)
         {
             setTableName(sql, textBox_table.Text);
-            label1.Content = sql.deleteTable();
+
+            var worker = new BackgroundWorker();
+            worker.DoWork += delegate (object o, DoWorkEventArgs args)
+            {
+                watch.Restart();
+                args.Result = sql.deleteTable();
+            };
+
+            worker.RunWorkerCompleted += delegate (object o, RunWorkerCompletedEventArgs args)
+            {
+                watch.Stop();
+                label1.Content = args.Result;
+                label1.Content += ms(watch);
+            };
+            worker.RunWorkerAsync();
         }
         
         private void button_search_Click(object sender, RoutedEventArgs e)
