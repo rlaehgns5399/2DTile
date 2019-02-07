@@ -14,11 +14,18 @@ namespace XDOErrorDetectorUI
     {
         public JObject container;
         public ReadXDO xdo;
+        private int getImageCount(byte imgCount)
+        {
+            if (imgCount == 1) return 0;    // no texture
+            if (imgCount == 2) return 1;    // only basic texture
+            if (imgCount > 2) return imgCount - 2;  // basic texture + LOD image
+            return -1;  // error
+        }
         public GLTF(ReadXDO xdo, String file_name, String file_path)
         {
             this.xdo = xdo;
             if (xdo.faceNum == 0) xdo.faceNum = 1;
-
+            
             // Skeleton
             this.container = JObject.Parse(@"{
              }");
@@ -37,6 +44,11 @@ namespace XDOErrorDetectorUI
 
             for (int i = 0; i < xdo.faceNum; i++)
             {
+                int numOfImageLevel = getImageCount(xdo.mesh[i].ImageLevel);
+                for(int j = 0; j < numOfImageLevel; j++)
+                {
+
+                }
                 // make bin file
                 FileStream fs = new FileStream(Path.Combine(file_path, file_name) + "_" + i + ".bin", FileMode.Create);
                 BinaryWriter w = new BinaryWriter(fs);
