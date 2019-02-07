@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace XDOErrorDetectorUI
 {
-    class XDODBItem
+    public class XDODBItem
     {
         public string X;
         public string Y;
@@ -25,7 +25,7 @@ namespace XDOErrorDetectorUI
         public List<string> ImageName = new List<String>();
     }
 
-    class DATDBItem
+    public class DATDBItem
     {
         public int level;
         public int idx;

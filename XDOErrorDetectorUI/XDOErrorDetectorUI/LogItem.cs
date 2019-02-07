@@ -15,7 +15,7 @@ namespace XDOErrorDetectorUI
         DUPLICATE_XDO,
         XDO_VERSION_ERROR
     }
-    class LogItem
+    public class LogItem
     {
         public LOG type { get; set; }
         public string filename { get; set; }
@@ -26,7 +26,7 @@ namespace XDOErrorDetectorUI
         public string X { get; set; }
         public string level { get; set; }
     }
-    class DATLogItem : LogItem
+    public class DATLogItem : LogItem
     {
         public string objCount { get; set; }
         public DATLogItem() { }
@@ -57,7 +57,8 @@ namespace XDOErrorDetectorUI
             }
         }
     }
-    class XDOLogItem : LogItem
+
+    public class XDOLogItem : LogItem
     {
 
         public int facenum { get; set; }
