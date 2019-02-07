@@ -152,6 +152,7 @@ namespace XDOErrorDetectorUI
         {
             int min, max;
             setTableName(sql, textBox_table.Text);
+            var folderPathText = folder_path.Text;
             if(!int.TryParse(textBox_Min.Text, out min))
             {
                 System.Windows.Forms.MessageBox.Show("Min level 값을 정수형으로 변환할 수 없습니다. 0으로 검색합니다.");
@@ -162,16 +163,18 @@ namespace XDOErrorDetectorUI
                 System.Windows.Forms.MessageBox.Show("Max level 값을 정수형으로 변환할 수 없습니다. 15로 검색합니다.");
                 max = 15;
             }
-
+            if (checkbox_tableClear.IsChecked == true)
+            {
+                this.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate
+                {
+                    this.button_ClearTable_Click(sender, e);
+                }));
+            }
             var worker = new BackgroundWorker();
             worker.DoWork += delegate (Object s, DoWorkEventArgs args)
             {
                 watch.Restart();
-                if (checkbox_tableClear.IsChecked == true)
-                {
-                    this.button_ClearTable_Click(sender, e);
-                }
-                args.Result = sql.search(folder_path.Text, min, max);
+                args.Result = sql.search(folderPathText, min, max);
             };
             worker.RunWorkerCompleted += delegate (Object s, RunWorkerCompletedEventArgs args)
             {
