@@ -44,66 +44,74 @@ namespace XDOErrorDetectorUI
 
             for (int i = 0; i < xdo.faceNum; i++)
             {
-                int numOfImageLevel = getImageCount(xdo.mesh[i].ImageLevel);
-                for(int j = 0; j < numOfImageLevel; j++)
-                {
+                /*
+                 *  기본 texture에 대해 처리 해야함
+                 */
 
-                }
-                // make bin file
-                FileStream fs = new FileStream(Path.Combine(file_path, file_name) + "_" + i + ".bin", FileMode.Create);
-                BinaryWriter w = new BinaryWriter(fs);
-
-                // bin - first step -> INDICES
-                foreach (var t in xdo.mesh[i].list_indice)
-                {
-                    w.Write(t);
-                }
-
-                // 4 bytes padding
                 int byte4_align_index = 0;
-                if ((xdo.mesh[i].list_indice.Count * 2) % 4 != 0)
+                var numOfImageLevel = getImageCount(xdo.mesh[i].ImageLevel);
+                for(int j = 1; j < numOfImageLevel; j++)
                 {
-                    byte4_align_index = (xdo.mesh[i].list_indice.Count * 2) % 4;
-                    // 4 byte padding, uv list can be multiple of 2 not 4.
-                    for (int padding_iterator = 0; padding_iterator < byte4_align_index; padding_iterator++) w.Write((byte)0);
+                    var fileName = Path.Combine(file_path, new FileInfo(Path.Combine(file_path, file_name)).Name) + "_" + i + "_" + j;
 
-                    if (debug) Console.WriteLine("IndexList: " + xdo.mesh[i].list_indice.Count * 2 + " + " + byte4_align_index + "bytes. aligned 4 bytes(" + (xdo.mesh[i].list_indice.Count * 2 + byte4_align_index) + ")");
+                    // make bin file
+                    // xdoName_[i: faceNum]_[j: LOD].bin 
+                    var w = new BinaryWriter(new FileStream(fileName + ".bin", FileMode.Create));
+
+                    // bin - first step -> INDICES
+                    foreach (var t in xdo.mesh[i].list_indice)
+                    {
+                        w.Write(t);
+                    }
+
+                    // 4 bytes padding
+                    //int byte4_align_index = 0;
+                    if ((xdo.mesh[i].list_indice.Count * 2) % 4 != 0)
+                    {
+                        byte4_align_index = (xdo.mesh[i].list_indice.Count * 2) % 4;
+                        // 4 byte padding, uv list can be multiple of 2 not 4.
+                        for (int padding_iterator = 0; padding_iterator < byte4_align_index; padding_iterator++) w.Write((byte)0);
+
+                        if (debug) Console.WriteLine("IndexList: " + xdo.mesh[i].list_indice.Count * 2 + " + " + byte4_align_index + "bytes. aligned 4 bytes(" + (xdo.mesh[i].list_indice.Count * 2 + byte4_align_index) + ")");
+                    }
+
+                    // bin - second step -> Vertex(Position)
+                    foreach (var t in xdo.mesh[i].list_vertex)
+                    {
+                        w.Write(t.x);
+                        w.Write(t.y);
+                        w.Write(t.z);
+                    }
+
+                    // bin - third step - Normals
+                    foreach (var t in xdo.mesh[i].list_normal_modifed)
+                    {
+
+                        w.Write(t.x);
+                        w.Write(t.y);
+                        w.Write(t.z);
+                    }
+
+                    // bom - fourth step - Texture UV
+                    foreach (var t in xdo.mesh[i].list_texture)
+                    {
+                        w.Write(t.x);
+                        w.Write(t.y);
+                    }
+                    w.Close();
+
+
+                    // make gltf with xdo informations
+
+                    // define 'strict' asset
+
+                    faceElements.Add(JToken.FromObject(new
+                    {
+                        Color = xdo.mesh[i].Color,
+                        ImageLevel = xdo.mesh[i].ImageLevel
+                    }));
                 }
-
-                // bin - second step -> Vertex(Position)
-                foreach (var t in xdo.mesh[i].list_vertex)
-                {
-                    w.Write(t.x);
-                    w.Write(t.y);
-                    w.Write(t.z);
-                }
-
-                // bin - third step - Normals
-                foreach (var t in xdo.mesh[i].list_normal_modifed)
-                {
-
-                    w.Write(t.x);
-                    w.Write(t.y);
-                    w.Write(t.z);
-                }
-
-                // bom - fourth step - Texture UV
-                foreach (var t in xdo.mesh[i].list_texture)
-                {
-                    w.Write(t.x);
-                    w.Write(t.y);
-                }
-                w.Close();
-
-                // make gltf with xdo informations
-
-                // define 'strict' asset
-
-                faceElements.Add(JToken.FromObject(new
-                {
-                    Color = xdo.mesh[i].Color,
-                    ImageLevel = xdo.mesh[i].ImageLevel
-                }));
+                
 
 
                 // define [scenes] <= faceNum

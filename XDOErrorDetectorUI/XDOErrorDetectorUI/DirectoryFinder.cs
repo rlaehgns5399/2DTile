@@ -54,6 +54,7 @@ namespace XDOErrorDetectorUI
                 {
                     if (Directory.GetFiles(tempDirectoryName, "*." + ((EXT)option).ToString(), SearchOption.TopDirectoryOnly).Length > 0)
                     {
+                        Console.WriteLine(tempDirectoryName);
                         set.Add(tempDirectoryName);
                     }
                     search(set, tempDirectoryName, option);

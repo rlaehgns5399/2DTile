@@ -46,6 +46,7 @@ namespace XDOErrorDetectorUI
 
             var DATdirectorySet = new DirectoryFinder(path, min, max).run(EXT.DAT);
 
+            Console.WriteLine("\nend\n");
             foreach(string DATFolderPath in DATdirectorySet)
             {
                 var DATFileList = new FileFinder(DATFolderPath).run(EXT.DAT);

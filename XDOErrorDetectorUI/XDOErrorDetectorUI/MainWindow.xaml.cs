@@ -14,6 +14,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Forms;
 using System.IO;
+using System.ComponentModel;
+using System.Threading;
 
 namespace XDOErrorDetectorUI
 {
@@ -24,6 +26,7 @@ namespace XDOErrorDetectorUI
     {
         postgreSQL sql;
         bool clickSearch = false, clickCheckVersion = false;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -35,6 +38,8 @@ namespace XDOErrorDetectorUI
             textBox_table.Text = "xdo2";
             textBox_port.Text = "5433";
             folder_path.Text = @"C:\Users\KimDoHoon\Desktop\git\2DTile\XDOErrorDetector\data";
+
+            this.progressBarWorker();
         }
         private void button_CreateTable_Click(object sender, RoutedEventArgs e)
         {
@@ -45,23 +50,36 @@ namespace XDOErrorDetectorUI
         private void button_Connect_Click(object sender, RoutedEventArgs e)
         {
             sql.info = new XDOErrorDetectorUI.DB(textBox_host.Text, textBox_username.Text, textBox_password.Text, textBox_database.Text, textBox_port.Text);
-            label1.Content = sql.connect();
-            btn_createtable.IsEnabled = true;
-            btn_deletetable.IsEnabled = true;
-            btn_cleartable.IsEnabled = true;
-            btn_searchtable.IsEnabled = true;
-            textBox_table.IsEnabled = true;
-            btn_load.IsEnabled = true;
-            btn_check_version_error.IsEnabled = true;
-            btn_toGLTF.IsEnabled = true;
 
-            btn_connection.IsEnabled = false;
-            textBox_host.IsEnabled = false;
-            textBox_username.IsEnabled = false;
-            textBox_password.IsEnabled = false;
-            textBox_database.IsEnabled = false;
-            textBox_port.IsEnabled = false;
-        }
+            var worker = new BackgroundWorker();
+
+            worker.DoWork += delegate (object s, DoWorkEventArgs args)
+            {
+                args.Result = sql.connect();
+            };
+
+            worker.RunWorkerCompleted += delegate (object s, RunWorkerCompletedEventArgs args)
+            {
+                label1.Content = args.Result;
+                btn_createtable.IsEnabled = true;
+                btn_deletetable.IsEnabled = true;
+                btn_cleartable.IsEnabled = true;
+                btn_searchtable.IsEnabled = true;
+                textBox_table.IsEnabled = true;
+                btn_load.IsEnabled = true;
+                btn_check_version_error.IsEnabled = true;
+                btn_toGLTF.IsEnabled = true;
+
+                btn_connection.IsEnabled = false;
+                textBox_host.IsEnabled = false;
+                textBox_username.IsEnabled = false;
+                textBox_password.IsEnabled = false;
+                textBox_database.IsEnabled = false;
+                textBox_port.IsEnabled = false;
+            };
+
+            worker.RunWorkerAsync();
+            }
 
         private void setTableName(postgreSQL sql, string table)
         {
@@ -100,11 +118,31 @@ namespace XDOErrorDetectorUI
             {
                 sql.clearTable();
             }
+
             label1.Content = sql.search(folder_path.Text, min, max);
             clickSearch = true;
 
             if(clickSearch && clickCheckVersion)
                 btn_repair.IsEnabled = true;
+        }
+        private void progressBarWorker()
+        {
+            BackgroundWorker worker = new BackgroundWorker();
+            worker.WorkerReportsProgress = true;
+            worker.DoWork += delegate (object sender, DoWorkEventArgs e)
+            {
+                while (true)
+                {
+                    (sender as BackgroundWorker).ReportProgress(new Random().Next(1, 100));
+                    Thread.Sleep(100);
+                }
+            };
+            worker.ProgressChanged += delegate (object sender, ProgressChangedEventArgs e)
+            {
+                pbStatus.Value = e.ProgressPercentage;
+            };
+
+            worker.RunWorkerAsync();
         }
         
         private void button_changefolder(object sender, RoutedEventArgs e)
