@@ -151,33 +151,29 @@ namespace XDOErrorDetectorUI
         private void button_search_Click(object sender, RoutedEventArgs e)
         {
             int min, max;
+
+            min = int.Parse(comboBox_min.Text);
+            max = int.Parse(comboBox_max.Text);
+            
             setTableName(sql, textBox_table.Text);
             var folderPathText = folder_path.Text;
-            if(!int.TryParse(textBox_Min.Text, out min))
-            {
-                System.Windows.Forms.MessageBox.Show("Min level 값을 정수형으로 변환할 수 없습니다. 0으로 검색합니다.");
-                min = 0;
-            }
-            if(!int.TryParse(textBox_Max.Text, out max))
-            {
-                System.Windows.Forms.MessageBox.Show("Max level 값을 정수형으로 변환할 수 없습니다. 15로 검색합니다.");
-                max = 15;
-            }
+
             if (checkbox_tableClear.IsChecked == true)
             {
                     this.button_ClearTable_Click(sender, e);
             }
             var worker = new BackgroundWorker();
+            var StopWatchForSearch = new Stopwatch();
             worker.DoWork += delegate (Object s, DoWorkEventArgs args)
             {
-                watch.Restart();
+                StopWatchForSearch.Restart();
                 args.Result = sql.search(folderPathText, min, max);
             };
             worker.RunWorkerCompleted += delegate (Object s, RunWorkerCompletedEventArgs args)
             {
-                watch.Stop();
+                StopWatchForSearch.Stop();
                 label1.Content = args.Result;
-                label1.Content += ms(watch);
+                label1.Content += ms(StopWatchForSearch);
                 clickSearch = true;
 
                 if (clickSearch && clickCheckVersion)
@@ -313,8 +309,8 @@ namespace XDOErrorDetectorUI
             listView_version.Items.Clear();
             setTableName(sql, textBox_table.Text);
 
-            int min = int.Parse(textBox_Min.Text);
-            int max = int.Parse(textBox_Max.Text);
+            int min = int.Parse(comboBox_min.Text);
+            int max = int.Parse(comboBox_max.Text);
 
             var folderPathText = folder_path.Text;
             var worker = new BackgroundWorker();
@@ -393,10 +389,17 @@ namespace XDOErrorDetectorUI
         {
             setTableName(sql, textBox_table.Text);
             var worker = new BackgroundWorker();
+
+            var folderPathText = folder_path.Text;
+            var min = int.Parse(comboBox_min.Text);
+            var max = int.Parse(comboBox_max.Text);
             worker.DoWork += delegate (object s, DoWorkEventArgs args)
             {
                 watch.Restart();
-                sql.makeGLTF(folder_path.Text, int.Parse(textBox_Min.Text), int.Parse(textBox_Max.Text));
+                sql.makeGLTF(folderPathText, min, max);
+            };
+            worker.RunWorkerCompleted += delegate (object s, RunWorkerCompletedEventArgs args)
+            {
                 watch.Stop();
                 label1.Content = ms(watch);
             };
