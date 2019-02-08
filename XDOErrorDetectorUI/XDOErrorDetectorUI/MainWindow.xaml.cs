@@ -165,10 +165,7 @@ namespace XDOErrorDetectorUI
             }
             if (checkbox_tableClear.IsChecked == true)
             {
-                this.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate
-                {
                     this.button_ClearTable_Click(sender, e);
-                }));
             }
             var worker = new BackgroundWorker();
             worker.DoWork += delegate (Object s, DoWorkEventArgs args)
@@ -319,24 +316,27 @@ namespace XDOErrorDetectorUI
             int min = int.Parse(textBox_Min.Text);
             int max = int.Parse(textBox_Max.Text);
 
+            var folderPathText = folder_path.Text;
             var worker = new BackgroundWorker();
+            
             worker.DoWork += delegate (object s, DoWorkEventArgs args)
             {
                 watch.Restart();
-                var list = sql.checkVersion(folder_path.Text, min, max);
+                args.Result = sql.checkVersion(folderPathText, min, max);
+            };
+            worker.RunWorkerCompleted += delegate (object s, RunWorkerCompletedEventArgs args)
+            {
+                var list = (List<CheckVersionListItem>)args.Result;
                 foreach (var item in list)
                 {
                     listView_version.Items.Add(item);
                 }
-                args.Result = list.Count + "개가 확인되었습니다.";
-            };
-            worker.RunWorkerCompleted += delegate (object s, RunWorkerCompletedEventArgs args)
-            {
+
                 clickCheckVersion = true;
                 if (clickSearch && clickCheckVersion)
                     btn_repair.IsEnabled = true;
                 watch.Stop();
-                label1.Content = args.Result + ms(watch);
+                label1.Content = list.Count + "개가 확인되었습니다." + ms(watch);
             };
             worker.RunWorkerAsync();
         }
@@ -362,15 +362,13 @@ namespace XDOErrorDetectorUI
 
         private void button_reset_click(object sender, RoutedEventArgs e)
         {
-
+            var folderPathText = folder_path.Text;
             var worker = new BackgroundWorker();
             worker.DoWork += delegate (object unused, DoWorkEventArgs args)
             {
                 watch.Restart();
                 var set = new HashSet<string>();
-                this.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate {
-                    repairBackup(set, folder_path.Text);
-                })); 
+                repairBackup(set, folderPathText);
                 foreach (var s in set)
                 {
                     Console.WriteLine(s);
