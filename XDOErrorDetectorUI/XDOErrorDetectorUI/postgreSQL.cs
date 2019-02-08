@@ -45,8 +45,7 @@ namespace XDOErrorDetectorUI
             datLogInsertCount = 0;
 
             var DATdirectorySet = new DirectoryFinder(path, min, max).run(EXT.DAT);
-
-            Console.WriteLine("\nend\n");
+            
             foreach(string DATFolderPath in DATdirectorySet)
             {
                 var DATFileList = new FileFinder(DATFolderPath).run(EXT.DAT);
@@ -88,11 +87,28 @@ namespace XDOErrorDetectorUI
 
                     hashMap.Add(datFile, dat_DBItem);
 
-                    foreach (var xdoFile in Directory.GetFiles(baseDirectory + @"\" + Path.GetFileNameWithoutExtension(datFile)))
+                    //Console.WriteLine(baseDirectory + @"\" + Path.GetFileNameWithoutExtension(datFile));
+                    try
                     {
-                        if (xdoFile.ToLower().Contains(".xdo")) {
-                            xdoSet.Add(xdoFile);
+                        IEnumerable<string> temp = Directory.EnumerateFiles(Path.Combine(baseDirectory, Path.GetFileNameWithoutExtension(datFile)), "*", SearchOption.TopDirectoryOnly);
+                        foreach (var xdoFile in temp)
+                        {
+                            if (new FileInfo(xdoFile.ToLower()).Extension.Equals(".xdo"))
+                            {
+                                xdoSet.Add(xdoFile);
+                            }
                         }
+                    }
+                    catch (ArgumentException e) {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine("[X] Filename Error in " + Path.Combine(baseDirectory, Path.GetFileNameWithoutExtension(datFile)));
+                        Console.ResetColor();
+                    }
+                    catch (DirectoryNotFoundException e)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine("[X] DirectoryNotFoundFolder: " + Path.Combine(baseDirectory, Path.GetFileNameWithoutExtension(datFile)));
+                        Console.ResetColor();
                     }
                 }
 
@@ -101,6 +117,7 @@ namespace XDOErrorDetectorUI
             }
 
 
+            return ""; 
 
             var XDOdirectorySet = new DirectoryFinder(path, min, max).run(EXT.XDO);
             foreach (string directory in XDOdirectorySet)

@@ -161,14 +161,11 @@ namespace XDOErrorDetectorUI
                     this.button_ClearTable_Click(sender, e);
             }
             var worker = new BackgroundWorker();
+            
             var StopWatchForSearch = new Stopwatch();
             worker.DoWork += delegate (Object s, DoWorkEventArgs args)
             {
                 StopWatchForSearch.Restart();
-
-                //this.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate{
-                //   pbStatus.Maximum = Directory.EnumerateDirectories(folderPathText, "*", SearchOption.AllDirectories).Count();
-                //})); 
                 args.Result = sql.search(folderPathText, min, max);
             };
             worker.RunWorkerCompleted += delegate (Object s, RunWorkerCompletedEventArgs args)
@@ -182,6 +179,20 @@ namespace XDOErrorDetectorUI
                     btn_repair.IsEnabled = true;
                 btn_check_version_error.IsEnabled = true;
             };
+            var progressBarWorker = new BackgroundWorker();
+            progressBarWorker.WorkerReportsProgress = true;
+            progressBarWorker.DoWork += (s, args) =>
+            {
+                args.Result = Directory.EnumerateDirectories(folderPathText, "*", SearchOption.AllDirectories).Count();
+            };
+            progressBarWorker.ProgressChanged += (s, args) =>
+            {
+                pbStatus.Value = args.ProgressPercentage;
+            };
+            progressBarWorker.RunWorkerCompleted += (s, args) => {
+                pbStatus.Maximum = (int)args.Result;
+            };
+            progressBarWorker.RunWorkerAsync();
             worker.RunWorkerAsync();
         }
         private void progressBarWorker()
