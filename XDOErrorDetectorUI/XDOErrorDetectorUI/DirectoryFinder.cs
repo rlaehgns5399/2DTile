@@ -12,52 +12,33 @@ namespace XDOErrorDetectorUI
         string url;
         List<string> minmax = new List<string>();
         HashSet<string> folderSet = new HashSet<string>();
+        int min, max;
         public DirectoryFinder(string url, int min, int max)
         {
             this.url = url;
-            for(var i = min; i <= max; i++)
-            {
-                minmax.Add(i.ToString());
-            }
+            this.min = min;
+            this.max = max;
         }
         public HashSet<string> run(EXT option)
         {
             search(folderSet, this.url, option);
-            leaveSpecificLevel(folderSet);
             return folderSet;
-        }
-        public void leaveSpecificLevel(HashSet<string> set) {
-            var forRemoveSet = new HashSet<string>();
-            foreach(var folder in set)
-            {
-                var str = folder.Split('\\');
-                bool flag = false;
-                for(int i = 0; i < str.Length; i++)
-                {
-                    if (minmax.Contains(str[i]))
-                    {
-                        flag = true;
-                        break;
-                    }
-                }
-                if (!flag) forRemoveSet.Add(folder);
-            }
-
-            foreach (var t in forRemoveSet)
-                set.Remove(t);
         }
         public void search(HashSet<string> set, string url, EXT option)
         {
             try
             {
-                foreach (var tempDirectoryName in Directory.GetDirectories(url))
+                // Z (zoom level)
+                for(int i = min; i <= max; i++)
                 {
-                    if (Directory.GetFiles(tempDirectoryName, "*." + ((EXT)option).ToString(), SearchOption.TopDirectoryOnly).Length > 0)
+                    // Y
+                    foreach(var tempDirectoryName in Directory.EnumerateDirectories(Path.Combine(url, i.ToString()), "*", SearchOption.TopDirectoryOnly))
                     {
-                        Console.WriteLine(tempDirectoryName);
-                        set.Add(tempDirectoryName);
+                        if (Directory.EnumerateFiles(tempDirectoryName, "*." + ((EXT)option).ToString(), SearchOption.TopDirectoryOnly).Count() > 0)
+                        {
+                            set.Add(tempDirectoryName);
+                        }
                     }
-                    search(set, tempDirectoryName, option);
                 }
             }
             catch (Exception e)

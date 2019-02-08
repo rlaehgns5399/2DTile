@@ -39,8 +39,6 @@ namespace XDOErrorDetectorUI
             textBox_table.Text = "xdo2";
             textBox_port.Text = "5433";
             folder_path.Text = @"C:\Users\KimDoHoon\Desktop\git\2DTile\XDOErrorDetector\data";
-
-            this.progressBarWorker();
         }
         private void button_CreateTable_Click(object sender, RoutedEventArgs e)
         {
@@ -167,6 +165,10 @@ namespace XDOErrorDetectorUI
             worker.DoWork += delegate (Object s, DoWorkEventArgs args)
             {
                 StopWatchForSearch.Restart();
+
+                //this.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate{
+                //   pbStatus.Maximum = Directory.EnumerateDirectories(folderPathText, "*", SearchOption.AllDirectories).Count();
+                //})); 
                 args.Result = sql.search(folderPathText, min, max);
             };
             worker.RunWorkerCompleted += delegate (Object s, RunWorkerCompletedEventArgs args)
