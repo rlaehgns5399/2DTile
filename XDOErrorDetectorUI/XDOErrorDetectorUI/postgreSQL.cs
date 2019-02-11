@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using Npgsql;
 using NpgsqlTypes;
+using System.ComponentModel;
 
 namespace XDOErrorDetectorUI
 {
@@ -26,7 +27,7 @@ namespace XDOErrorDetectorUI
         public string table_dat;
         public string table_dat_log;
 
-        public string search(string path, int min, int max)
+        public string search(string path, int min, int max, BackgroundWorker worker)
         {
             repairDatDictionary = new Dictionary<LOG, List<ReadDAT>>();
             repairXdoDictionary = new Dictionary<LOG, List<RepairXDO>>();
@@ -45,7 +46,7 @@ namespace XDOErrorDetectorUI
             datLogInsertCount = 0;
 
             var DATdirectorySet = new DirectoryFinder(path, min, max).run(EXT.DAT);
-            
+            worker.ReportProgress(0, new ReportProgressItemClass(DATdirectorySet.Count));
             foreach(string DATFolderPath in DATdirectorySet)
             {
                 var DATFileList = new FileFinder(DATFolderPath).run(EXT.DAT);
@@ -112,6 +113,7 @@ namespace XDOErrorDetectorUI
                     }
                 }
 
+                worker.ReportProgress(1);
                 this.DATLogList = checkDATError(hashMap, xdoSet);
                 writeDBwithDATinfo(hashMap, this.DATLogList);
             }

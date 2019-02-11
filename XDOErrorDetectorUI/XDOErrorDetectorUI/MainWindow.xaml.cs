@@ -160,13 +160,36 @@ namespace XDOErrorDetectorUI
             {
                     this.button_ClearTable_Click(sender, e);
             }
+            pbStatus.Value = 0;
+
             var worker = new BackgroundWorker();
-            
+            worker.WorkerReportsProgress = true;
             var StopWatchForSearch = new Stopwatch();
             worker.DoWork += (s, args) =>
             {
                 StopWatchForSearch.Restart();
-                args.Result = sql.search(folderPathText, min, max);
+                Console.WriteLine("[W]\t탐색할 폴더의 총 개수를 수집하고 있습니다.");
+                int folderCount = 0;
+                (s as BackgroundWorker).ReportProgress(0, new ReportProgressItemClass(folderCount));
+                args.Result = sql.search(folderPathText, min, max, worker);
+            };
+            worker.ProgressChanged += (s, args) =>
+            {
+                if(args.UserState != null)
+                {
+                    var t = args.UserState.GetType();
+                    if (t.Equals(typeof(ReportProgressItemClass)))
+                    {
+                        var obj = (ReportProgressItemClass)args.UserState;
+                        pbStatus.Maximum = obj.maximum;
+                        Console.WriteLine("[A]\t폴더의 총 개수 : " + obj.maximum);
+                    }
+                }
+                else
+                {
+                    var now = (int)args.ProgressPercentage;
+                    pbStatus.Value += now;
+                }
             };
             worker.RunWorkerCompleted += (s, args) =>
             {
@@ -179,20 +202,6 @@ namespace XDOErrorDetectorUI
                     btn_repair.IsEnabled = true;
                 btn_check_version_error.IsEnabled = true;
             };
-            var progressBarWorker = new BackgroundWorker();
-            progressBarWorker.WorkerReportsProgress = true;
-            progressBarWorker.DoWork += (s, args) =>
-            {
-                args.Result = Directory.EnumerateDirectories(folderPathText, "*", SearchOption.AllDirectories).Count();
-            };
-            progressBarWorker.ProgressChanged += (s, args) =>
-            {
-                pbStatus.Value = args.ProgressPercentage;
-            };
-            progressBarWorker.RunWorkerCompleted += (s, args) => {
-                pbStatus.Maximum = (int)args.Result;
-            };
-            progressBarWorker.RunWorkerAsync();
             worker.RunWorkerAsync();
         }
         private void progressBarWorker()
@@ -495,5 +504,13 @@ namespace XDOErrorDetectorUI
         public List<XDOLogItem> xdoLogList;
         public List<DATDBItem> datList;
         public List<DATLogItem> datLogList;
+    }
+    public class ReportProgressItemClass
+    {
+        public int maximum;
+        public ReportProgressItemClass(int i)
+        {
+            this.maximum = i;
+        }
     }
 }
