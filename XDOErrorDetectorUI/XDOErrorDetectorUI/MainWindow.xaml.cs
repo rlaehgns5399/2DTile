@@ -66,13 +66,13 @@ namespace XDOErrorDetectorUI
 
             var worker = new BackgroundWorker();
 
-            worker.DoWork += delegate (object s, DoWorkEventArgs args)
+            worker.DoWork += (s, args) =>
             {
                 watch.Restart();
                 args.Result = sql.connect();
             };
 
-            worker.RunWorkerCompleted += delegate (object s, RunWorkerCompletedEventArgs args)
+            worker.RunWorkerCompleted += (s, args) =>
             {
                 label1.Content = args.Result;
                 btn_createtable.IsEnabled = true;
@@ -108,13 +108,13 @@ namespace XDOErrorDetectorUI
             setTableName(sql, textBox_table.Text);
 
             var worker = new BackgroundWorker();
-            worker.DoWork += delegate (object o, DoWorkEventArgs args)
+            worker.DoWork += (o, args) =>
             {
                 watch.Restart();
                 args.Result = sql.clearTable();
             };
 
-            worker.RunWorkerCompleted += delegate (object o, RunWorkerCompletedEventArgs args)
+            worker.RunWorkerCompleted += (o, args) =>
             {
                 watch.Stop();
                 label1.Content = args.Result;
@@ -131,13 +131,13 @@ namespace XDOErrorDetectorUI
             setTableName(sql, textBox_table.Text);
 
             var worker = new BackgroundWorker();
-            worker.DoWork += delegate (object o, DoWorkEventArgs args)
+            worker.DoWork += (o, args) =>
             {
                 watch.Restart();
                 args.Result = sql.deleteTable();
             };
 
-            worker.RunWorkerCompleted += delegate (object o, RunWorkerCompletedEventArgs args)
+            worker.RunWorkerCompleted += (o, args) =>
             {
                 watch.Stop();
                 label1.Content = args.Result;
@@ -163,12 +163,12 @@ namespace XDOErrorDetectorUI
             var worker = new BackgroundWorker();
             
             var StopWatchForSearch = new Stopwatch();
-            worker.DoWork += delegate (Object s, DoWorkEventArgs args)
+            worker.DoWork += (s, args) =>
             {
                 StopWatchForSearch.Restart();
                 args.Result = sql.search(folderPathText, min, max);
             };
-            worker.RunWorkerCompleted += delegate (Object s, RunWorkerCompletedEventArgs args)
+            worker.RunWorkerCompleted += (s, args) =>
             {
                 StopWatchForSearch.Stop();
                 label1.Content = args.Result;
@@ -199,15 +199,15 @@ namespace XDOErrorDetectorUI
         {
             BackgroundWorker worker = new BackgroundWorker();
             worker.WorkerReportsProgress = true;
-            worker.DoWork += delegate (object sender, DoWorkEventArgs e)
+            worker.DoWork += (s, e) =>
             {
                 while (true)
                 {
-                    (sender as BackgroundWorker).ReportProgress(new Random().Next(1, 100));
+                    (s as BackgroundWorker).ReportProgress(new Random().Next(1, 100));
                     Thread.Sleep(100);
                 }
             };
-            worker.ProgressChanged += delegate (object sender, ProgressChangedEventArgs e)
+            worker.ProgressChanged += (s, e) =>
             {
                 pbStatus.Value = e.ProgressPercentage;
             };
@@ -232,7 +232,7 @@ namespace XDOErrorDetectorUI
             dat_log_listview.Items.Clear();
             
             var worker = new BackgroundWorker();
-            worker.DoWork += delegate (object o, DoWorkEventArgs args)
+            worker.DoWork += (o, args) =>
             {
                 watch.Restart();
 
@@ -244,7 +244,7 @@ namespace XDOErrorDetectorUI
                 args.Result = returnObject;
             };
 
-            worker.RunWorkerCompleted += delegate (object o, RunWorkerCompletedEventArgs args)
+            worker.RunWorkerCompleted += (o, args) =>
             {
                 var result = (BackgroundWorkerReturnClass)args.Result;
 
@@ -328,12 +328,12 @@ namespace XDOErrorDetectorUI
             var folderPathText = folder_path.Text;
             var worker = new BackgroundWorker();
             
-            worker.DoWork += delegate (object s, DoWorkEventArgs args)
+            worker.DoWork += (s, args) =>
             {
                 watch.Restart();
                 args.Result = sql.checkVersion(folderPathText, min, max);
             };
-            worker.RunWorkerCompleted += delegate (object s, RunWorkerCompletedEventArgs args)
+            worker.RunWorkerCompleted += (s, args) =>
             {
                 var list = (List<CheckVersionListItem>)args.Result;
                 foreach (var item in list)
@@ -355,12 +355,12 @@ namespace XDOErrorDetectorUI
             setTableName(sql, textBox_table.Text);
 
             var worker = new BackgroundWorker();
-            worker.DoWork += delegate (object s, DoWorkEventArgs args)
+            worker.DoWork += (s, args) =>
             {
                 watch.Restart();
                 args.Result = sql.repair();
             };
-            worker.RunWorkerCompleted += delegate (object s, RunWorkerCompletedEventArgs args)
+            worker.RunWorkerCompleted += (s, args) =>
             {
                 watch.Stop();
                 label1.Content = (int)args.Result + "개의 DAT 파일이 고쳐졌습니다. 원본 파일은 .backup으로 백업되었습니다.";
@@ -373,23 +373,22 @@ namespace XDOErrorDetectorUI
         {
             var folderPathText = folder_path.Text;
             var worker = new BackgroundWorker();
-            worker.DoWork += delegate (object unused, DoWorkEventArgs args)
+            worker.DoWork += (s, args) =>
             {
                 watch.Restart();
                 var set = new HashSet<string>();
                 repairBackup(set, folderPathText);
-                foreach (var s in set)
+                foreach (var item in set)
                 {
-                    Console.WriteLine(s);
-                    var withoutbackup = s.Split(new string[] { ".backup" }, StringSplitOptions.None);
+                    var withoutbackup = item.Split(new string[] { ".backup" }, StringSplitOptions.None);
                     if (File.Exists(withoutbackup[0]))
                     {
                         File.Delete(withoutbackup[0]);
                     }
-                    File.Move(s, withoutbackup[0]);
+                    File.Move(item, withoutbackup[0]);
                 }
             };
-            worker.RunWorkerCompleted += delegate (object s, RunWorkerCompletedEventArgs args)
+            worker.RunWorkerCompleted += (s, args) =>
             {
                 watch.Stop();
                 label1.Content = ms(watch);
@@ -406,12 +405,12 @@ namespace XDOErrorDetectorUI
             var folderPathText = folder_path.Text;
             var min = int.Parse(comboBox_min.Text);
             var max = int.Parse(comboBox_max.Text);
-            worker.DoWork += delegate (object s, DoWorkEventArgs args)
+            worker.DoWork += (s, args) =>
             {
                 watch.Restart();
                 sql.makeGLTF(folderPathText, min, max);
             };
-            worker.RunWorkerCompleted += delegate (object s, RunWorkerCompletedEventArgs args)
+            worker.RunWorkerCompleted += (s, args) =>
             {
                 watch.Stop();
                 label1.Content = ms(watch);
