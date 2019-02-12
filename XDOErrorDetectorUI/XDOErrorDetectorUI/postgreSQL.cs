@@ -49,6 +49,7 @@ namespace XDOErrorDetectorUI
             worker.ReportProgress(0, new ReportProgressItemClass(DATdirectorySet.Count));
             foreach(string DATFolderPath in DATdirectorySet)
             {
+                var DATLogList = new List<DATLogItem>();
                 var DATFileList = new FileFinder(DATFolderPath).run(EXT.DAT);
 
                 var hashMap = new Dictionary<string, DATDBItem>();
@@ -69,7 +70,8 @@ namespace XDOErrorDetectorUI
                     for (int i = 0; i < dat_DBItem.objCount; i++)
                     {
                         var version = dat.body[i].version;
-                        var version_string = Int32.Parse((int)version[0] + "" + (int)version[1] + "" + (int)version[2] + "" + (int)version[3]);
+                        //var version_string = Int32.Parse((int)version[0] + "" + (int)version[1] + "" + (int)version[2] + "" + (int)version[3]);
+                        var version_string = Int32.Parse(string.Format("{0}{1}{2}{3}", version[0], version[1], version[2], version[3]));
                         dat_DBItem.version.Add(version_string);
                         dat_DBItem.key.Add(dat.body[i].key);
                         dat_DBItem.centerPos_X.Add(dat.body[i].centerPos_x);
@@ -107,15 +109,23 @@ namespace XDOErrorDetectorUI
                     }
                     catch (DirectoryNotFoundException e)
                     {
-                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("[X] DirectoryNotFoundFolder: " + Path.Combine(baseDirectory, Path.GetFileNameWithoutExtension(datFile)));
                         Console.ResetColor();
                     }
                 }
 
                 worker.ReportProgress(1);
-                this.DATLogList = checkDATError(hashMap, xdoSet);
-                writeDBwithDATinfo(hashMap, this.DATLogList);
+                DATLogList = checkDATError(hashMap, xdoSet);
+                writeDBwithDATinfo(hashMap, DATLogList);
+
+                DATFileList.Clear();
+                hashMap.Clear();
+                xdoSet.Clear();
+
+                DATFileList = null;
+                hashMap = null;
+                xdoSet = null;
             }
 
 
@@ -187,6 +197,10 @@ namespace XDOErrorDetectorUI
                 }
                 this.XDOLogList = checkXDOError(hashMap, imageSet);
                 writeDBwithXDOInfo(hashMap, this.XDOLogList);
+
+                hashMap.Clear();
+                hashMap = null;
+
             }
             return "데이터 " + datDBInsertCount + "/" + datLogInsertCount + "/" + xdoDBInsertCount + "/" + xdoLogInsertCount + "개가 추가되었습니다.";
         }
@@ -830,7 +844,6 @@ namespace XDOErrorDetectorUI
                         cmd.ExecuteNonQuery();
                         return table_dat + ", " + table_dat_log + ", " + table_xdo + ", " + table_xdo_log + "가 성공적으로 생성되었습니다.";
                     }
-
                 }
                 catch (Exception ex)
                 {

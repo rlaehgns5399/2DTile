@@ -169,8 +169,6 @@ namespace XDOErrorDetectorUI
             {
                 StopWatchForSearch.Restart();
                 Console.WriteLine("[W]\t탐색할 폴더의 총 개수를 수집하고 있습니다.");
-                int folderCount = 0;
-                (s as BackgroundWorker).ReportProgress(0, new ReportProgressItemClass(folderCount));
                 args.Result = sql.search(folderPathText, min, max, worker);
             };
             worker.ProgressChanged += (s, args) =>
