@@ -163,7 +163,7 @@ namespace XDOErrorDetectorUI
                     this.button_ClearTable_Click(sender, e);
             }
             pbStatus.Value = 0;
-
+            var isRepair = checkbox_autoRecover.IsChecked;
             var worker = new BackgroundWorker();
             worker.WorkerReportsProgress = true;
             var StopWatchForSearch = new Stopwatch();
@@ -171,7 +171,7 @@ namespace XDOErrorDetectorUI
             {
                 StopWatchForSearch.Restart();
                 Console.WriteLine("[W]\t탐색할 폴더의 총 개수를 수집하고 있습니다.");
-                args.Result = sql.search(folderPathText, min, max, worker);
+                args.Result = sql.search(folderPathText, min, max, worker, isRepair);
             };
             worker.ProgressChanged += (s, args) =>
             {

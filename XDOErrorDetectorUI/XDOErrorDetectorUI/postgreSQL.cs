@@ -23,7 +23,7 @@ namespace XDOErrorDetectorUI
         public string table_xdo, table_xdo_log, table_xdo_etc;
         public string table_dat, table_dat_log, table_dat_etc;
 
-        public string search(string path, int min, int max, BackgroundWorker worker)
+        public string search(string path, int min, int max, BackgroundWorker worker, Nullable<bool> isRepair)
         {
             var repairXdoDictionary = new Dictionary<LOG, List<RepairXDO>>();
             
@@ -40,16 +40,19 @@ namespace XDOErrorDetectorUI
             worker.ReportProgress(0, new ReportProgressItemClass(DATdirectorySet.Count));
             foreach(string DATFolderPath in DATdirectorySet)
             {
-                var DATLogList = new List<DATLogItem>();
                 var DATFileList = new FileFinder(DATFolderPath).run(EXT.DAT);
 
                 var hashMap = new Dictionary<string, DATDBItem>();
                 var xdoSet = new HashSet<string>();
 
                 var repairDatDictionary = new Dictionary<LOG, HashSet<string>>();
+
+                // CAN REPAIR
                 repairDatDictionary[LOG.WARN_CASE_INSENSITIVE] = new HashSet<string>();
                 repairDatDictionary[LOG.DUPLICATE_XDO] = new HashSet<string>();
                 repairDatDictionary[LOG.ERR_NOT_EXIST] = new HashSet<string>();
+
+                // CANNOT REPAIR
                 repairDatDictionary[LOG.DAT_CANNOT_PARSE_INVALID_XDONAME] = new HashSet<string>();
                 repairDatDictionary[LOG.DAT_CANNOT_PARSE_NOT_EXIST_DIRECTORY] = new HashSet<string>();
 
@@ -114,18 +117,28 @@ namespace XDOErrorDetectorUI
                         repairDatDictionary[LOG.DAT_CANNOT_PARSE_NOT_EXIST_DIRECTORY].Add(errorPath);
                     }
                 }
-
-                worker.ReportProgress(1);
-                DATLogList = checkDATError(hashMap, xdoSet, repairDatDictionary);
+                
+                var DATLogList = checkDATError(hashMap, xdoSet, repairDatDictionary);
+                if (isRepair == true)
+                {
+                    this.repair(repairDatDictionary, DATLogList);
+                }
                 writeDBwithDATinfo(hashMap, DATLogList, repairDatDictionary);
+                
+                worker.ReportProgress(1);
 
+                /*
+                 * prevent memory leaks?
+                 */
                 DATFileList.Clear();
                 hashMap.Clear();
                 xdoSet.Clear();
+                repairDatDictionary.Clear();
 
                 DATFileList = null;
                 hashMap = null;
                 xdoSet = null;
+                repairDatDictionary = null;
             }
 
 
@@ -358,24 +371,6 @@ namespace XDOErrorDetectorUI
                             for (int i = 0; i < cmd.Parameters.Count; i++)
                                 cmd.Parameters[i].Value = obj_log_container[i];
                             cmd.ExecuteNonQuery();
-                        }
-
-                        cmd.Parameters.Clear();
-
-                        cmd.CommandText = "INSERT INTO " + table_dat_etc + " (\"fileName\", \"no\") " +
-                        @"VALUES(@fileName, @no)";
-                        cmd.Parameters.Add(new NpgsqlParameter("fileName", NpgsqlDbType.Text));
-                        cmd.Parameters.Add(new NpgsqlParameter("no", NpgsqlDbType.Integer));
-                        cmd.Prepare();
-
-                        foreach (var enumIndex in repairDatDictionary)
-                        {
-                            foreach(var item in repairDatDictionary[enumIndex.Key])
-                            {
-                                cmd.Parameters[0].Value = item;
-                                cmd.Parameters[1].Value = (int)enumIndex.Key;
-                                cmd.ExecuteNonQuery();
-                            }
                         }
 
                         datDBInsertCount += hashMap.Count;
@@ -1007,14 +1002,76 @@ namespace XDOErrorDetectorUI
                 }
             }
         }
-
-        public int repair(Dictionary<LOG, List<ReadDAT>> repairDatDictionary, Dictionary<LOG, List<RepairXDO>> repairXdoDictionary )
+        public void repair(Dictionary<LOG, HashSet<RepairXDO>> repairXdoDictionary, List<DATLogItem> log)
         {
-            foreach (KeyValuePair<LOG, List<ReadDAT>> key in repairDatDictionary)
+            foreach (KeyValuePair<LOG, HashSet<RepairXDO>> key in repairXdoDictionary)
             {
-
-                foreach (var readDAT in key.Value)
+                foreach (var readXDO in key.Value)
                 {
+                    var xdo = readXDO.xdo;
+                    switch (key.Key)
+                    {
+                        case LOG.XDO_VERSION_ERROR:
+                            new WriteXDO(xdo, "backup", readXDO.reference);
+                            break;
+                        case LOG.WARN_CASE_INSENSITIVE:
+                            if (readXDO.index >= 0)
+                            {
+                                var imgName = Path.Combine(new FileInfo(xdo.url).Directory.FullName, readXDO.reference.Replace(".", "_" + readXDO.index + "."));
+                                Console.WriteLine(imgName);
+                                if (File.Exists(imgName))
+                                {
+                                    var real_img = Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(imgName)), Path.GetFileName(Path.GetFullPath(imgName))).Single();
+                                    if (imgName != real_img)
+                                    {
+                                        for (int i = 0; i < xdo.mesh.Count; i++)
+                                        {
+                                            if (xdo.mesh[i].imageName.ToLower().Equals(readXDO.reference.ToLower()))
+                                            {
+                                                xdo.mesh[i].imageName = readXDO.reference.ToLower();
+                                                xdo.mesh[i].ImageNameLen = (byte)readXDO.reference.ToLower().Length;
+                                            }
+                                        }
+                                        File.Move(real_img, new FileInfo(real_img).Directory.FullName + "temp.tmp");
+                                        File.Move(new FileInfo(real_img).Directory.FullName + "temp.tmp", imgName.ToLower());
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                var imgName = Path.Combine(new FileInfo(xdo.url).Directory.FullName, readXDO.reference);
+                                Console.WriteLine("basic\n" + imgName);
+                                if (File.Exists(imgName))
+                                {
+                                    var real_img = Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(imgName)), Path.GetFileName(Path.GetFullPath(imgName))).Single();
+                                    if (imgName != real_img)
+                                    {
+                                        for (int i = 0; i < xdo.mesh.Count; i++)
+                                        {
+                                            if (xdo.mesh[i].imageName.ToLower().Equals(readXDO.reference.ToLower()))
+                                            {
+                                                xdo.mesh[i].imageName = readXDO.reference.ToLower();
+                                                xdo.mesh[i].ImageNameLen = (byte)readXDO.reference.ToLower().Length;
+                                            }
+                                        }
+                                        File.Move(real_img, new FileInfo(real_img).Directory.FullName + "temp.tmp");
+                                        File.Move(new FileInfo(real_img).Directory.FullName + "temp.tmp", imgName.ToLower());
+                                    }
+                                }
+                            }
+                            new WriteXDO(xdo, "", null);
+                            break;
+                    }
+                }
+            }
+        }
+        public void repair(Dictionary<LOG, HashSet<string>> repairDatDictionary, List<DATLogItem> log)
+        {
+            foreach (KeyValuePair<LOG, HashSet<string>> key in repairDatDictionary)
+            {
+                foreach (var URL in key.Value)
+                {
+                    var readDAT = new ReadDAT(URL);
                     var removeLater = new List<int>();
                     var dataFileList = new List<string>();
                     for (int i = 0; i < readDAT.body.Count; i++)
@@ -1032,15 +1089,12 @@ namespace XDOErrorDetectorUI
                                     removeLater.Add(x.Index);
                                 }
                             }
-
-
                             foreach (var index in removeLater.OrderByDescending(x => x))
                             {
                                 readDAT.body.RemoveAt(index);
                             }
-
-                            
                             break;
+
                         case LOG.ERR_NOT_EXIST:
                             for (int i = 0; i < dataFileList.Count; i++)
                             {
@@ -1056,6 +1110,7 @@ namespace XDOErrorDetectorUI
                                 readDAT.body.RemoveAt(index);
                             }
                             break;
+
                         case LOG.WARN_CASE_INSENSITIVE:
                             for(int i = 0; i < dataFileList.Count; i++)
                             {
@@ -1075,72 +1130,9 @@ namespace XDOErrorDetectorUI
                             }
                             break;
                     }
-
                     new WriteDAT(readDAT, "backup");
                 }
             }
-
-
-            foreach(KeyValuePair<LOG, List<RepairXDO>> key in repairXdoDictionary)
-            {
-                foreach(var readXDO in key.Value)
-                {
-                    var xdo = readXDO.xdo;
-                    switch (key.Key)
-                    {
-                        case LOG.XDO_VERSION_ERROR:
-                            new WriteXDO(xdo, "backup", readXDO.reference);
-                            break;
-                        case LOG.WARN_CASE_INSENSITIVE:
-                            if (readXDO.index >= 0)
-                            {
-                                var imgName = Path.Combine(new FileInfo(xdo.url).Directory.FullName, readXDO.reference.Replace(".", "_" + readXDO.index + "."));
-                                Console.WriteLine(imgName);
-                                if (File.Exists(imgName))
-                                {
-                                    var real_img = Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(imgName)), Path.GetFileName(Path.GetFullPath(imgName))).Single();
-                                    if(imgName != real_img)
-                                    {
-                                        for(int i = 0; i < xdo.mesh.Count; i++)
-                                        {
-                                            if (xdo.mesh[i].imageName.ToLower().Equals(readXDO.reference.ToLower()))
-                                            {
-                                                xdo.mesh[i].imageName = readXDO.reference.ToLower();
-                                                xdo.mesh[i].ImageNameLen = (byte)readXDO.reference.ToLower().Length;
-                                            }
-                                        }
-                                        File.Move(real_img, new FileInfo(real_img).Directory.FullName +  "temp.tmp");
-                                        File.Move(new FileInfo(real_img).Directory.FullName + "temp.tmp", imgName.ToLower());
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                var imgName = Path.Combine(new FileInfo(xdo.url).Directory.FullName, readXDO.reference);
-                                Console.WriteLine("basic\n" + imgName);
-                                if (File.Exists(imgName))
-                                {
-                                    var real_img = Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(imgName)), Path.GetFileName(Path.GetFullPath(imgName))).Single();
-                                    if (imgName != real_img)
-                                    {
-                                        for(int i = 0; i < xdo.mesh.Count; i++)
-                                        {
-                                            if (xdo.mesh[i].imageName.ToLower().Equals(readXDO.reference.ToLower())) {
-                                                xdo.mesh[i].imageName = readXDO.reference.ToLower();
-                                                xdo.mesh[i].ImageNameLen = (byte)readXDO.reference.ToLower().Length;
-                                            }
-                                        }
-                                        File.Move(real_img, new FileInfo(real_img).Directory.FullName + "temp.tmp");
-                                        File.Move(new FileInfo(real_img).Directory.FullName + "temp.tmp", imgName.ToLower());
-                                    }
-                                }
-                            }
-                            new WriteXDO(xdo, "", null);
-                            break;
-                    }
-                }
-            }
-            return repairDatDictionary.Count + repairXdoDictionary.Count;
         }
 
         public void makeGLTF(string path, int min, int max)

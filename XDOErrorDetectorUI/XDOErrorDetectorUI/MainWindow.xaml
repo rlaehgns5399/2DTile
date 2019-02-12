@@ -142,7 +142,7 @@
         <CheckBox x:Name="checkbox_tableClear" Content="저장 전에 테이블 리셋" HorizontalAlignment="Left" Height="16" Margin="743,71,0,0" VerticalAlignment="Top" Width="142" IsChecked="True"/>
         <Button x:Name="btn_resetbackup" Content="백업파일 리셋" HorizontalAlignment="Left" Height="31" Margin="520,132,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_reset_click"/>
 
-        <ProgressBar Minimum="0" Maximum="100" Value="0" Name="pbStatus" Margin="11,168,21,0" VerticalAlignment="Top" Height="21"/>
+        <ProgressBar Minimum="0" Maximum="100" Value="0" Name="pbStatus" Margin="11,168,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Height="21" Width="986"/>
         <ComboBox x:Name="comboBox_min" HorizontalAlignment="Left" Height="22" Margin="598,101,0,0" VerticalAlignment="Top" Width="40" SelectedIndex="15">
             <ComboBoxItem Content="0"/>
             <ComboBoxItem Content="1"/>
@@ -180,5 +180,6 @@
             <ComboBoxItem Content="14"/>
             <ComboBoxItem Content="15"/>
         </ComboBox>
+        <CheckBox x:Name="checkbox_autoRecover" Content="자동 치료" HorizontalAlignment="Left" Height="16" Margin="890,71,0,0" VerticalAlignment="Top" Width="75"/>
     </Grid>
 </Window>
