@@ -224,7 +224,7 @@ namespace XDOErrorDetectorUI
                     // xdo 중복 사용
                     foreach (string duplicatedListItem in duplicatedReferenceList)
                         log.Add(new DATLogItem(level, xy[0], xy[1], LOG.DUPLICATE_XDO, new FileInfo(item.Key).Name, duplicatedListItem, "", ""));
-                    repairDatDictionary[LOG.DUPLICATE_XDO].Add(new ReadDAT(item.Key));
+                    // repairDatDictionary[LOG.DUPLICATE_XDO].Add(new ReadDAT(item.Key));
                 }
                 for(int i = 0; i < item.Value.objCount; i++)
                 {
@@ -244,13 +244,13 @@ namespace XDOErrorDetectorUI
                             // XDO 대소문자
                             log.Add(new DATLogItem(level, xy[0], xy[1], LOG.WARN_CASE_INSENSITIVE, new FileInfo(item.Key).Name, new FileInfo(DAT_xdo).Name, new FileInfo(REAL_xdo).Name, objCountString));
                             xdoSet_forRemove.Add(REAL_xdo);
-                            repairDatDictionary[LOG.WARN_CASE_INSENSITIVE].Add(new ReadDAT(item.Key));
+                            // repairDatDictionary[LOG.WARN_CASE_INSENSITIVE].Add(new ReadDAT(item.Key));
                         }
                     }
                     else
                     {
                         log.Add(new DATLogItem(level, xy[0], xy[1], LOG.ERR_NOT_EXIST, new FileInfo(item.Key).Name, new FileInfo(DAT_xdo).Name, "", objCountString));
-                        repairDatDictionary[LOG.ERR_NOT_EXIST].Add(new ReadDAT(item.Key));
+                        // repairDatDictionary[LOG.ERR_NOT_EXIST].Add(new ReadDAT(item.Key));
                     }
                 }
 
