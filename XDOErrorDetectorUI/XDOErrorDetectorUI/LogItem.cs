@@ -8,12 +8,14 @@ namespace XDOErrorDetectorUI
 {
     public enum LOG
     {
-        ERR_NOT_EXIST,
-        WARN_CASE_INSENSITIVE,
-        NOT_USED,
-        XDO_LEVEL_ERROR,
-        DUPLICATE_XDO,
-        XDO_VERSION_ERROR
+        ERR_NOT_EXIST = 0,
+        WARN_CASE_INSENSITIVE = 1,
+        NOT_USED = 2,
+        XDO_LEVEL_ERROR = 3,
+        DUPLICATE_XDO = 4,
+        XDO_VERSION_ERROR = 5,
+        DAT_CANNOT_PARSE_INVALID_XDONAME = 6,
+        DAT_CANNOT_PARSE_NOT_EXIST_DIRECTORY = 7
     }
     public class LogItem
     {

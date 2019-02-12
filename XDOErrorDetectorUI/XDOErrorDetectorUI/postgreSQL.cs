@@ -15,30 +15,21 @@ namespace XDOErrorDetectorUI
         public DB info;
         public List<XDOLogItem> XDOLogList;
         public List<DATLogItem> DATLogList;
-        public Dictionary<LOG, List<ReadDAT>> repairDatDictionary;
-        public Dictionary<LOG, List<RepairXDO>> repairXdoDictionary;
         private int xdoDBInsertCount = 0;
         private int xdoLogInsertCount = 0;
         private int datDBInsertCount = 0;
         private int datLogInsertCount = 0;
 
-        public string table_xdo;
-        public string table_xdo_log;
-        public string table_dat;
-        public string table_dat_log;
+        public string table_xdo, table_xdo_log, table_xdo_etc;
+        public string table_dat, table_dat_log, table_dat_etc;
 
         public string search(string path, int min, int max, BackgroundWorker worker)
         {
-            repairDatDictionary = new Dictionary<LOG, List<ReadDAT>>();
-            repairXdoDictionary = new Dictionary<LOG, List<RepairXDO>>();
+            var repairXdoDictionary = new Dictionary<LOG, List<RepairXDO>>();
             
             repairXdoDictionary[LOG.WARN_CASE_INSENSITIVE] = new List<RepairXDO>();
             repairXdoDictionary[LOG.XDO_VERSION_ERROR] = new List<RepairXDO>();
             repairXdoDictionary[LOG.ERR_NOT_EXIST] = new List<RepairXDO>();
-
-            repairDatDictionary[LOG.WARN_CASE_INSENSITIVE] = new List<ReadDAT>();
-            repairDatDictionary[LOG.DUPLICATE_XDO] = new List<ReadDAT>();
-            repairDatDictionary[LOG.ERR_NOT_EXIST] = new List<ReadDAT>();
 
             xdoDBInsertCount = 0;
             xdoLogInsertCount = 0;
@@ -55,6 +46,13 @@ namespace XDOErrorDetectorUI
                 var hashMap = new Dictionary<string, DATDBItem>();
                 var xdoSet = new HashSet<string>();
 
+                var repairDatDictionary = new Dictionary<LOG, HashSet<string>>();
+                repairDatDictionary[LOG.WARN_CASE_INSENSITIVE] = new HashSet<string>();
+                repairDatDictionary[LOG.DUPLICATE_XDO] = new HashSet<string>();
+                repairDatDictionary[LOG.ERR_NOT_EXIST] = new HashSet<string>();
+                repairDatDictionary[LOG.DAT_CANNOT_PARSE_INVALID_XDONAME] = new HashSet<string>();
+                repairDatDictionary[LOG.DAT_CANNOT_PARSE_NOT_EXIST_DIRECTORY] = new HashSet<string>();
+
                 foreach (string datFile in DATFileList)
                 {
                     var dat = new ReadDAT(datFile);
@@ -70,7 +68,6 @@ namespace XDOErrorDetectorUI
                     for (int i = 0; i < dat_DBItem.objCount; i++)
                     {
                         var version = dat.body[i].version;
-                        //var version_string = Int32.Parse((int)version[0] + "" + (int)version[1] + "" + (int)version[2] + "" + (int)version[3]);
                         var version_string = Int32.Parse(string.Format("{0}{1}{2}{3}", version[0], version[1], version[2], version[3]));
                         dat_DBItem.version.Add(version_string);
                         dat_DBItem.key.Add(dat.body[i].key);
@@ -90,7 +87,6 @@ namespace XDOErrorDetectorUI
 
                     hashMap.Add(datFile, dat_DBItem);
 
-                    //Console.WriteLine(baseDirectory + @"\" + Path.GetFileNameWithoutExtension(datFile));
                     try
                     {
                         IEnumerable<string> temp = Directory.EnumerateFiles(Path.Combine(baseDirectory, Path.GetFileNameWithoutExtension(datFile)), "*", SearchOption.TopDirectoryOnly);
@@ -103,21 +99,25 @@ namespace XDOErrorDetectorUI
                         }
                     }
                     catch (ArgumentException e) {
+                        var errorPath = Path.Combine(baseDirectory, Path.GetFileNameWithoutExtension(datFile));
                         Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.WriteLine("[X] Filename Error in " + Path.Combine(baseDirectory, Path.GetFileNameWithoutExtension(datFile)));
+                        Console.WriteLine("[X] Filename Error in " + errorPath);
                         Console.ResetColor();
+                        repairDatDictionary[LOG.DAT_CANNOT_PARSE_INVALID_XDONAME].Add(errorPath);
                     }
                     catch (DirectoryNotFoundException e)
                     {
+                        var errorPath = Path.Combine(baseDirectory, Path.GetFileNameWithoutExtension(datFile));
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("[X] DirectoryNotFoundFolder: " + Path.Combine(baseDirectory, Path.GetFileNameWithoutExtension(datFile)));
+                        Console.WriteLine("[X] Filename Error in " + errorPath);
                         Console.ResetColor();
+                        repairDatDictionary[LOG.DAT_CANNOT_PARSE_NOT_EXIST_DIRECTORY].Add(errorPath);
                     }
                 }
 
                 worker.ReportProgress(1);
-                DATLogList = checkDATError(hashMap, xdoSet);
-                writeDBwithDATinfo(hashMap, DATLogList);
+                DATLogList = checkDATError(hashMap, xdoSet, repairDatDictionary);
+                writeDBwithDATinfo(hashMap, DATLogList, repairDatDictionary);
 
                 DATFileList.Clear();
                 hashMap.Clear();
@@ -195,7 +195,7 @@ namespace XDOErrorDetectorUI
                             imageSet.Add(imgFile);
                     }
                 }
-                this.XDOLogList = checkXDOError(hashMap, imageSet);
+                this.XDOLogList = checkXDOError(hashMap, imageSet, repairXdoDictionary);
                 writeDBwithXDOInfo(hashMap, this.XDOLogList);
 
                 hashMap.Clear();
@@ -204,7 +204,7 @@ namespace XDOErrorDetectorUI
             }
             return "데이터 " + datDBInsertCount + "/" + datLogInsertCount + "/" + xdoDBInsertCount + "/" + xdoLogInsertCount + "개가 추가되었습니다.";
         }
-        public List<DATLogItem> checkDATError(Dictionary<string, DATDBItem> hashMap, HashSet<string> xdoSet)
+        public List<DATLogItem> checkDATError(Dictionary<string, DATDBItem> hashMap, HashSet<string> xdoSet, Dictionary<LOG, HashSet<string>> repairDatDictionary)
         {
             var log = new List<DATLogItem>();
 
@@ -224,7 +224,7 @@ namespace XDOErrorDetectorUI
                     // xdo 중복 사용
                     foreach (string duplicatedListItem in duplicatedReferenceList)
                         log.Add(new DATLogItem(level, xy[0], xy[1], LOG.DUPLICATE_XDO, new FileInfo(item.Key).Name, duplicatedListItem, "", ""));
-                    // repairDatDictionary[LOG.DUPLICATE_XDO].Add(new ReadDAT(item.Key));
+                    repairDatDictionary[LOG.DUPLICATE_XDO].Add(item.Key);
                 }
                 for(int i = 0; i < item.Value.objCount; i++)
                 {
@@ -244,13 +244,13 @@ namespace XDOErrorDetectorUI
                             // XDO 대소문자
                             log.Add(new DATLogItem(level, xy[0], xy[1], LOG.WARN_CASE_INSENSITIVE, new FileInfo(item.Key).Name, new FileInfo(DAT_xdo).Name, new FileInfo(REAL_xdo).Name, objCountString));
                             xdoSet_forRemove.Add(REAL_xdo);
-                            // repairDatDictionary[LOG.WARN_CASE_INSENSITIVE].Add(new ReadDAT(item.Key));
+                            repairDatDictionary[LOG.WARN_CASE_INSENSITIVE].Add(item.Key);
                         }
                     }
                     else
                     {
                         log.Add(new DATLogItem(level, xy[0], xy[1], LOG.ERR_NOT_EXIST, new FileInfo(item.Key).Name, new FileInfo(DAT_xdo).Name, "", objCountString));
-                        // repairDatDictionary[LOG.ERR_NOT_EXIST].Add(new ReadDAT(item.Key));
+                        repairDatDictionary[LOG.ERR_NOT_EXIST].Add(item.Key);
                     }
                 }
 
@@ -266,7 +266,7 @@ namespace XDOErrorDetectorUI
             }
             return log;
         }
-        public void writeDBwithDATinfo(Dictionary<string, DATDBItem> hashMap, List<DATLogItem> log)
+        public void writeDBwithDATinfo(Dictionary<string, DATDBItem> hashMap, List<DATLogItem> log, Dictionary<LOG, HashSet<string>> repairDatDictionary)
         {
             using (var conn = connection())
             {
@@ -359,6 +359,25 @@ namespace XDOErrorDetectorUI
                                 cmd.Parameters[i].Value = obj_log_container[i];
                             cmd.ExecuteNonQuery();
                         }
+
+                        cmd.Parameters.Clear();
+
+                        cmd.CommandText = "INSERT INTO " + table_dat_etc + " (\"fileName\", \"no\") " +
+                        @"VALUES(@fileName, @no)";
+                        cmd.Parameters.Add(new NpgsqlParameter("fileName", NpgsqlDbType.Text));
+                        cmd.Parameters.Add(new NpgsqlParameter("no", NpgsqlDbType.Integer));
+                        cmd.Prepare();
+
+                        foreach (var enumIndex in repairDatDictionary)
+                        {
+                            foreach(var item in repairDatDictionary[enumIndex.Key])
+                            {
+                                cmd.Parameters[0].Value = item;
+                                cmd.Parameters[1].Value = (int)enumIndex.Key;
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+
                         datDBInsertCount += hashMap.Count;
                         datLogInsertCount += log.Count;
                     }
@@ -369,7 +388,7 @@ namespace XDOErrorDetectorUI
                 }
             }
         }
-        public List<XDOLogItem> checkXDOError(Dictionary<string, XDODBItem> hashMap, HashSet<string> imageSet)
+        public List<XDOLogItem> checkXDOError(Dictionary<string, XDODBItem> hashMap, HashSet<string> imageSet, Dictionary<LOG, List<RepairXDO>> repairXdoDictionary)
         {
             var log = new List<XDOLogItem>();
             foreach(KeyValuePair<string, XDODBItem> key in hashMap)
@@ -780,6 +799,7 @@ namespace XDOErrorDetectorUI
                     using (var cmd = new NpgsqlCommand())
                     {
                         cmd.Connection = conn;
+                        var sb = new StringBuilder();
                         cmd.CommandText = "CREATE TABLE public." + table_xdo + "(" +
                             "\"Level\" integer," +
                             "\"X\" text," +
@@ -811,6 +831,10 @@ namespace XDOErrorDetectorUI
                             "\"found\" text," +
                             "\"detail\" text" +
                             ")";
+                        cmd.CommandText += ";CREATE TABLE public." + table_xdo_etc + "(" +
+                            "\"fileName\" text, " +
+                            "\"no\" integer" +
+                            ");";
                         cmd.CommandText += ";CREATE TABLE public." + table_dat + "(" +
                             "\"level\" integer," +
                             "\"IDX\" integer," +
@@ -840,9 +864,13 @@ namespace XDOErrorDetectorUI
                             "\"xdoname\" text, " +
                             "\"found\" text, " +
                             "\"detail\" text" +
+                            ");";
+                        cmd.CommandText += ";CREATE TABLE public." + table_dat_etc + "(" +
+                            "\"fileName\" text, " +
+                            "\"no\" integer" + 
                             ")";
                         cmd.ExecuteNonQuery();
-                        return table_dat + ", " + table_dat_log + ", " + table_xdo + ", " + table_xdo_log + "가 성공적으로 생성되었습니다.";
+                        return table_dat + ", " + table_dat_log + ", " + table_dat_etc + ", " + table_xdo + ", " + table_xdo_log + "가 성공적으로 생성되었습니다.";
                     }
                 }
                 catch (Exception ex)
@@ -868,8 +896,10 @@ namespace XDOErrorDetectorUI
                         cmd.Connection = conn;
                         cmd.CommandText = "delete from " + table_xdo + ";" +
                             "delete from " + table_xdo_log + ";" +
+                            "delete from " + table_xdo_etc + ";" +
                             "delete from " + table_dat + ";" +
-                            "delete from " + table_dat_log + ";" ;
+                            "delete from " + table_dat_log + ";" +
+                            "delete from " + table_dat_etc + ";";
                         cmd.ExecuteNonQuery();
                         return "Table을 성공적으로 초기화하였습니다.";
                     }
@@ -891,7 +921,7 @@ namespace XDOErrorDetectorUI
                     using (var cmd = new NpgsqlCommand())
                     {
                         cmd.Connection = conn;
-                        cmd.CommandText = "drop table " + table_xdo + "," + table_xdo_log + "," + table_dat + "," + table_dat_log;
+                        cmd.CommandText = "drop table " + table_xdo + "," + table_xdo_log + "," + table_xdo_etc + "," + table_dat + "," + table_dat_log + "," + table_dat_etc;
                         cmd.ExecuteNonQuery();
                         return "Table을 성공적으로 삭제하였습니다";
                     }
@@ -939,13 +969,13 @@ namespace XDOErrorDetectorUI
                             {
                                 logItem.XDOversion = 3002.ToString();
                                 list.Add(logItem);
-                                repairXdoDictionary[LOG.XDO_VERSION_ERROR].Add(new RepairXDO(new ReadXDO(xdoURL), logItem.DATversion));
+                                // repairXdoDictionary[LOG.XDO_VERSION_ERROR].Add(new RepairXDO(new ReadXDO(xdoURL), logItem.DATversion));
                             }
                             else if(!xdo.isEnd && version == 3002)
                             {
                                 logItem.XDOversion = 3001.ToString();
                                 list.Add(logItem);
-                                repairXdoDictionary[LOG.XDO_VERSION_ERROR].Add(new RepairXDO(new ReadXDO(xdoURL), logItem.DATversion));
+                                // repairXdoDictionary[LOG.XDO_VERSION_ERROR].Add(new RepairXDO(new ReadXDO(xdoURL), logItem.DATversion));
                             }
                             else
                             {
@@ -978,7 +1008,7 @@ namespace XDOErrorDetectorUI
             }
         }
 
-        public int repair()
+        public int repair(Dictionary<LOG, List<ReadDAT>> repairDatDictionary, Dictionary<LOG, List<RepairXDO>> repairXdoDictionary )
         {
             foreach (KeyValuePair<LOG, List<ReadDAT>> key in repairDatDictionary)
             {

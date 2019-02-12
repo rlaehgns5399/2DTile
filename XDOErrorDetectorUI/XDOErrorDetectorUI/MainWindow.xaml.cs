@@ -100,8 +100,10 @@ namespace XDOErrorDetectorUI
         {
             sql.table_dat = table + "_dat";
             sql.table_dat_log = sql.table_dat + "_log";
+            sql.table_dat_etc = sql.table_dat + "_etc";
             sql.table_xdo = table + "_xdo";
             sql.table_xdo_log = sql.table_xdo + "_log";
+            sql.table_xdo_etc = sql.table_xdo + "_etc";
         }
         private void button_ClearTable_Click(object sender, RoutedEventArgs e)
         {
@@ -148,12 +150,12 @@ namespace XDOErrorDetectorUI
         
         private void button_search_Click(object sender, RoutedEventArgs e)
         {
-            int min, max;
+            setTableName(sql, textBox_table.Text);
 
+            int min, max;
             min = int.Parse(comboBox_min.Text);
             max = int.Parse(comboBox_max.Text);
-            
-            setTableName(sql, textBox_table.Text);
+
             var folderPathText = folder_path.Text;
 
             if (checkbox_tableClear.IsChecked == true)
@@ -365,7 +367,7 @@ namespace XDOErrorDetectorUI
             worker.DoWork += (s, args) =>
             {
                 watch.Restart();
-                args.Result = sql.repair();
+                // args.Result = sql.repair();
             };
             worker.RunWorkerCompleted += (s, args) =>
             {
