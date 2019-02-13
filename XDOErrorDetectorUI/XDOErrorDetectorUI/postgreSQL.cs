@@ -7,14 +7,13 @@ using System.IO;
 using Npgsql;
 using NpgsqlTypes;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace XDOErrorDetectorUI
 {
     class postgreSQL
     {
         public DB info;
-        public List<XDOLogItem> XDOLogList;
-        public List<DATLogItem> DATLogList;
         private int xdoDBInsertCount = 0;
         private int xdoLogInsertCount = 0;
         private int datDBInsertCount = 0;
@@ -25,125 +24,138 @@ namespace XDOErrorDetectorUI
 
         public string search(string path, int min, int max, BackgroundWorker worker, Nullable<bool> isRepair)
         {
-            var repairXdoDictionary = new Dictionary<LOG, List<RepairXDO>>();
-            
-            repairXdoDictionary[LOG.WARN_CASE_INSENSITIVE] = new List<RepairXDO>();
-            repairXdoDictionary[LOG.XDO_VERSION_ERROR] = new List<RepairXDO>();
-            repairXdoDictionary[LOG.ERR_NOT_EXIST] = new List<RepairXDO>();
+            var Watch = new Stopwatch();
+            Watch.Restart();
 
             xdoDBInsertCount = 0;
             xdoLogInsertCount = 0;
             datDBInsertCount = 0;
             datLogInsertCount = 0;
 
-            var DATdirectorySet = new DirectoryFinder(path, min, max).run(EXT.DAT);
-            worker.ReportProgress(0, new ReportProgressItemClass(DATdirectorySet.Count));
-            foreach(string DATFolderPath in DATdirectorySet)
-            {
-                var DATFileList = new FileFinder(DATFolderPath).run(EXT.DAT);
+            //var DATdirectorySet = new DirectoryFinder(path, min, max).run(EXT.DAT);
+            //worker.ReportProgress(0, new ReportProgressItemClass(DATdirectorySet.Count));
+            //foreach(string DATFolderPath in DATdirectorySet)
+            //{
+            //    var DATFileList = new FileFinder(DATFolderPath).run(EXT.DAT);
 
-                var hashMap = new Dictionary<string, DATDBItem>();
-                var xdoSet = new HashSet<string>();
+            //    var hashMap = new Dictionary<string, DATDBItem>();
+            //    var xdoSet = new HashSet<string>();
 
-                var repairDatDictionary = new Dictionary<LOG, HashSet<string>>();
+            //    var repairDatDictionary = new Dictionary<LOG, HashSet<string>>();
 
-                // CAN REPAIR
-                repairDatDictionary[LOG.WARN_CASE_INSENSITIVE] = new HashSet<string>();
-                repairDatDictionary[LOG.DUPLICATE_XDO] = new HashSet<string>();
-                repairDatDictionary[LOG.ERR_NOT_EXIST] = new HashSet<string>();
+            //    // CAN REPAIR
+            //    repairDatDictionary[LOG.WARN_CASE_INSENSITIVE] = new HashSet<string>();
+            //    repairDatDictionary[LOG.DUPLICATE_XDO] = new HashSet<string>();
+            //    repairDatDictionary[LOG.ERR_NOT_EXIST] = new HashSet<string>();
 
-                // CANNOT REPAIR
-                repairDatDictionary[LOG.DAT_CANNOT_PARSE_INVALID_XDONAME] = new HashSet<string>();
-                repairDatDictionary[LOG.DAT_CANNOT_PARSE_NOT_EXIST_DIRECTORY] = new HashSet<string>();
+            //    // CANNOT REPAIR
+            //    repairDatDictionary[LOG.DAT_CANNOT_PARSE_INVALID_XDONAME] = new HashSet<string>();
+            //    repairDatDictionary[LOG.DAT_CANNOT_PARSE_NOT_EXIST_DIRECTORY] = new HashSet<string>();
 
-                foreach (string datFile in DATFileList)
-                {
-                    var dat = new ReadDAT(datFile);
-                    var baseDirectory = new FileInfo(datFile).Directory.FullName;
+            //    foreach (string datFile in DATFileList)
+            //    {
+            //        var dat = new ReadDAT(datFile);
+            //        var baseDirectory = new FileInfo(datFile).Directory.FullName;
 
-                    var dat_DBItem = new DATDBItem();
+            //        var dat_DBItem = new DATDBItem();
 
-                    dat_DBItem.level = (int)dat.header.level;
-                    dat_DBItem.idx = (int)dat.header.IDX;
-                    dat_DBItem.idy = (int)dat.header.IDY;
-                    dat_DBItem.objCount = (int)dat.header.objCount;
-                    dat_DBItem.datFileName = dat.header.datFilename;
-                    for (int i = 0; i < dat_DBItem.objCount; i++)
-                    {
-                        var version = dat.body[i].version;
-                        var version_string = Int32.Parse(string.Format("{0}{1}{2}{3}", version[0], version[1], version[2], version[3]));
-                        dat_DBItem.version.Add(version_string);
-                        dat_DBItem.key.Add(dat.body[i].key);
-                        dat_DBItem.centerPos_X.Add(dat.body[i].centerPos_x);
-                        dat_DBItem.centerPos_Y.Add(dat.body[i].centerPos_y);
-                        dat_DBItem.altitude.Add(dat.body[i].altitude);
-                        dat_DBItem.minX.Add(dat.body[i].minX);
-                        dat_DBItem.minY.Add(dat.body[i].minY);
-                        dat_DBItem.minZ.Add(dat.body[i].minZ);
-                        dat_DBItem.maxX.Add(dat.body[i].maxX);
-                        dat_DBItem.maxY.Add(dat.body[i].maxY);
-                        dat_DBItem.maxZ.Add(dat.body[i].maxZ);
-                        dat_DBItem.imgLevel.Add(dat.body[i].ImgLevel);
-                        dat_DBItem.dataFile.Add(dat.body[i].dataFile);
-                        dat_DBItem.imgFileName.Add(dat.body[i].imgFileName);
-                    }
+            //        dat_DBItem.level = (int)dat.header.level;
+            //        dat_DBItem.idx = (int)dat.header.IDX;
+            //        dat_DBItem.idy = (int)dat.header.IDY;
+            //        dat_DBItem.objCount = (int)dat.header.objCount;
+            //        dat_DBItem.datFileName = dat.header.datFilename;
+            //        for (int i = 0; i < dat_DBItem.objCount; i++)
+            //        {
+            //            var version = dat.body[i].version;
+            //            var version_string = Int32.Parse(string.Format("{0}{1}{2}{3}", version[0], version[1], version[2], version[3]));
+            //            dat_DBItem.version.Add(version_string);
+            //            dat_DBItem.key.Add(dat.body[i].key);
+            //            dat_DBItem.centerPos_X.Add(dat.body[i].centerPos_x);
+            //            dat_DBItem.centerPos_Y.Add(dat.body[i].centerPos_y);
+            //            dat_DBItem.altitude.Add(dat.body[i].altitude);
+            //            dat_DBItem.minX.Add(dat.body[i].minX);
+            //            dat_DBItem.minY.Add(dat.body[i].minY);
+            //            dat_DBItem.minZ.Add(dat.body[i].minZ);
+            //            dat_DBItem.maxX.Add(dat.body[i].maxX);
+            //            dat_DBItem.maxY.Add(dat.body[i].maxY);
+            //            dat_DBItem.maxZ.Add(dat.body[i].maxZ);
+            //            dat_DBItem.imgLevel.Add(dat.body[i].ImgLevel);
+            //            dat_DBItem.dataFile.Add(dat.body[i].dataFile);
+            //            dat_DBItem.imgFileName.Add(dat.body[i].imgFileName);
+            //        }
 
-                    hashMap.Add(datFile, dat_DBItem);
+            //        hashMap.Add(datFile, dat_DBItem);
 
-                    try
-                    {
-                        IEnumerable<string> temp = Directory.EnumerateFiles(Path.Combine(baseDirectory, Path.GetFileNameWithoutExtension(datFile)), "*", SearchOption.TopDirectoryOnly);
-                        foreach (var xdoFile in temp)
-                        {
-                            if (new FileInfo(xdoFile.ToLower()).Extension.Equals(".xdo"))
-                            {
-                                xdoSet.Add(xdoFile);
-                            }
-                        }
-                    }
-                    catch (ArgumentException e) {
-                        var errorPath = Path.Combine(baseDirectory, Path.GetFileNameWithoutExtension(datFile));
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.WriteLine("[X] Filename Error in " + errorPath);
-                        Console.ResetColor();
-                        repairDatDictionary[LOG.DAT_CANNOT_PARSE_INVALID_XDONAME].Add(errorPath);
-                    }
-                    catch (DirectoryNotFoundException e)
-                    {
-                        var errorPath = Path.Combine(baseDirectory, Path.GetFileNameWithoutExtension(datFile));
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("[X] Filename Error in " + errorPath);
-                        Console.ResetColor();
-                        repairDatDictionary[LOG.DAT_CANNOT_PARSE_NOT_EXIST_DIRECTORY].Add(errorPath);
-                    }
-                }
+            //        try
+            //        {
+            //            IEnumerable<string> temp = Directory.EnumerateFiles(Path.Combine(baseDirectory, Path.GetFileNameWithoutExtension(datFile)), "*", SearchOption.TopDirectoryOnly);
+            //            foreach (var xdoFile in temp)
+            //            {
+            //                if (new FileInfo(xdoFile.ToLower()).Extension.Equals(".xdo"))
+            //                {
+            //                    xdoSet.Add(xdoFile);
+            //                }
+            //            }
+            //        }
+            //        catch (ArgumentException e) {
+            //            var errorPath = Path.Combine(baseDirectory, Path.GetFileNameWithoutExtension(datFile));
+            //            Console.ForegroundColor = ConsoleColor.Yellow;
+            //            Console.WriteLine("[X] Filename Error in " + errorPath);
+            //            Console.ResetColor();
+            //            repairDatDictionary[LOG.DAT_CANNOT_PARSE_INVALID_XDONAME].Add(errorPath);
+            //        }
+            //        catch (DirectoryNotFoundException e)
+            //        {
+            //            var errorPath = Path.Combine(baseDirectory, Path.GetFileNameWithoutExtension(datFile));
+            //            Console.ForegroundColor = ConsoleColor.Red;
+            //            Console.WriteLine("[X] Filename Error in " + errorPath);
+            //            Console.ResetColor();
+            //            repairDatDictionary[LOG.DAT_CANNOT_PARSE_NOT_EXIST_DIRECTORY].Add(errorPath);
+            //        }
+            //    }
                 
-                var DATLogList = checkDATError(hashMap, xdoSet, repairDatDictionary);
-                this.repair(repairDatDictionary, DATLogList, isRepair);
-                writeDBwithDATinfo(hashMap, DATLogList, repairDatDictionary);
+            //    var DATLogList = checkDATError(hashMap, xdoSet, repairDatDictionary);
+            //    this.repair(repairDatDictionary, DATLogList, isRepair);
+            //    writeDBwithDATinfo(hashMap, DATLogList, repairDatDictionary);
                 
-                worker.ReportProgress(1);
+            //    worker.ReportProgress(1);
 
-                /*
-                 * prevent memory leaks?
-                 */
-                DATFileList.Clear();
-                hashMap.Clear();
-                xdoSet.Clear();
-                repairDatDictionary.Clear();
+            //    /*
+            //     * prevent memory leaks?
+            //     */
+            //    DATFileList.Clear();
+            //    hashMap.Clear();
+            //    xdoSet.Clear();
+            //    repairDatDictionary.Clear();
 
-                DATFileList = null;
-                hashMap = null;
-                xdoSet = null;
-                repairDatDictionary = null;
-            }
+            //    DATFileList = null;
+            //    hashMap = null;
+            //    xdoSet = null;
+            //    repairDatDictionary = null;
+            //}
 
+            Watch.Stop();
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(" ======================= \n DAT Analysis complete \n = " + Watch.ElapsedMilliseconds / 1000 + "s =\n" + " ======================= ");
+            Console.ResetColor();
 
-            return ""; 
-
+            Watch.Restart();
             var XDOdirectorySet = new DirectoryFinder(path, min, max).run(EXT.XDO);
+            worker.ReportProgress(0, new ReportProgressItemClass(XDOdirectorySet.Count));
+
             foreach (string directory in XDOdirectorySet)
             {
+                
+                var repairXdoDictionary = new Dictionary<LOG, HashSet<RepairXDO>>();
+
+                // CAN REPAIR
+                repairXdoDictionary[LOG.WARN_CASE_INSENSITIVE] = new HashSet<RepairXDO>();
+                repairXdoDictionary[LOG.XDO_VERSION_ERROR] = new HashSet<RepairXDO>();
+                repairXdoDictionary[LOG.ERR_NOT_EXIST] = new HashSet<RepairXDO>();
+
+                // CANNOT REPAIR
+                
+
                 // XDO 파일을 주어진 경로로 부터 모두 다 찾음
                 var xdoFileReader = new FileFinder(directory);
                 var xdoFileList = xdoFileReader.run(EXT.XDO);
@@ -198,20 +210,35 @@ namespace XDOErrorDetectorUI
                     }
 
                     hashMap.Add(xdoFile, xdo_dbItem);
-
-                    foreach (var imgFile in Directory.GetFiles(baseDirectory))
+                    try
                     {
-                        if (imgFile.ToLower().Contains(".jpg") || imgFile.ToLower().Contains(".png"))
-                            imageSet.Add(imgFile);
+                        foreach (var imgFile in Directory.EnumerateFiles(baseDirectory, "*", SearchOption.TopDirectoryOnly))
+                        {
+                            if (imgFile.ToLower().Contains(".jpg") || imgFile.ToLower().Contains(".png"))
+                                imageSet.Add(imgFile);
+                        }
+                    }
+                    catch (ArgumentException e)
+                    {
+                        // 이미지 또는 xdo 이름 에러 -> xdo 파싱할 수 없다고 에러 기록
                     }
                 }
-                this.XDOLogList = checkXDOError(hashMap, imageSet, repairXdoDictionary);
-                writeDBwithXDOInfo(hashMap, this.XDOLogList);
+                var XDOLogList = checkXDOError(hashMap, imageSet, repairXdoDictionary);
+                this.repair(repairXdoDictionary, XDOLogList, isRepair);
+                writeDBwithXDOInfo(hashMap, XDOLogList);
+
+                worker.ReportProgress(1);
 
                 hashMap.Clear();
                 hashMap = null;
 
             }
+
+            Watch.Stop();
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(" ======================= \n XDO Analysis complete \n = " + Watch.ElapsedMilliseconds / 1000 + "s =\n" + " ======================= ");
+            Console.ResetColor();
+
             return "데이터 " + datDBInsertCount + "/" + datLogInsertCount + "/" + xdoDBInsertCount + "/" + xdoLogInsertCount + "개가 추가되었습니다.";
         }
         public List<DATLogItem> checkDATError(Dictionary<string, DATDBItem> hashMap, HashSet<string> xdoSet, Dictionary<LOG, HashSet<string>> repairDatDictionary)
@@ -380,7 +407,7 @@ namespace XDOErrorDetectorUI
                 }
             }
         }
-        public List<XDOLogItem> checkXDOError(Dictionary<string, XDODBItem> hashMap, HashSet<string> imageSet, Dictionary<LOG, List<RepairXDO>> repairXdoDictionary)
+        public List<XDOLogItem> checkXDOError(Dictionary<string, XDODBItem> hashMap, HashSet<string> imageSet, Dictionary<LOG, HashSet<RepairXDO>> repairXdoDictionary)
         {
             var log = new List<XDOLogItem>();
             foreach(KeyValuePair<string, XDODBItem> key in hashMap)
@@ -999,65 +1026,68 @@ namespace XDOErrorDetectorUI
                 }
             }
         }
-        public void repair(Dictionary<LOG, HashSet<RepairXDO>> repairXdoDictionary, List<DATLogItem> log)
+        public void repair(Dictionary<LOG, HashSet<RepairXDO>> repairXdoDictionary, List<XDOLogItem> log, bool? isRepair)
         {
             foreach (KeyValuePair<LOG, HashSet<RepairXDO>> key in repairXdoDictionary)
             {
                 foreach (var readXDO in key.Value)
                 {
-                    var xdo = readXDO.xdo;
-                    switch (key.Key)
+                    if(isRepair == true)
                     {
-                        case LOG.XDO_VERSION_ERROR:
-                            new WriteXDO(xdo, "backup", readXDO.reference);
-                            break;
-                        case LOG.WARN_CASE_INSENSITIVE:
-                            if (readXDO.index >= 0)
-                            {
-                                var imgName = Path.Combine(new FileInfo(xdo.url).Directory.FullName, readXDO.reference.Replace(".", "_" + readXDO.index + "."));
-                                Console.WriteLine(imgName);
-                                if (File.Exists(imgName))
+                        var xdo = readXDO.xdo;
+                        switch (key.Key)
+                        {
+                            case LOG.XDO_VERSION_ERROR:
+                                new WriteXDO(xdo, "backup", readXDO.reference);
+                                break;
+                            case LOG.WARN_CASE_INSENSITIVE:
+                                if (readXDO.index >= 0)
                                 {
-                                    var real_img = Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(imgName)), Path.GetFileName(Path.GetFullPath(imgName))).Single();
-                                    if (imgName != real_img)
+                                    var imgName = Path.Combine(new FileInfo(xdo.url).Directory.FullName, readXDO.reference.Replace(".", "_" + readXDO.index + "."));
+                                    Console.WriteLine(imgName);
+                                    if (File.Exists(imgName))
                                     {
-                                        for (int i = 0; i < xdo.mesh.Count; i++)
+                                        var real_img = Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(imgName)), Path.GetFileName(Path.GetFullPath(imgName))).Single();
+                                        if (imgName != real_img)
                                         {
-                                            if (xdo.mesh[i].imageName.ToLower().Equals(readXDO.reference.ToLower()))
+                                            for (int i = 0; i < xdo.mesh.Count; i++)
                                             {
-                                                xdo.mesh[i].imageName = readXDO.reference.ToLower();
-                                                xdo.mesh[i].ImageNameLen = (byte)readXDO.reference.ToLower().Length;
+                                                if (xdo.mesh[i].imageName.ToLower().Equals(readXDO.reference.ToLower()))
+                                                {
+                                                    xdo.mesh[i].imageName = readXDO.reference.ToLower();
+                                                    xdo.mesh[i].ImageNameLen = (byte)readXDO.reference.ToLower().Length;
+                                                }
                                             }
+                                            File.Move(real_img, new FileInfo(real_img).Directory.FullName + "temp.tmp");
+                                            File.Move(new FileInfo(real_img).Directory.FullName + "temp.tmp", imgName.ToLower());
                                         }
-                                        File.Move(real_img, new FileInfo(real_img).Directory.FullName + "temp.tmp");
-                                        File.Move(new FileInfo(real_img).Directory.FullName + "temp.tmp", imgName.ToLower());
                                     }
                                 }
-                            }
-                            else
-                            {
-                                var imgName = Path.Combine(new FileInfo(xdo.url).Directory.FullName, readXDO.reference);
-                                Console.WriteLine("basic\n" + imgName);
-                                if (File.Exists(imgName))
+                                else
                                 {
-                                    var real_img = Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(imgName)), Path.GetFileName(Path.GetFullPath(imgName))).Single();
-                                    if (imgName != real_img)
+                                    var imgName = Path.Combine(new FileInfo(xdo.url).Directory.FullName, readXDO.reference);
+                                    Console.WriteLine("basic\n" + imgName);
+                                    if (File.Exists(imgName))
                                     {
-                                        for (int i = 0; i < xdo.mesh.Count; i++)
+                                        var real_img = Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(imgName)), Path.GetFileName(Path.GetFullPath(imgName))).Single();
+                                        if (imgName != real_img)
                                         {
-                                            if (xdo.mesh[i].imageName.ToLower().Equals(readXDO.reference.ToLower()))
+                                            for (int i = 0; i < xdo.mesh.Count; i++)
                                             {
-                                                xdo.mesh[i].imageName = readXDO.reference.ToLower();
-                                                xdo.mesh[i].ImageNameLen = (byte)readXDO.reference.ToLower().Length;
+                                                if (xdo.mesh[i].imageName.ToLower().Equals(readXDO.reference.ToLower()))
+                                                {
+                                                    xdo.mesh[i].imageName = readXDO.reference.ToLower();
+                                                    xdo.mesh[i].ImageNameLen = (byte)readXDO.reference.ToLower().Length;
+                                                }
                                             }
+                                            File.Move(real_img, new FileInfo(real_img).Directory.FullName + "temp.tmp");
+                                            File.Move(new FileInfo(real_img).Directory.FullName + "temp.tmp", imgName.ToLower());
                                         }
-                                        File.Move(real_img, new FileInfo(real_img).Directory.FullName + "temp.tmp");
-                                        File.Move(new FileInfo(real_img).Directory.FullName + "temp.tmp", imgName.ToLower());
                                     }
                                 }
-                            }
-                            new WriteXDO(xdo, "", null);
-                            break;
+                                new WriteXDO(xdo, "", null);
+                                break;
+                        }
                     }
                 }
             }

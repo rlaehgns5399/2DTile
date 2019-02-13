@@ -63,7 +63,30 @@ namespace XDOErrorDetectorUI
             }
             else if(option == EXT.XDO)
             {
-
+                try
+                {
+                    // Z (zoom level)
+                    for (int i = min; i <= max; i++)
+                    {
+                        Console.WriteLine("[A]\tSearching Zoom Level " + i);
+                        // Y
+                        foreach (var tempDirectoryName in Directory.EnumerateDirectories(Path.Combine(url, i.ToString()), "*", SearchOption.TopDirectoryOnly))
+                        {
+                            // Y_X
+                            foreach(var Y_X in Directory.EnumerateDirectories(tempDirectoryName, "*", SearchOption.TopDirectoryOnly))
+                            {
+                                if (Directory.EnumerateFiles(Y_X, "*." + ((EXT)option).ToString(), SearchOption.TopDirectoryOnly).Count() > 0)
+                                {
+                                    set.Add(Y_X);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.Write(e.ToString());
+                }
             }
         }
         

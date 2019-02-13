@@ -171,7 +171,13 @@ namespace XDOErrorDetectorUI
             {
                 StopWatchForSearch.Restart();
                 Console.WriteLine("[W]\t탐색할 폴더의 총 개수를 수집하고 있습니다.");
-                args.Result = sql.search(folderPathText, min, max, worker, isRepair);
+                try
+                {
+                    args.Result = sql.search(folderPathText, min, max, worker, isRepair);
+                } catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
             };
             worker.ProgressChanged += (s, args) =>
             {
@@ -181,6 +187,7 @@ namespace XDOErrorDetectorUI
                     if (t.Equals(typeof(ReportProgressItemClass)))
                     {
                         var obj = (ReportProgressItemClass)args.UserState;
+                        pbStatus.Value = 0;
                         pbStatus.Maximum = obj.maximum;
                         Console.WriteLine("[A]\t폴더의 총 개수 : " + obj.maximum);
                     }
@@ -202,25 +209,6 @@ namespace XDOErrorDetectorUI
                     btn_repair.IsEnabled = true;
                 btn_check_version_error.IsEnabled = true;
             };
-            worker.RunWorkerAsync();
-        }
-        private void progressBarWorker()
-        {
-            BackgroundWorker worker = new BackgroundWorker();
-            worker.WorkerReportsProgress = true;
-            worker.DoWork += (s, e) =>
-            {
-                while (true)
-                {
-                    (s as BackgroundWorker).ReportProgress(new Random().Next(1, 100));
-                    Thread.Sleep(100);
-                }
-            };
-            worker.ProgressChanged += (s, e) =>
-            {
-                pbStatus.Value = e.ProgressPercentage;
-            };
-
             worker.RunWorkerAsync();
         }
         
