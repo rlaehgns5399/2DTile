@@ -56,6 +56,12 @@ namespace XDOErrorDetectorUI
                 case LOG.DUPLICATE_XDO:
                     this.detail = "DAT has XDO which are duplicated";
                     break;
+                case LOG.DAT_CANNOT_PARSE_INVALID_XDONAME:
+                    this.detail = "There are invalid XDO name";
+                    break;
+                case LOG.DAT_CANNOT_PARSE_NOT_EXIST_DIRECTORY:
+                    this.detail = "Cannot find a directory at given DAT";
+                    break;
             }
         }
     }

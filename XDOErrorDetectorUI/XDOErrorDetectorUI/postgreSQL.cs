@@ -119,10 +119,7 @@ namespace XDOErrorDetectorUI
                 }
                 
                 var DATLogList = checkDATError(hashMap, xdoSet, repairDatDictionary);
-                if (isRepair == true)
-                {
-                    this.repair(repairDatDictionary, DATLogList);
-                }
+                this.repair(repairDatDictionary, DATLogList, isRepair);
                 writeDBwithDATinfo(hashMap, DATLogList, repairDatDictionary);
                 
                 worker.ReportProgress(1);
@@ -1065,72 +1062,89 @@ namespace XDOErrorDetectorUI
                 }
             }
         }
-        public void repair(Dictionary<LOG, HashSet<string>> repairDatDictionary, List<DATLogItem> log)
+        public void repair(Dictionary<LOG, HashSet<string>> repairDatDictionary, List<DATLogItem> log, bool? isRepair)
         {
             foreach (KeyValuePair<LOG, HashSet<string>> key in repairDatDictionary)
             {
                 foreach (var URL in key.Value)
                 {
-                    var readDAT = new ReadDAT(URL);
-                    var removeLater = new List<int>();
-                    var dataFileList = new List<string>();
-                    for (int i = 0; i < readDAT.body.Count; i++)
-                        dataFileList.Add(readDAT.body[i].dataFile);
-                    switch (key.Key)
+                    if(File.Exists(URL) && isRepair == true)
                     {
-                        case LOG.DUPLICATE_XDO:
-                            var duplicates = dataFileList.Select((t, i) => new { Index = i, Text = t }).GroupBy(g => g.Text).Where(g => g.Count() > 1);
-                            foreach (var group in duplicates)
-                            {
-                                int count = 0;
-                                foreach (var x in group)
+                        var readDAT = new ReadDAT(URL);
+                        var removeLater = new List<int>();
+                        var dataFileList = new List<string>();
+                        for (int i = 0; i < readDAT.body.Count; i++)
+                            dataFileList.Add(readDAT.body[i].dataFile);
+                        switch (key.Key)
+                        {
+                            case LOG.DUPLICATE_XDO:
+                                var duplicates = dataFileList.Select((t, i) => new { Index = i, Text = t }).GroupBy(g => g.Text).Where(g => g.Count() > 1);
+                                foreach (var group in duplicates)
                                 {
-                                    if (count++ == 0) continue;
-                                    removeLater.Add(x.Index);
-                                }
-                            }
-                            foreach (var index in removeLater.OrderByDescending(x => x))
-                            {
-                                readDAT.body.RemoveAt(index);
-                            }
-                            break;
-
-                        case LOG.ERR_NOT_EXIST:
-                            for (int i = 0; i < dataFileList.Count; i++)
-                            {
-                                var xdo = Path.Combine(new FileInfo(readDAT.url).Directory.FullName, Path.GetFileNameWithoutExtension(readDAT.url), dataFileList[i]);
-                                if (!File.Exists(xdo))
-                                {
-                                    removeLater.Add(i);
-                                }
-                            }
-
-                            foreach (var index in removeLater.OrderByDescending(x => x))
-                            {
-                                readDAT.body.RemoveAt(index);
-                            }
-                            break;
-
-                        case LOG.WARN_CASE_INSENSITIVE:
-                            for(int i = 0; i < dataFileList.Count; i++)
-                            {
-                                var DAT_xdo = Path.Combine(new FileInfo(readDAT.url).Directory.FullName, Path.GetFileNameWithoutExtension(readDAT.url), dataFileList[i]);
-                                DAT_xdo = Path.GetFullPath(DAT_xdo);
-                                if (File.Exists(DAT_xdo))
-                                {
-                                    var REAL_xdo = Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(DAT_xdo)), Path.GetFileName(Path.GetFullPath(DAT_xdo))).Single();
-                                    if(DAT_xdo != REAL_xdo)
+                                    int count = 0;
+                                    foreach (var x in group)
                                     {
-                                        var realXDOName = new FileInfo(REAL_xdo).Name;
-                                        readDAT.body[i].dataFile = realXDOName;
-                                        readDAT.body[i].dataFileLen = (byte)realXDOName.Length;
+                                        if (count++ == 0) continue;
+                                        removeLater.Add(x.Index);
                                     }
                                 }
-                               
-                            }
-                            break;
+                                foreach (var index in removeLater.OrderByDescending(x => x))
+                                {
+                                    readDAT.body.RemoveAt(index);
+                                }
+                                break;
+
+                            case LOG.ERR_NOT_EXIST:
+                                for (int i = 0; i < dataFileList.Count; i++)
+                                {
+                                    var xdo = Path.Combine(new FileInfo(readDAT.url).Directory.FullName, Path.GetFileNameWithoutExtension(readDAT.url), dataFileList[i]);
+                                    if (!File.Exists(xdo))
+                                    {
+                                        removeLater.Add(i);
+                                    }
+                                }
+
+                                foreach (var index in removeLater.OrderByDescending(x => x))
+                                {
+                                    readDAT.body.RemoveAt(index);
+                                }
+                                break;
+
+                            case LOG.WARN_CASE_INSENSITIVE:
+                                for (int i = 0; i < dataFileList.Count; i++)
+                                {
+                                    var DAT_xdo = Path.Combine(new FileInfo(readDAT.url).Directory.FullName, Path.GetFileNameWithoutExtension(readDAT.url), dataFileList[i]);
+                                    DAT_xdo = Path.GetFullPath(DAT_xdo);
+                                    if (File.Exists(DAT_xdo))
+                                    {
+                                        var REAL_xdo = Directory.GetFiles(Path.GetDirectoryName(Path.GetFullPath(DAT_xdo)), Path.GetFileName(Path.GetFullPath(DAT_xdo))).Single();
+                                        if (DAT_xdo != REAL_xdo)
+                                        {
+                                            var realXDOName = new FileInfo(REAL_xdo).Name;
+                                            readDAT.body[i].dataFile = realXDOName;
+                                            readDAT.body[i].dataFileLen = (byte)realXDOName.Length;
+                                        }
+                                    }
+
+                                }
+                                break;
+                        }
+                        new WriteDAT(readDAT, "backup");
                     }
-                    new WriteDAT(readDAT, "backup");
+                    else
+                    {
+                        var fileInfo = new FileInfo(URL);
+                        var yx = fileInfo.Name.Split('_');
+                        switch (key.Key)
+                        {
+                            case LOG.DAT_CANNOT_PARSE_INVALID_XDONAME:
+                                log.Add(new DATLogItem(fileInfo.Directory.Parent.Name, yx[0], yx[1], key.Key, "", "", "", ""));
+                                break;
+                            case LOG.DAT_CANNOT_PARSE_NOT_EXIST_DIRECTORY:
+                                log.Add(new DATLogItem(fileInfo.Directory.Parent.Name, yx[0], yx[1], key.Key, "", "", "", ""));
+                                break;
+                        }
+                    }
                 }
             }
         }
