@@ -169,6 +169,7 @@ namespace XDOErrorDetectorUI
                 foreach (var xdoFile in xdoFileList)
                 {
                     var xdo = new ReadXDO(xdoFile);
+                    if(xdo.isEnd == false) new PrintInformation(xdo);
                     var baseDirectory = new FileInfo(xdo.url).Directory.FullName;
 
                     var xdo_dbItem = new XDODBItem();

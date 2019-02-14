@@ -20,10 +20,49 @@ namespace XDOErrorDetectorUI
         public float altitude;
         public byte faceNum;
         public int XDOVersion;
-        public bool isEnd;
-        public ReadXDO(string url)
+        public bool isEnd = false;
+        
+        public void clean()
         {
-            this.url = url;
+            this.mesh = new List<XDOMesh>();
+            this.XDOType = 0;
+            this.ObjectID = 0;
+            this.KeyLen = 0;
+            this.Key = null;
+            this.minX = this.minY = this.minZ = this.maxX = this.maxY = this.maxZ = 0;
+            this.altitude = 0;
+            this.faceNum = 0;
+            this.XDOVersion = 0;
+            this.isEnd = false;
+        }
+        public int getVersionFromDat()
+        {
+            string datFileName = new FileInfo(this.url).Directory.Name + ".dat"; // Y_X.dat
+            string datFolder = new FileInfo(this.url).Directory.Parent.FullName;
+            string datURL = Path.Combine(datFolder, datFileName);
+
+            var dat = new ReadDAT(datURL);
+
+            int versionIndex = -1;
+            var xdoFileName = new FileInfo(this.url).Name;
+            for(int i = 0; i < dat.body.Count; i++)
+            {
+                if(dat.body[i].dataFile.ToLower().Equals(xdoFileName.ToLower()))
+                {
+                    versionIndex = i;
+                    break;
+                }
+            }
+
+            if(versionIndex == -1)
+            {
+                return 0; // need autoParse
+            }
+            var version = dat.body[versionIndex].version;
+            return Int32.Parse(string.Format("{0}{1}{2}{3}", version[0], version[1], version[2], version[3]));
+        }
+        private void autoDetectRun(string url)
+        {
             try
             {
                 BinaryReader br = new BinaryReader(File.Open(this.url, FileMode.Open));
@@ -76,13 +115,58 @@ namespace XDOErrorDetectorUI
                     }
                 }
 
+                this.isEnd = (br.BaseStream.Length == br.BaseStream.Position) ? true : false;
+
                 br.Close();
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
+                this.isEnd = false;
                 Console.WriteLine(e);
             }
         }
+        public ReadXDO(string url)
+        {
+            this.url = url;
+
+            var xdoVersionFromDat = getVersionFromDat();
+            if(xdoVersionFromDat == 0)
+            {
+                // Add: this is unused XDO
+                this.autoDetectRun(url);
+                try
+                {
+                    if (this.XDOVersion == 1 && this.isEnd == false)
+                    {
+                        this.clean();
+                        this.run(url, 3002);
+                    }
+                    else if (this.XDOVersion == 2 && this.isEnd == false)
+                    {
+                        this.clean();
+                        this.run(url, 3001);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                    // Add Cannot parse xdo.
+                }
+            }
+            else
+            {
+                var isThereError = this.run(url, xdoVersionFromDat);
+                if(isThereError == false)
+                {
+                    // Add : there is an error: non-matching version from DAT
+                }
+            }
+        }
         public ReadXDO(string url, int ver)
+        {
+            this.run(url, ver);
+        }
+        public bool run(string url, int ver)
         {
             this.url = url;
             BinaryReader br = new BinaryReader(File.Open(this.url, FileMode.Open));
@@ -120,13 +204,15 @@ namespace XDOErrorDetectorUI
                     }
                 }
 
-                this.isEnd = br.BaseStream.Length == br.BaseStream.Position;
+                this.isEnd = (br.BaseStream.Length == br.BaseStream.Position) ? true : false;
             }
             catch (Exception e)
             {
                 this.isEnd = false;
             }
             br.Close();
+
+            return isEnd;
         }
     }
     public class XDOMesh
