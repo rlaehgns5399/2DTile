@@ -40,7 +40,7 @@ namespace XDOErrorDetectorUI
             string datFileName = new FileInfo(this.url).Directory.Name + ".dat"; // Y_X.dat
             string datFolder = new FileInfo(this.url).Directory.Parent.FullName;
             string datURL = Path.Combine(datFolder, datFileName);
-
+            
             var dat = new ReadDAT(datURL);
 
             int versionIndex = -1;
@@ -63,9 +63,9 @@ namespace XDOErrorDetectorUI
         }
         private void autoDetectRun(string url)
         {
+            BinaryReader br = new BinaryReader(File.Open(this.url, FileMode.Open));
             try
             {
-                BinaryReader br = new BinaryReader(File.Open(this.url, FileMode.Open));
                 // type
                 this.XDOType = br.ReadByte();
                 // ObjectID
@@ -116,21 +116,28 @@ namespace XDOErrorDetectorUI
                 }
 
                 this.isEnd = (br.BaseStream.Length == br.BaseStream.Position) ? true : false;
-
-                br.Close();
             }
             catch (Exception e)
             {
                 this.isEnd = false;
-                Console.WriteLine(e);
+                Console.WriteLine(">>>\t" + this.url + "\t<<<\n" + e.ToString());
             }
+            br.Close();
         }
         public ReadXDO(string url)
         {
             this.url = url;
-
-            var xdoVersionFromDat = getVersionFromDat();
-            if(xdoVersionFromDat == 0)
+            int xdoVersionFromDat;
+            try
+            {
+                xdoVersionFromDat = getVersionFromDat();
+            }
+            catch (Exception e)
+            {
+                // Add: Dat doesnt exist.
+                xdoVersionFromDat = 0;
+            }
+            if (xdoVersionFromDat == 0)
             {
                 // Add: this is unused XDO
                 this.autoDetectRun(url);
@@ -138,13 +145,27 @@ namespace XDOErrorDetectorUI
                 {
                     if (this.XDOVersion == 1 && this.isEnd == false)
                     {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("[!]\turl: " + this.url + ": parsing fail 3.0.0.1, trying to parse 3.0.0.2");
+                        Console.ResetColor();
                         this.clean();
                         this.run(url, 3002);
                     }
                     else if (this.XDOVersion == 2 && this.isEnd == false)
                     {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("[!]\turl: " + this.url + ": parsing fail 3.0.0.2, trying to parse 3.0.0.1");
+                        Console.ResetColor();
                         this.clean();
                         this.run(url, 3001);
+                        
+                    }
+
+                    if (this.isEnd == false)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("[!]\turl: " + this.url + ": 올바르지 않은 XDO입니다.");
+                        Console.ResetColor();
                     }
                 }
                 catch (Exception e)
@@ -156,11 +177,12 @@ namespace XDOErrorDetectorUI
             else
             {
                 var isThereError = this.run(url, xdoVersionFromDat);
-                if(isThereError == false)
+                if (isThereError == false)
                 {
                     // Add : there is an error: non-matching version from DAT
                 }
             }
+
         }
         public ReadXDO(string url, int ver)
         {
