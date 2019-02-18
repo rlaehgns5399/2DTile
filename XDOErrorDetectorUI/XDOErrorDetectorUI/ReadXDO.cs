@@ -154,6 +154,7 @@ namespace XDOErrorDetectorUI
                 this.autoDetectRun(url);
                 try
                 {
+                    bool flag = false;
                     if (this.XDOVersion == 1 && this.isEnd == false)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
@@ -161,6 +162,7 @@ namespace XDOErrorDetectorUI
                         Console.ResetColor();
                         this.clean();
                         this.run(url, 3002);
+                        flag = true;
                     }
                     else if (this.XDOVersion == 2 && this.isEnd == false)
                     {
@@ -169,6 +171,7 @@ namespace XDOErrorDetectorUI
                         Console.ResetColor();
                         this.clean();
                         this.run(url, 3001);
+                        flag = true;
                     }
 
                     if (this.isEnd == false)
@@ -181,7 +184,7 @@ namespace XDOErrorDetectorUI
                         Console.WriteLine("[!]\turl: " + this.url + ": Invalid XDO. this is not 3.0.0.1, 3.0.0.2");
                         Console.ResetColor();
                     }
-                    else
+                    else if( this.isEnd == true && flag == true )
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("[O]\tParsing success");
@@ -381,7 +384,6 @@ namespace XDOErrorDetectorUI
         public string level, y, x, fileName;
         public XDOInformation(string url)
         {
-            Console.WriteLine(url);
             var fileInfo = new FileInfo(url);
             level = fileInfo.Directory.Parent.Parent.Name;
             var yx = fileInfo.Directory.Name.Split('_');
