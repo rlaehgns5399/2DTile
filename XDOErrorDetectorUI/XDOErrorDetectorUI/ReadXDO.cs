@@ -124,16 +124,27 @@ namespace XDOErrorDetectorUI
             }
             br.Close();
         }
-        public ReadXDO(string url)
+        private bool isListNull(List<XDOLogItem> log)
+        {
+            return log == null ? true : false;
+        }
+        private void Parse(string url, List<XDOLogItem> log)
         {
             this.url = url;
             int xdoVersionFromDat;
+
+            var xdoInfo = new XDOInformation(url);
+
             try
             {
                 xdoVersionFromDat = getVersionFromDat();
             }
             catch (Exception e)
             {
+                if(!isListNull(log))
+                {
+                    log.Add(new XDOLogItem(xdoInfo.level, xdoInfo.y, xdoInfo.x, LOG.XDO_CANNOT_FIND_PARENT_DAT, xdoInfo.fileName, 0, xdoInfo.y + "_" + xdoInfo.x + ".dat", ""));
+                }
                 // Add: Dat doesnt exist.
                 xdoVersionFromDat = 0;
             }
@@ -158,11 +169,15 @@ namespace XDOErrorDetectorUI
                         Console.ResetColor();
                         this.clean();
                         this.run(url, 3001);
-                        
+
                     }
 
                     if (this.isEnd == false)
                     {
+                        if (!isListNull(log))
+                        {
+                            log.Add(new XDOLogItem(xdoInfo.level, xdoInfo.y, xdoInfo.x, LOG.INVALID_XDO, xdoInfo.fileName, 0, "", ""));
+                        }
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("[!]\turl: " + this.url + ": 올바르지 않은 XDO입니다.");
                         Console.ResetColor();
@@ -183,6 +198,14 @@ namespace XDOErrorDetectorUI
                 }
             }
 
+        }
+        public ReadXDO(string url, List<XDOLogItem> log)
+        {
+            this.Parse(url, log);
+        }
+        public ReadXDO(string url)
+        {
+            this.Parse(url, null);
         }
         public ReadXDO(string url, int ver)
         {
@@ -341,6 +364,20 @@ namespace XDOErrorDetectorUI
             {
                 this.imageName = null;
             }
+        }
+    }
+
+    public class XDOInformation
+    {
+        public string level, y, x, fileName;
+        public XDOInformation(string url)
+        {
+            var fileInfo = new FileInfo(url);
+            level = fileInfo.Directory.Parent.Parent.Name;
+            var yx = fileInfo.Directory.Parent.Name.Split('_');
+            y = yx[0];
+            x = yx[1];
+            fileName = fileInfo.Name;
         }
     }
 }

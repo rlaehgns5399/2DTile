@@ -15,7 +15,9 @@ namespace XDOErrorDetectorUI
         DUPLICATE_XDO = 4,
         XDO_VERSION_ERROR = 5,
         DAT_CANNOT_PARSE_INVALID_XDONAME = 6,
-        DAT_CANNOT_PARSE_NOT_EXIST_DIRECTORY = 7
+        DAT_CANNOT_PARSE_NOT_EXIST_DIRECTORY = 7,
+        XDO_CANNOT_FIND_PARENT_DAT = 8,
+        INVALID_XDO = 9
     }
     public class LogItem
     {
@@ -95,6 +97,12 @@ namespace XDOErrorDetectorUI
                     break;
                 case LOG.WARN_CASE_INSENSITIVE:
                     this.detail = "Case sensitive error";
+                    break;
+                case LOG.INVALID_XDO:
+                    this.detail = "This XDO is not 3.0.0.1 & 3.0.0.2, cannot parse";
+                    break;
+                case LOG.XDO_CANNOT_FIND_PARENT_DAT:
+                    this.detail = "Y_X.dat is not exist";
                     break;
             }
         }

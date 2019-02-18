@@ -163,12 +163,14 @@ namespace XDOErrorDetectorUI
                 var hashMap = new Dictionary<string, XDODBItem>();
                 var imageSet = new HashSet<string>();
 
+
+                var LogFromXDO = new List<XDOLogItem>();
                 // XDO(v3.0.0.2) Read -> 이미지 집합 및 1 DBItem row 생성
                 // 나중에 안쓰이는 그림 파일 찾을 때 쓰임
                 // 비효율적으로 제작
                 foreach (var xdoFile in xdoFileList)
                 {
-                    var xdo = new ReadXDO(xdoFile);
+                    var xdo = new ReadXDO(xdoFile, LogFromXDO);
                     if(xdo.isEnd == false) new PrintInformation(xdo);
                     var baseDirectory = new FileInfo(xdo.url).Directory.FullName;
 
@@ -225,6 +227,8 @@ namespace XDOErrorDetectorUI
                     }
                 }
                 var XDOLogList = checkXDOError(hashMap, imageSet, repairXdoDictionary);
+                foreach (var logItem in LogFromXDO)
+                    XDOLogList.Add(logItem);
                 this.repair(repairXdoDictionary, XDOLogList, isRepair);
                 writeDBwithXDOInfo(hashMap, XDOLogList);
 
