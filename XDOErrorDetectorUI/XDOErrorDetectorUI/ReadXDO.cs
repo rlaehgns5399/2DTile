@@ -157,7 +157,7 @@ namespace XDOErrorDetectorUI
                     if (this.XDOVersion == 1 && this.isEnd == false)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("[!]\turl: " + this.url + ": parsing fail 3.0.0.1, trying to parse 3.0.0.2");
+                        Console.WriteLine("[!]\turl: " + this.url + ": auto parsing fail 3.0.0.1, trying to parse 3.0.0.2");
                         Console.ResetColor();
                         this.clean();
                         this.run(url, 3002);
@@ -165,21 +165,26 @@ namespace XDOErrorDetectorUI
                     else if (this.XDOVersion == 2 && this.isEnd == false)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("[!]\turl: " + this.url + ": parsing fail 3.0.0.2, trying to parse 3.0.0.1");
+                        Console.WriteLine("[!]\turl: " + this.url + ": auto parsing fail 3.0.0.2, trying to parse 3.0.0.1");
                         Console.ResetColor();
                         this.clean();
                         this.run(url, 3001);
-
                     }
 
                     if (this.isEnd == false)
                     {
                         if (!isListNull(log))
                         {
-                            log.Add(new XDOLogItem(xdoInfo.level, xdoInfo.y, xdoInfo.x, LOG.INVALID_XDO, xdoInfo.fileName, 0, "", ""));
+                            log.Add(new XDOLogItem(xdoInfo.level, xdoInfo.y, xdoInfo.x, LOG.INVALID_XDO, xdoInfo.fileName, 0, "", xdoInfo.y + "_" + xdoInfo.x + ".dat"));
                         }
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("[!]\turl: " + this.url + ": 올바르지 않은 XDO입니다.");
+                        Console.WriteLine("[!]\turl: " + this.url + ": Invalid XDO. this is not 3.0.0.1, 3.0.0.2");
+                        Console.ResetColor();
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("[O]\tParsing success");
                         Console.ResetColor();
                     }
                 }
@@ -194,6 +199,10 @@ namespace XDOErrorDetectorUI
                 var isThereError = this.run(url, xdoVersionFromDat);
                 if (isThereError == false)
                 {
+                    if (!isListNull(log))
+                    {
+                        log.Add(new XDOLogItem(xdoInfo.level, xdoInfo.y, xdoInfo.x, LOG.DAT_XDO_VERSION_MISMATCH, xdoInfo.fileName, 0, "", ""));
+                    }
                     // Add : there is an error: non-matching version from DAT
                 }
             }

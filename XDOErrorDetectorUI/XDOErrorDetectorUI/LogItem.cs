@@ -17,7 +17,8 @@ namespace XDOErrorDetectorUI
         DAT_CANNOT_PARSE_INVALID_XDONAME = 6,
         DAT_CANNOT_PARSE_NOT_EXIST_DIRECTORY = 7,
         XDO_CANNOT_FIND_PARENT_DAT = 8,
-        INVALID_XDO = 9
+        INVALID_XDO = 9,
+        DAT_XDO_VERSION_MISMATCH = 10
     }
     public class LogItem
     {
@@ -103,6 +104,9 @@ namespace XDOErrorDetectorUI
                     break;
                 case LOG.XDO_CANNOT_FIND_PARENT_DAT:
                     this.detail = "Y_X.dat is not exist";
+                    break;
+                case LOG.DAT_XDO_VERSION_MISMATCH:
+                    this.detail = "DAT & XDO version are mismatch";
                     break;
             }
         }
