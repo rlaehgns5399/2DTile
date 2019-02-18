@@ -381,9 +381,10 @@ namespace XDOErrorDetectorUI
         public string level, y, x, fileName;
         public XDOInformation(string url)
         {
+            Console.WriteLine(url);
             var fileInfo = new FileInfo(url);
             level = fileInfo.Directory.Parent.Parent.Name;
-            var yx = fileInfo.Directory.Parent.Name.Split('_');
+            var yx = fileInfo.Directory.Name.Split('_');
             y = yx[0];
             x = yx[1];
             fileName = fileInfo.Name;
