@@ -851,10 +851,6 @@ namespace XDOErrorDetectorUI
                             "\"found\" text," +
                             "\"detail\" text" +
                             ")";
-                        cmd.CommandText += ";CREATE TABLE public." + table_xdo_etc + "(" +
-                            "\"fileName\" text, " +
-                            "\"no\" integer" +
-                            ");";
                         cmd.CommandText += ";CREATE TABLE public." + table_dat + "(" +
                             "\"level\" integer," +
                             "\"IDX\" integer," +
@@ -884,13 +880,9 @@ namespace XDOErrorDetectorUI
                             "\"xdoname\" text, " +
                             "\"found\" text, " +
                             "\"detail\" text" +
-                            ");";
-                        cmd.CommandText += ";CREATE TABLE public." + table_dat_etc + "(" +
-                            "\"fileName\" text, " +
-                            "\"no\" integer" + 
                             ")";
                         cmd.ExecuteNonQuery();
-                        return table_dat + ", " + table_dat_log + ", " + table_dat_etc + ", " + table_xdo + ", " + table_xdo_log + "가 성공적으로 생성되었습니다.";
+                        return table_dat + ", " + table_dat_log + ", " + table_xdo + ", " + table_xdo_log + "가 성공적으로 생성되었습니다.";
                     }
                 }
                 catch (Exception ex)
@@ -916,10 +908,8 @@ namespace XDOErrorDetectorUI
                         cmd.Connection = conn;
                         cmd.CommandText = "delete from " + table_xdo + ";" +
                             "delete from " + table_xdo_log + ";" +
-                            "delete from " + table_xdo_etc + ";" +
                             "delete from " + table_dat + ";" +
-                            "delete from " + table_dat_log + ";" +
-                            "delete from " + table_dat_etc + ";";
+                            "delete from " + table_dat_log + ";";
                         cmd.ExecuteNonQuery();
                         return "Table을 성공적으로 초기화하였습니다.";
                     }
@@ -941,7 +931,7 @@ namespace XDOErrorDetectorUI
                     using (var cmd = new NpgsqlCommand())
                     {
                         cmd.Connection = conn;
-                        cmd.CommandText = "drop table " + table_xdo + "," + table_xdo_log + "," + table_xdo_etc + "," + table_dat + "," + table_dat_log + "," + table_dat_etc;
+                        cmd.CommandText = "drop table " + table_xdo + "," + table_xdo_log + "," + table_dat + "," + table_dat_log;
                         cmd.ExecuteNonQuery();
                         return "Table을 성공적으로 삭제하였습니다";
                     }
