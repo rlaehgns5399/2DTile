@@ -51,6 +51,7 @@
                     </ListView>
                 </StackPanel>
             </TabItem>
+
             <TabItem Header="XDO">
                 <StackPanel>
                     <ListView x:Name="listView1" Height="237" Margin="11,5,10.4,0" VerticalAlignment="Top">
@@ -109,9 +110,16 @@
                     </ListView.View>
                 </ListView>
             </TabItem>
+
+            <TabItem Header="Invalid File">
+                <StackPanel>
+                    <TextBox x:Name="textBox_invalidFile" TextWrapping="Wrap" Margin="0,0,0.4,0" Height="480" UndoLimit="96"/>
+                </StackPanel>
+            </TabItem>
+
         </TabControl>
 
-        <Label x:Name="label1" Content="Label" HorizontalAlignment="Left" Height="28" Margin="11,191,0,0" VerticalAlignment="Top" Width="997"/>
+        <Label x:Name="label1" Content="준비" HorizontalAlignment="Left" Height="28" Margin="11,191,0,0" VerticalAlignment="Top" Width="997"/>
         <Button x:Name="btn_connection" Content="연결" HorizontalAlignment="Left" Height="133" Margin="238,23,0,0" VerticalAlignment="Top" Width="89" RenderTransformOrigin="-0.017,-0.442" Click="button_Connect_Click"/>
         <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="11,23,0,0" TextWrapping="Wrap" Text="Host" VerticalAlignment="Top" Height="18" Width="59"/>
         <TextBlock x:Name="textBlock_Copy" HorizontalAlignment="Left" Margin="11,46,0,0" TextWrapping="Wrap" Text="UserName" VerticalAlignment="Top" Height="18" Width="59"/>

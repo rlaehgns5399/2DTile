@@ -200,9 +200,12 @@ namespace XDOErrorDetectorUI
             };
             worker.RunWorkerCompleted += (s, args) =>
             {
+                var resultList = args.Result as List<string>;
+
                 StopWatchForSearch.Stop();
-                label1.Content = args.Result;
+                label1.Content = resultList[1];
                 label1.Content += ms(StopWatchForSearch);
+                textBox_invalidFile.Text = resultList[0];
                 clickSearch = true;
 
                 if (clickSearch && clickCheckVersion)

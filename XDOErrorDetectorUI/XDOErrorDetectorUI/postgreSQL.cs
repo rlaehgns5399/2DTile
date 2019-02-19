@@ -22,7 +22,7 @@ namespace XDOErrorDetectorUI
         public string table_xdo, table_xdo_log, table_xdo_etc;
         public string table_dat, table_dat_log, table_dat_etc;
 
-        public string search(string path, int min, int max, BackgroundWorker worker, Nullable<bool> isRepair)
+        public List<string> search(string path, int min, int max, BackgroundWorker worker, Nullable<bool> isRepair)
         {
             var Watch = new Stopwatch();
             Watch.Restart();
@@ -261,7 +261,15 @@ namespace XDOErrorDetectorUI
             Console.WriteLine(" ======================= \n XDO Analysis complete \n = " + Watch.ElapsedMilliseconds / 1000 + "s =\n" + " ======================= ");
             Console.ResetColor();
 
-            return "데이터 " + datDBInsertCount + "/" + datLogInsertCount + "/" + xdoDBInsertCount + "/" + xdoLogInsertCount + "개가 추가되었습니다.";
+            Console.WriteLine("[!]\tExtracting invalid naming files...");
+            var result = new List<string>();
+            var invalidFileString = getInvalidFileList(path);
+            var resultString = "데이터 " + datDBInsertCount + "/" + datLogInsertCount + "/" + xdoDBInsertCount + "/" + xdoLogInsertCount + "개가 추가되었습니다.";
+
+            result.Add(invalidFileString);
+            result.Add(resultString);
+
+            return result;
         }
         public List<DATLogItem> checkDATError(Dictionary<string, DATDBItem> hashMap, HashSet<string> xdoSet, Dictionary<LOG, HashSet<string>> repairDatDictionary)
         {
@@ -1207,6 +1215,52 @@ namespace XDOErrorDetectorUI
                     Console.WriteLine(Path.Combine(directory, filename));
                 }
             }
+        }
+
+        public string getInvalidFileList(string path)
+        {
+            var sb = new StringBuilder();
+
+            using (var conn = connection())
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new NpgsqlCommand())
+                    {
+                        cmd.Connection = conn;
+                        cmd.CommandText = "select * from " + table_xdo_log + " where detail='" + "Invalid filename in folder(carriage return or line feed)" +"';";
+
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var temp_sb = new StringBuilder();
+                                temp_sb.Append(path);
+                                temp_sb.Append(@"\");
+                                temp_sb.Append(reader["level"].ToString());
+                                temp_sb.Append(@"\");
+                                temp_sb.Append(reader["Y"].ToString());
+                                temp_sb.Append(@"\");
+                                temp_sb.Append(reader["Y"].ToString());
+                                temp_sb.Append(@"_");
+                                temp_sb.Append(reader["X"].ToString());
+
+                                sb.AppendLine(temp_sb.ToString());
+
+                                temp_sb = null;
+                            }
+                        }
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+
+            return sb.ToString();
         }
     }
     
