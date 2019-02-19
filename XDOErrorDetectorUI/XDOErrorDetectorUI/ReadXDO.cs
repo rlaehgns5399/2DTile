@@ -184,9 +184,9 @@ namespace XDOErrorDetectorUI
                         Console.WriteLine("[!]\turl: " + this.url + ": Invalid XDO. this is not 3.0.0.1, 3.0.0.2");
                         Console.ResetColor();
                     }
-                    else if( this.isEnd == true && flag == true )
+                    else if(this.isEnd == true && flag == true)
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine("[O]\tParsing success");
                         Console.ResetColor();
                     }

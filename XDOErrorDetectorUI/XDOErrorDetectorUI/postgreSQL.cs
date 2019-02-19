@@ -165,6 +165,7 @@ namespace XDOErrorDetectorUI
 
 
                 var LogFromXDO = new List<XDOLogItem>();
+                var LogHashSetForDuplicatedItem = new HashSet<string>();
                 // XDO(v3.0.0.2) Read -> 이미지 집합 및 1 DBItem row 생성
                 // 나중에 안쓰이는 그림 파일 찾을 때 쓰임
                 // 비효율적으로 제작
@@ -213,6 +214,8 @@ namespace XDOErrorDetectorUI
                     }
 
                     hashMap.Add(xdoFile, xdo_dbItem);
+
+                    
                     try
                     {
                         foreach (var imgFile in Directory.EnumerateFiles(baseDirectory, "*", SearchOption.TopDirectoryOnly))
@@ -223,12 +226,26 @@ namespace XDOErrorDetectorUI
                     }
                     catch (ArgumentException e)
                     {
+                        LogHashSetForDuplicatedItem.Add(baseDirectory);
+                        foreach(var imgFile in Directory.EnumerateFiles(baseDirectory, "*.jpg?", SearchOption.TopDirectoryOnly))
+                        {
+                            if (imgFile.ToLower().Contains(".jpg") || imgFile.ToLower().Contains(".png"))
+                                imageSet.Add(imgFile);
+                        }
                         // 이미지 또는 xdo 이름 에러 -> xdo 파싱할 수 없다고 에러 기록
                     }
                 }
                 var XDOLogList = checkXDOError(hashMap, imageSet, repairXdoDictionary);
                 foreach (var logItem in LogFromXDO)
                     XDOLogList.Add(logItem);
+                foreach (var logItem in LogHashSetForDuplicatedItem)
+                {
+                    var fileInfo = new FileInfo(logItem);
+                    var level = fileInfo.Directory.Parent.Parent.Name;
+                    var yx = fileInfo.Directory.Name.Split('_');
+
+                    XDOLogList.Add(new XDOLogItem(level, yx[0], yx[1], LOG.INVALID_FILENAME_IN_DIRECTORY, "", 0, "", ""));
+                }
                 this.repair(repairXdoDictionary, XDOLogList, isRepair);
                 writeDBwithXDOInfo(hashMap, XDOLogList);
 

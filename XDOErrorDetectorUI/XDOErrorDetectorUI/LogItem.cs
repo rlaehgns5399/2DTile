@@ -8,17 +8,18 @@ namespace XDOErrorDetectorUI
 {
     public enum LOG
     {
-        ERR_NOT_EXIST = 0,
-        WARN_CASE_INSENSITIVE = 1,
-        NOT_USED = 2,
-        XDO_LEVEL_ERROR = 3,
-        DUPLICATE_XDO = 4,
-        XDO_VERSION_ERROR = 5,
-        DAT_CANNOT_PARSE_INVALID_XDONAME = 6,
-        DAT_CANNOT_PARSE_NOT_EXIST_DIRECTORY = 7,
-        XDO_CANNOT_FIND_PARENT_DAT = 8,
-        INVALID_XDO = 9,
-        DAT_XDO_VERSION_MISMATCH = 10
+        ERR_NOT_EXIST,
+        WARN_CASE_INSENSITIVE,
+        NOT_USED,
+        XDO_LEVEL_ERROR,
+        DUPLICATE_XDO,
+        XDO_VERSION_ERROR,
+        DAT_CANNOT_PARSE_INVALID_XDONAME,
+        DAT_CANNOT_PARSE_NOT_EXIST_DIRECTORY,
+        XDO_CANNOT_FIND_PARENT_DAT,
+        INVALID_FILENAME_IN_DIRECTORY,
+        DAT_XDO_VERSION_MISMATCH,
+        INVALID_XDO
     }
     public class LogItem
     {
@@ -64,6 +65,9 @@ namespace XDOErrorDetectorUI
                     break;
                 case LOG.DAT_CANNOT_PARSE_NOT_EXIST_DIRECTORY:
                     this.detail = "Cannot find a directory at given DAT";
+                    break;
+                case LOG.INVALID_FILENAME_IN_DIRECTORY:
+                    this.detail = "Invalid filename in folder(carriage return or line feed)";
                     break;
             }
         }
