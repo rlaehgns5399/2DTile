@@ -40,6 +40,14 @@ namespace XDOErrorDetectorUI
                     list.Add(Name);
                 }
             }
+            catch (ArgumentException e)
+            {
+                var regex = "*." + ((EXT)option).ToString() + "?";
+                foreach (string Name in Directory.EnumerateFiles(url, regex).Where(s => s.Contains("index.dat") == false))
+                {
+                    list.Add(Name);
+                }
+            }
             catch (Exception e)
             {
                 Console.Write(e.ToString());

@@ -75,9 +75,19 @@ namespace XDOErrorDetectorUI
                             // Y_X
                             foreach(var Y_X in Directory.EnumerateDirectories(tempDirectoryName, "*", SearchOption.TopDirectoryOnly))
                             {
-                                if (Directory.EnumerateFiles(Y_X, "*." + ((EXT)option).ToString(), SearchOption.TopDirectoryOnly).Count() > 0)
+                                try
                                 {
-                                    set.Add(Y_X);
+                                    if (Directory.EnumerateFiles(Y_X, "*." + ((EXT)option).ToString(), SearchOption.TopDirectoryOnly).Count() > 0)
+                                    {
+                                        set.Add(Y_X);
+                                    }
+                                }
+                                catch (ArgumentException e)
+                                {
+                                    if (Directory.EnumerateFiles(Y_X, "*." + ((EXT)option).ToString() + "?", SearchOption.TopDirectoryOnly).Count() > 0)
+                                    {
+                                        set.Add(Y_X);
+                                    }
                                 }
                             }
                         }
