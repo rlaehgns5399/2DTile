@@ -1200,21 +1200,51 @@ namespace XDOErrorDetectorUI
             }
         }
 
-        public void makeGLTF(string path, int min, int max)
+        public void makeGLTF(string path, int min, int max, BackgroundWorker worker)
         {
-            var df = new DirectoryFinder(path, min, max).run(EXT.XDO);
+            const string saveFolderName = "gltf";
 
-            foreach (string XDOPath in df)
+            var Watch = new Stopwatch();
+            Watch.Restart();
+
+
+            var DATdirectorySet = new DirectoryFinder(path, min, max).run(EXT.DAT);
+            var saveBasePath = new FileInfo(path).Directory.FullName;
+            worker.ReportProgress(0, new ReportProgressItemClass(DATdirectorySet.Count));
+            
+            foreach (string DATFolderPath in DATdirectorySet)
             {
-                var XDOFileList = new FileFinder(XDOPath).run(EXT.XDO);
+                var DATFileList = new FileFinder(DATFolderPath).run(EXT.DAT);
 
-                foreach(var xdofile in XDOFileList)
+                foreach(string datFile in DATFileList)
                 {
-                    var filename = new FileInfo(xdofile).Name;
-                    var directory = new FileInfo(xdofile).Directory.FullName;
-                    new GLTF(new ReadXDO(xdofile), filename, directory);
-                    Console.WriteLine(Path.Combine(directory, filename));
+                    var dat = new ReadDAT(datFile);
+                    var Y = Path.GetFileNameWithoutExtension(datFile).Split('_');
+                    var savePath = Path.Combine(saveBasePath, saveFolderName, dat.header.level.ToString(), Y[0], Path.GetFileNameWithoutExtension(datFile));
+                    Console.WriteLine(savePath);
+
+                    for(int i = 0; i < dat.body.Count; i++)
+                    {
+                        var xdoPath = Path.Combine(savePath, dat.body[i].dataFile);
+                        if (File.Exists(xdoPath))
+                        {
+                            var version = dat.body[i].version;
+                            var versionStr = Int32.Parse(string.Format("{0}{1}{2}{3}", version[0], version[1], version[2], version[3]));
+                            var xdo = new ReadXDO(xdoPath, versionStr);
+                            new GLTF(xdo, )
+                        }
+                    }
                 }
+
+                //var XDOFileList = new FileFinder(XDOPath).run(EXT.XDO);
+
+                //foreach(var xdofile in XDOFileList)
+                //{
+                //    var filename = new FileInfo(xdofile).Name;
+                //    var directory = new FileInfo(xdofile).Directory.FullName;
+                //    new GLTF(new ReadXDO(xdofile), filename, directory);
+                //    Console.WriteLine(Path.Combine(directory, filename));
+                //}
             }
         }
 

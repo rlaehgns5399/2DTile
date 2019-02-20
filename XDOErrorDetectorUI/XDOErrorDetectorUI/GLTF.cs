@@ -49,13 +49,10 @@ namespace XDOErrorDetectorUI
                  */
 
                 int byte4_align_index = 0;
-                var numOfImageLevel = getImageCount(xdo.mesh[i].ImageLevel);
-                for(int j = 1; j < numOfImageLevel; j++)
-                {
-                    var fileName = Path.Combine(file_path, new FileInfo(Path.Combine(file_path, file_name)).Name) + "_" + i + "_" + j;
+                    var fileName = Path.Combine(file_path, new FileInfo(Path.Combine(file_path, file_name)).Name) + "_" + i;
 
                     // make bin file
-                    // xdoName_[i: faceNum]_[j: LOD].bin 
+                    // xdoName_[i: faceNum].bin 
                     var w = new BinaryWriter(new FileStream(fileName + ".bin", FileMode.Create));
 
                     // bin - first step -> INDICES
@@ -110,7 +107,6 @@ namespace XDOErrorDetectorUI
                         Color = xdo.mesh[i].Color,
                         ImageLevel = xdo.mesh[i].ImageLevel
                     }));
-                }
                 
 
 

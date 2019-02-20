@@ -401,6 +401,7 @@ namespace XDOErrorDetectorUI
         {
             setTableName(sql, textBox_table.Text);
             var worker = new BackgroundWorker();
+            worker.WorkerReportsProgress = true;
 
             var folderPathText = folder_path.Text;
             var min = int.Parse(comboBox_min.Text);
@@ -408,7 +409,25 @@ namespace XDOErrorDetectorUI
             worker.DoWork += (s, args) =>
             {
                 watch.Restart();
-                sql.makeGLTF(folderPathText, min, max);
+                sql.makeGLTF(folderPathText, min, max, worker);
+            };
+            worker.ProgressChanged += (s, args) => {
+                if (args.UserState != null)
+                {
+                    var t = args.UserState.GetType();
+                    if (t.Equals(typeof(ReportProgressItemClass)))
+                    {
+                        var obj = (ReportProgressItemClass)args.UserState;
+                        pbStatus.Value = 0;
+                        pbStatus.Maximum = obj.maximum;
+                        Console.WriteLine("[A]\t폴더의 총 개수 : " + obj.maximum);
+                    }
+                }
+                else
+                {
+                    var now = (int)args.ProgressPercentage;
+                    pbStatus.Value += now;
+                }
             };
             worker.RunWorkerCompleted += (s, args) =>
             {
