@@ -200,17 +200,24 @@ namespace XDOErrorDetectorUI
             };
             worker.RunWorkerCompleted += (s, args) =>
             {
-                var resultList = args.Result as List<string>;
+                try
+                {
+                    var resultList = args.Result as List<string>;
 
-                StopWatchForSearch.Stop();
-                label1.Content = resultList[1];
-                label1.Content += ms(StopWatchForSearch);
-                textBox_invalidFile.Text = resultList[0];
-                clickSearch = true;
+                    StopWatchForSearch.Stop();
+                    label1.Content = resultList[1];
+                    label1.Content += ms(StopWatchForSearch);
+                    textBox_invalidFile.Text = resultList[0];
+                    clickSearch = true;
 
-                if (clickSearch && clickCheckVersion)
-                    btn_repair.IsEnabled = true;
-                btn_check_version_error.IsEnabled = true;
+                    if (clickSearch && clickCheckVersion)
+                        btn_repair.IsEnabled = true;
+                    btn_check_version_error.IsEnabled = true;
+                }
+                catch (Exception ex)
+                {
+                    Console.Write(ex.ToString());
+                }
             };
             worker.RunWorkerAsync();
         }

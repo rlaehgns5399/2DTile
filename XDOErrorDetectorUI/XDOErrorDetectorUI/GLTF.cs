@@ -14,14 +14,7 @@ namespace XDOErrorDetectorUI
     {
         public JObject container;
         public ReadXDO xdo;
-        private int getImageCount(byte imgCount)
-        {
-            if (imgCount == 1) return 0;    // no texture
-            if (imgCount == 2) return 1;    // only basic texture
-            if (imgCount > 2) return imgCount - 2;  // basic texture + LOD image
-            return -1;  // error
-        }
-        public GLTF(ReadXDO xdo, String file_name, String file_path)
+        public GLTF(ReadXDO xdo, String fileName)
         {
             this.xdo = xdo;
             if (xdo.faceNum == 0) xdo.faceNum = 1;
@@ -42,6 +35,8 @@ namespace XDOErrorDetectorUI
 
             bool debug = false;
 
+            var getFileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
+            var getDirectoryWithoutFile = new FileInfo(fileName).Directory.FullName;
             for (int i = 0; i < xdo.faceNum; i++)
             {
                 /*
@@ -49,60 +44,60 @@ namespace XDOErrorDetectorUI
                  */
 
                 int byte4_align_index = 0;
-                    var fileName = Path.Combine(file_path, new FileInfo(Path.Combine(file_path, file_name)).Name) + "_" + i;
-
-                    // make bin file
-                    // xdoName_[i: faceNum].bin 
-                    var w = new BinaryWriter(new FileStream(fileName + ".bin", FileMode.Create));
-
-                    // bin - first step -> INDICES
-                    foreach (var t in xdo.mesh[i].list_indice)
-                    {
-                        w.Write(t);
-                    }
-
-                    // 4 bytes padding
-                    //int byte4_align_index = 0;
-                    if ((xdo.mesh[i].list_indice.Count * 2) % 4 != 0)
-                    {
-                        byte4_align_index = (xdo.mesh[i].list_indice.Count * 2) % 4;
-                        // 4 byte padding, uv list can be multiple of 2 not 4.
-                        for (int padding_iterator = 0; padding_iterator < byte4_align_index; padding_iterator++) w.Write((byte)0);
-
-                        if (debug) Console.WriteLine("IndexList: " + xdo.mesh[i].list_indice.Count * 2 + " + " + byte4_align_index + "bytes. aligned 4 bytes(" + (xdo.mesh[i].list_indice.Count * 2 + byte4_align_index) + ")");
-                    }
-
-                    // bin - second step -> Vertex(Position)
-                    foreach (var t in xdo.mesh[i].list_vertex)
-                    {
-                        w.Write(t.x);
-                        w.Write(t.y);
-                        w.Write(t.z);
-                    }
-
-                    // bin - third step - Normals
-                    foreach (var t in xdo.mesh[i].list_normal_modifed)
-                    {
-
-                        w.Write(t.x);
-                        w.Write(t.y);
-                        w.Write(t.z);
-                    }
-
-                    // bom - fourth step - Texture UV
-                    foreach (var t in xdo.mesh[i].list_texture)
-                    {
-                        w.Write(t.x);
-                        w.Write(t.y);
-                    }
-                    w.Close();
 
 
-                    // make gltf with xdo informations
+                // make bin file
+                // xdoName_[i: faceNum].bin 
+                var w = new BinaryWriter(new FileStream(Path.Combine(getDirectoryWithoutFile, getFileNameWithoutExtension + "_" + i + ".bin"), FileMode.Create));
 
-                    // define 'strict' asset
+                // bin - first step -> INDICES
+                foreach (var t in xdo.mesh[i].list_indice)
+                {
+                    w.Write(t);
+                }
 
-                    faceElements.Add(JToken.FromObject(new
+                // 4 bytes padding
+                //int byte4_align_index = 0;
+                if ((xdo.mesh[i].list_indice.Count * 2) % 4 != 0)
+                {
+                    byte4_align_index = (xdo.mesh[i].list_indice.Count * 2) % 4;
+                    // 4 byte padding, uv list can be multiple of 2 not 4.
+                    for (int padding_iterator = 0; padding_iterator < byte4_align_index; padding_iterator++) w.Write((byte)0);
+
+                    if (debug) Console.WriteLine("IndexList: " + xdo.mesh[i].list_indice.Count * 2 + " + " + byte4_align_index + "bytes. aligned 4 bytes(" + (xdo.mesh[i].list_indice.Count * 2 + byte4_align_index) + ")");
+                }
+
+                // bin - second step -> Vertex(Position)
+                foreach (var t in xdo.mesh[i].list_vertex)
+                {
+                    w.Write(t.x);
+                    w.Write(t.y);
+                    w.Write(t.z);
+                }
+
+                // bin - third step - Normals
+                foreach (var t in xdo.mesh[i].list_normal_modifed)
+                {
+
+                    w.Write(t.x);
+                    w.Write(t.y);
+                    w.Write(t.z);
+                }
+
+                // bom - fourth step - Texture UV
+                foreach (var t in xdo.mesh[i].list_texture)
+                {
+                    w.Write(t.x);
+                    w.Write(t.y);
+                }
+                w.Close();
+
+
+                // make gltf with xdo informations
+
+                // define 'strict' asset
+
+                faceElements.Add(JToken.FromObject(new
                     {
                         Color = xdo.mesh[i].Color,
                         ImageLevel = xdo.mesh[i].ImageLevel
@@ -365,7 +360,7 @@ namespace XDOErrorDetectorUI
                 JToken buffersArrayElements = JToken.FromObject(new
                 {
                     byteLength = totalbyteLength,
-                    uri = file_name + "_" + i + ".bin"
+                    uri = getFileNameWithoutExtension + "_" + i + ".bin"
                 });
                 buffersElements.Add(buffersArrayElements);
 
@@ -400,7 +395,7 @@ namespace XDOErrorDetectorUI
             container.Add("buffers", buffersElements);
             //Console.WriteLine(container.ToString());
 
-            StreamWriter sw = new StreamWriter(Path.Combine(file_path, file_name) + ".gltf");
+            StreamWriter sw = new StreamWriter(Path.Combine(getDirectoryWithoutFile, getFileNameWithoutExtension) + ".gltf");
             sw.Write(container.ToString());
             sw.Close();
         }
