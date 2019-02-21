@@ -14,7 +14,7 @@ namespace XDOErrorDetectorUI
     {
         public JObject container;
         public ReadXDO xdo;
-        public GLTF(ReadXDO xdo, String fileName)
+        public GLTF(ReadXDO xdo, String savePath)
         {
             this.xdo = xdo;
             if (xdo.faceNum == 0) xdo.faceNum = 1;
@@ -35,8 +35,7 @@ namespace XDOErrorDetectorUI
 
             bool debug = false;
 
-            var getFileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
-            var getDirectoryWithoutFile = new FileInfo(fileName).Directory.FullName;
+            var getFileNameWithoutExtension = Path.GetFileNameWithoutExtension(xdo.url);
             for (int i = 0; i < xdo.faceNum; i++)
             {
                 /*
@@ -48,7 +47,7 @@ namespace XDOErrorDetectorUI
 
                 // make bin file
                 // xdoName_[i: faceNum].bin 
-                var w = new BinaryWriter(new FileStream(Path.Combine(getDirectoryWithoutFile, getFileNameWithoutExtension + "_" + i + ".bin"), FileMode.Create));
+                var w = new BinaryWriter(new FileStream(Path.Combine(savePath, getFileNameWithoutExtension + "_" + i + ".bin"), FileMode.Create));
 
                 // bin - first step -> INDICES
                 foreach (var t in xdo.mesh[i].list_indice)
@@ -213,12 +212,23 @@ namespace XDOErrorDetectorUI
 
                 // define images
                 // JArray images = new JArray();
-                JToken imageToken = JToken.FromObject(new
+                var imgOriginalPath = Path.Combine(new FileInfo(xdo.url).Directory.FullName, xdo.mesh[i].imageName);
+                if (File.Exists(imgOriginalPath))
                 {
-                    uri = xdo.mesh[i].imageName
-                });
-                images.Add(imageToken);
+                    JToken imageToken = JToken.FromObject(new
+                    {
+                        uri = xdo.mesh[i].imageName
+                    });
+                    images.Add(imageToken);
+                    File.Copy(Path.Combine(new FileInfo(xdo.url).Directory.FullName, xdo.mesh[i].imageName), Path.Combine(savePath, xdo.mesh[i].imageName), true);
+                } else
+                {
+                    JToken imageToken = JToken.FromObject(new
+                    {
 
+                    });
+                    images.Add(imageToken);
+                }
 
                 // define accessors
                 // 0+4*i = index(indices)
@@ -395,8 +405,9 @@ namespace XDOErrorDetectorUI
             container.Add("buffers", buffersElements);
             //Console.WriteLine(container.ToString());
 
-            StreamWriter sw = new StreamWriter(Path.Combine(getDirectoryWithoutFile, getFileNameWithoutExtension) + ".gltf");
+            StreamWriter sw = new StreamWriter(Path.Combine(savePath, getFileNameWithoutExtension) + ".gltf");
             sw.Write(container.ToString());
+            
             sw.Close();
         }
     }

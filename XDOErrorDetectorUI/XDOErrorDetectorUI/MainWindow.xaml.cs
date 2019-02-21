@@ -38,7 +38,7 @@ namespace XDOErrorDetectorUI
             textBox_database.Text = "mydata";
             textBox_table.Text = "xdo2";
             textBox_port.Text = "5433";
-            folder_path.Text = @"C:\Users\KimDoHoon\Desktop\git\2DTile\XDOErrorDetector\data";
+            folder_path.Text = @"Z:\buildingTemp.del";
         }
         private void button_CreateTable_Click(object sender, RoutedEventArgs e)
         {
