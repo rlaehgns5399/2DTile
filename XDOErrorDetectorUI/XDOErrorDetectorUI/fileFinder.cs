@@ -35,17 +35,21 @@ namespace XDOErrorDetectorUI
         {
             try
             {
-                foreach (string Name in Directory.EnumerateFiles(url, "*." + ((EXT)option).ToString()).Where(s => s.Contains("index.dat") == false))
+                foreach (string Name in Directory.EnumerateFiles(url, "*", SearchOption.TopDirectoryOnly))
                 {
-                    list.Add(Name);
+                    if (Path.GetExtension(Name).ToLower().Equals( "." + ((EXT)option).ToString().ToLower() ))
+                    {
+                        if (!Name.Contains("index.dat")) list.Add(Name);
+                    }
                 }
             }
             catch (ArgumentException e)
             {
-                var regex = "*." + ((EXT)option).ToString() + "?";
-                foreach (string Name in Directory.EnumerateFiles(url, regex).Where(s => s.Contains("index.dat") == false))
+                list.Clear();
+                list.Add("###");
+                foreach (string Name in Directory.EnumerateFiles(url, "*." + ((EXT)option).ToString().ToLower(), SearchOption.TopDirectoryOnly))
                 {
-                    list.Add(Name);
+                    if (!Name.Contains("index.dat")) list.Add(Name);
                 }
             }
             catch (Exception e)

@@ -66,9 +66,6 @@ namespace XDOErrorDetectorUI
                 case LOG.DAT_CANNOT_PARSE_NOT_EXIST_DIRECTORY:
                     this.detail = "Cannot find a directory at given DAT";
                     break;
-                case LOG.INVALID_FILENAME_IN_DIRECTORY:
-                    this.detail = "Invalid filename in folder(carriage return or line feed)";
-                    break;
             }
         }
     }
@@ -111,6 +108,9 @@ namespace XDOErrorDetectorUI
                     break;
                 case LOG.DAT_XDO_VERSION_MISMATCH:
                     this.detail = "DAT & XDO version are mismatch";
+                    break;
+                case LOG.INVALID_FILENAME_IN_DIRECTORY:
+                    this.detail = "Invalid filename in folder(carriage return or line feed)";
                     break;
             }
         }

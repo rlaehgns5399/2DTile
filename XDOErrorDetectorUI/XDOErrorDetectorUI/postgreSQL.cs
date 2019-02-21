@@ -142,6 +142,15 @@ namespace XDOErrorDetectorUI
 
             Watch.Restart();
             var XDOdirectorySet = new DirectoryFinder(path, min, max).run(EXT.XDO);
+
+            //var XDOdirectorySet = new HashSet<string>();
+            
+            //foreach ( var file in Directory.EnumerateDirectories(@"Z:\building\15\00112422", "*", SearchOption.TopDirectoryOnly))
+            //{
+            //    XDOdirectorySet.Add(file);
+            //}
+            
+                
             worker.ReportProgress(0, new ReportProgressItemClass(XDOdirectorySet.Count));
 
             foreach (string directory in XDOdirectorySet)
@@ -172,72 +181,68 @@ namespace XDOErrorDetectorUI
                 // 비효율적으로 제작
                 foreach (var xdoFile in xdoFileList)
                 {
-                    var xdo = new ReadXDO(xdoFile, LogFromXDO);
-                    if(xdo.isEnd == false) new PrintInformation(xdo);
-                    var baseDirectory = new FileInfo(xdo.url).Directory.FullName;
-
-                    var xdo_dbItem = new XDODBItem();
-
-
-                    var xy = new FileInfo(xdoFile).Directory.Name;
-                    var name = xy.Split('_');
-                    xdo_dbItem.level = Int32.Parse(new FileInfo(xdoFile).Directory.Parent.Parent.Name);
-                    xdo_dbItem.X = name[1];
-                    xdo_dbItem.Y = name[0];
-                    xdo_dbItem.minifiedName = new FileInfo(xdoFile).Name;
-                    xdo_dbItem.XDOVersion = xdo.XDOVersion;
-                    xdo_dbItem.fileName = xdoFile;
-                    xdo_dbItem.ObjectID = (int)xdo.ObjectID;
-                    xdo_dbItem.Key = xdo.Key;
-                    xdo_dbItem.ObjBox[0] = xdo.minX;
-                    xdo_dbItem.ObjBox[1] = xdo.minY;
-                    xdo_dbItem.ObjBox[2] = xdo.minZ;
-                    xdo_dbItem.ObjBox[3] = xdo.maxX;
-                    xdo_dbItem.ObjBox[4] = xdo.maxY;
-                    xdo_dbItem.ObjBox[5] = xdo.maxZ;
-                    xdo_dbItem.Altitude = xdo.altitude;
-
-                    if (xdo.XDOVersion == 1)
+                    if (xdoFile.Equals("###"))
                     {
-                        xdo_dbItem.FaceNum = 1;
+                        LogHashSetForDuplicatedItem.Add(directory);
                     }
                     else
                     {
-                        xdo_dbItem.FaceNum = xdo.faceNum;
-                    }
+                        var xdo = new ReadXDO(xdoFile, LogFromXDO);
+                        if (xdo.isEnd == false) new PrintInformation(xdo);
+                        var baseDirectory = new FileInfo(xdo.url).Directory.FullName;
 
-                    for (int i = 0; i < xdo.faceNum; i++)
-                    {
-                        xdo_dbItem.VertexCount.Add((int)xdo.mesh[i].vertexCount);
-                        xdo_dbItem.IndexedCount.Add((int)xdo.mesh[i].indexedCount);
-                        xdo_dbItem.ImageLevel.Add((int)xdo.mesh[i].ImageLevel);
-                        xdo_dbItem.ImageName.Add(xdo.mesh[i].imageName);
-                    }
+                        var xdo_dbItem = new XDODBItem();
 
-                    hashMap.Add(xdoFile, xdo_dbItem);
 
-                    
-                    try
-                    {
-                        foreach (var imgFile in Directory.EnumerateFiles(baseDirectory, "*", SearchOption.TopDirectoryOnly))
+                        var xy = new FileInfo(xdoFile).Directory.Name;
+                        var name = xy.Split('_');
+                        xdo_dbItem.level = Int32.Parse(new FileInfo(xdoFile).Directory.Parent.Parent.Name);
+                        xdo_dbItem.X = name[1];
+                        xdo_dbItem.Y = name[0];
+                        xdo_dbItem.minifiedName = new FileInfo(xdoFile).Name;
+                        xdo_dbItem.XDOVersion = xdo.XDOVersion;
+                        xdo_dbItem.fileName = xdoFile;
+                        xdo_dbItem.ObjectID = (int)xdo.ObjectID;
+                        xdo_dbItem.Key = xdo.Key;
+                        xdo_dbItem.ObjBox[0] = xdo.minX;
+                        xdo_dbItem.ObjBox[1] = xdo.minY;
+                        xdo_dbItem.ObjBox[2] = xdo.minZ;
+                        xdo_dbItem.ObjBox[3] = xdo.maxX;
+                        xdo_dbItem.ObjBox[4] = xdo.maxY;
+                        xdo_dbItem.ObjBox[5] = xdo.maxZ;
+                        xdo_dbItem.Altitude = xdo.altitude;
+
+                        if (xdo.XDOVersion == 1)
                         {
-                            if (imgFile.ToLower().Contains(".jpg") || imgFile.ToLower().Contains(".png"))
-                                imageSet.Add(imgFile);
+                            xdo_dbItem.FaceNum = 1;
                         }
-                    }
-                    catch (ArgumentException e)
-                    {
-                        LogHashSetForDuplicatedItem.Add(baseDirectory);
-                        foreach(var imgFile in Directory.EnumerateFiles(baseDirectory, "*.jpg?", SearchOption.TopDirectoryOnly))
+                        else
                         {
-                            if (imgFile.ToLower().Contains(".jpg") || imgFile.ToLower().Contains(".png"))
-                                imageSet.Add(imgFile);
+                            xdo_dbItem.FaceNum = xdo.faceNum;
                         }
-                        // 이미지 또는 xdo 이름 에러 -> xdo 파싱할 수 없다고 에러 기록
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.ToString());
+
+                        for (int i = 0; i < xdo.faceNum; i++)
+                        {
+                            xdo_dbItem.VertexCount.Add((int)xdo.mesh[i].vertexCount);
+                            xdo_dbItem.IndexedCount.Add((int)xdo.mesh[i].indexedCount);
+                            xdo_dbItem.ImageLevel.Add((int)xdo.mesh[i].ImageLevel);
+                            xdo_dbItem.ImageName.Add(xdo.mesh[i].imageName);
+                        }
+
+                        hashMap.Add(xdoFile, xdo_dbItem);
+
+
+                        try
+                        {
+                            foreach (var imgFile in Directory.EnumerateFiles(baseDirectory, "*.jpg", SearchOption.TopDirectoryOnly))
+                            {
+                                imageSet.Add(imgFile);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.ToString());
+                        }
                     }
                 }
 
@@ -247,8 +252,8 @@ namespace XDOErrorDetectorUI
                 foreach (var logItem in LogHashSetForDuplicatedItem)
                 {
                     var fileInfo = new FileInfo(logItem);
-                    var level = fileInfo.Directory.Parent.Parent.Name;
-                    var yx = fileInfo.Directory.Name.Split('_');
+                    var level = fileInfo.Directory.Parent.Name;
+                    var yx = fileInfo.Name.Split('_');
 
                     XDOLogList.Add(new XDOLogItem(level, yx[0], yx[1], LOG.INVALID_FILENAME_IN_DIRECTORY, "", 0, "", ""));
                 }

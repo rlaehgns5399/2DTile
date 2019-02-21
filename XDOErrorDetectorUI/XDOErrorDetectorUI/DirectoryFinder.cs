@@ -77,17 +77,11 @@ namespace XDOErrorDetectorUI
                             {
                                 try
                                 {
-                                    if (Directory.EnumerateFiles(Y_X, "*." + ((EXT)option).ToString(), SearchOption.TopDirectoryOnly).Count() > 0)
-                                    {
-                                        set.Add(Y_X);
-                                    }
+                                    set.Add(Y_X);
                                 }
-                                catch (ArgumentException e)
+                                catch (Exception e)
                                 {
-                                    if (Directory.EnumerateFiles(Y_X, "*." + ((EXT)option).ToString() + "?", SearchOption.TopDirectoryOnly).Count() > 0)
-                                    {
-                                        set.Add(Y_X);
-                                    }
+                                    Console.WriteLine(e.ToString());
                                 }
                             }
                         }
