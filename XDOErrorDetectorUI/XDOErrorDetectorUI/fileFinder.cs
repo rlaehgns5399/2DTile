@@ -27,8 +27,8 @@ namespace XDOErrorDetectorUI
             sw.Restart();
             DirSearch(this.fileList, this.url, option);
             sw.Stop();
-            if (sw.ElapsedMilliseconds < 1000) Console.WriteLine("[A]\tSearching File(" + this.fileList.Count + "): " + sw.ElapsedMilliseconds.ToString() + "ms\t" + this.url);
-            if (sw.ElapsedMilliseconds >= 1000) Console.WriteLine("[A]\tSearching File(" + this.fileList.Count + "): " + sw.ElapsedMilliseconds / 1000.0 + "s\t" + this.url);
+           // if (sw.ElapsedMilliseconds < 1000) Console.WriteLine("[A]\tSearching File(" + this.fileList.Count + "): " + sw.ElapsedMilliseconds.ToString() + "ms\t" + this.url);
+           // if (sw.ElapsedMilliseconds >= 1000) Console.WriteLine("[A]\tSearching File(" + this.fileList.Count + "): " + sw.ElapsedMilliseconds / 1000.0 + "s\t" + this.url);
             return this.fileList;
         }
         public void DirSearch(HashSet<String> list, String url, EXT option)
