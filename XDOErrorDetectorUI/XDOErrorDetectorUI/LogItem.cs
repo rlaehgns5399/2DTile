@@ -9,7 +9,7 @@ namespace XDOErrorDetectorUI
     public enum LOG
     {
         ERR_NOT_EXIST,
-        WARN_CASE_INSENSITIVE,
+        WARN_CASE_SENSITIVE,
         NOT_USED,
         XDO_LEVEL_ERROR,
         DUPLICATE_XDO,
@@ -54,7 +54,7 @@ namespace XDOErrorDetectorUI
                 case LOG.NOT_USED:
                     this.detail = "Unused file";
                     break;
-                case LOG.WARN_CASE_INSENSITIVE:
+                case LOG.WARN_CASE_SENSITIVE:
                     this.detail = "Case sensitive error";
                     break;
                 case LOG.DUPLICATE_XDO:
@@ -97,7 +97,7 @@ namespace XDOErrorDetectorUI
                 case LOG.NOT_USED:
                     this.detail = "Unused file";
                     break;
-                case LOG.WARN_CASE_INSENSITIVE:
+                case LOG.WARN_CASE_SENSITIVE:
                     this.detail = "Case sensitive error";
                     break;
                 case LOG.INVALID_XDO:
