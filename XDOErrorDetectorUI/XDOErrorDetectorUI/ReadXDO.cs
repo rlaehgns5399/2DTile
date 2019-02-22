@@ -249,11 +249,14 @@ namespace XDOErrorDetectorUI
 
                 if (ver == 3001)
                 {
+                    this.XDOVersion = 1;
+                    this.faceNum = 1;
                     this.mesh.Add(new XDOMesh(br));
                 }
 
                 if (ver == 3002)
                 {
+                    this.XDOVersion = 2;
                     this.faceNum = br.ReadByte();
                     for (int i = 0; i < this.faceNum; i++)
                     {
