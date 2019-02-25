@@ -17,7 +17,24 @@ namespace XDOErrorDetectorUI
 
         private List<int> checkLODTextureExist(string xdoFullPath, int maxImageLv)
         {
-            return null;
+            // 기본 이미지도 없는 경우 1:
+            // 기본 이미지라도 있는 경우 2:
+            // 기본 이미지 + LOD 이미지 있는 경우 > 2
+            maxImageLv -= 2;
+            if (maxImageLv <= 0) return null;
+            
+            var folderPath = new FileInfo(xdoFullPath).Directory.FullName;
+            var returnList = new List<int>();
+
+            var RepresentativeMeshNotNull = xdo.mesh.Where(e => e != null).First();
+            var imagePath = Path.Combine(folderPath, RepresentativeMeshNotNull.imageName.ToLower());
+
+            for(int i = 1; i <= maxImageLv; i++)
+            {
+                var LODimagePath = imagePath.Replace(".jpg", "_" + i + ".jpg");
+                if (File.Exists(LODimagePath)) returnList.Add(i);
+            }
+            return returnList;
         }
         private void create()
         {
@@ -25,6 +42,7 @@ namespace XDOErrorDetectorUI
         }
         private void create(List<int> makeList)
         {
+            if (makeList == null) return;
 
         }
         public GLTF(ReadXDO xdo, String savePath)
@@ -32,14 +50,11 @@ namespace XDOErrorDetectorUI
             this.xdo = xdo;
             if (xdo.faceNum == 0) xdo.faceNum = 1;
 
+
             var maxImageLv = (int)xdo.mesh.Max(e => e.ImageLevel);
 
             create();
             create(checkLODTextureExist(xdo.url, maxImageLv));
-            for(int v = 0; v < maxImageLv; v++)
-            {
-
-            }
 
 
             // Skeleton
@@ -438,8 +453,8 @@ namespace XDOErrorDetectorUI
             //Console.WriteLine(container.ToString());
 
             StreamWriter sw = new StreamWriter(Path.Combine(savePath, getFileNameWithoutExtension) + ".gltf");
-            sw.Write(container.ToString(Newtonsoft.Json.Formatting.None));
-            
+            if(debug) sw.Write(container.ToString(Newtonsoft.Json.Formatting.None));
+            if(!debug) sw.Write(container.ToString());
             sw.Close();
         }
     }
