@@ -1239,7 +1239,7 @@ namespace XDOErrorDetectorUI
                         var xdoPath = Path.Combine(new FileInfo(datFile).Directory.FullName, Path.GetFileNameWithoutExtension(datFile), dat.body[i].dataFile);
                         if (File.Exists(xdoPath))
                         {
-                            Console.WriteLine(savePath);
+                            
                             var version = dat.body[i].version;
                             var versionStr = Int32.Parse(string.Format("{0}{1}{2}{3}", version[0], version[1], version[2], version[3]));
                             try

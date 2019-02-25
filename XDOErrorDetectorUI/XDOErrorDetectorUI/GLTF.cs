@@ -164,32 +164,7 @@ namespace XDOErrorDetectorUI
                 meshToken["primitives"] = primitives;
                 meshes.Add(meshToken);
 
-
-                // define material
-                // JArray materials = new JArray();
-                float[] emissiveFactor = { 0.0f, 0.0f, 0.0f };
-                var color = xdo.mesh[i].Color;
-                float[] baseColorFactor = { color.r / 255.0f , color.g / 255.0f, color.b / 255.0f, color.a / 255.0f };
-                JToken index = JToken.FromObject(new
-                {
-                    index = i,
-                    texCoord = 0 // temporary
-                });
-                JToken baseColorTexture = JToken.FromObject(new
-                {
-                    baseColorTexture = index,
-                    metallicFactor = 0.0,
-                    roughnessFactor = 1.0,
-                    baseColorFactor = baseColorFactor
-                });
-                JToken materialsElement = JToken.FromObject(new
-                {
-                    // emissiveFactor = emissiveFactor,
-                    pbrMetallicRoughness = baseColorTexture
-                });
-                materials.Add(materialsElement);
-
-
+                
 
                 // define texture
                 // JArray textures = new JArray();
@@ -212,23 +187,57 @@ namespace XDOErrorDetectorUI
 
                 // define images
                 // JArray images = new JArray();
-                var imgOriginalPath = Path.Combine(new FileInfo(xdo.url).Directory.FullName, xdo.mesh[i].imageName);
-                if (File.Exists(imgOriginalPath))
+                JToken imageToken = JToken.FromObject(new
                 {
-                    JToken imageToken = JToken.FromObject(new
-                    {
-                        uri = xdo.mesh[i].imageName
-                    });
-                    images.Add(imageToken);
-                    File.Copy(Path.Combine(new FileInfo(xdo.url).Directory.FullName, xdo.mesh[i].imageName), Path.Combine(savePath, xdo.mesh[i].imageName), true);
-                } else
-                {
-                    JToken imageToken = JToken.FromObject(new
-                    {
+                    uri = xdo.mesh[i].imageName
+                });
+                images.Add(imageToken);
 
+                var imgOriginalPath = Path.Combine(new FileInfo(xdo.url).Directory.FullName, xdo.mesh[i].imageName);
+                var imgCheck = File.Exists(imgOriginalPath);
+                if (imgCheck) { 
+                    File.Copy(Path.Combine(new FileInfo(xdo.url).Directory.FullName, xdo.mesh[i].imageName), Path.Combine(savePath, xdo.mesh[i].imageName), true);
+                } 
+
+
+                // define material
+                // JArray materials = new JArray();
+                float[] emissiveFactor = { 0.0f, 0.0f, 0.0f };
+                var color = xdo.mesh[i].Color;
+                float[] baseColorFactor = { color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f };
+                JToken index = JToken.FromObject(new
+                {
+                    index = i,
+                    texCoord = 0 // temporary
+                });
+
+                JToken baseColorTexture;
+                if (imgCheck)
+                {
+                    baseColorTexture = JToken.FromObject(new
+                    {
+                        baseColorTexture = index,
+                        metallicFactor = 0.0,
+                        roughnessFactor = 1.0,
+                        baseColorFactor = baseColorFactor
                     });
-                    images.Add(imageToken);
                 }
+                else
+                {
+                    baseColorTexture = JToken.FromObject(new
+                    {
+                        metallicFactor = 0.0,
+                        roughnessFactor = 1.0,
+                        baseColorFactor = baseColorFactor
+                    });
+                }
+                JToken materialsElement = JToken.FromObject(new
+                {
+                    // emissiveFactor = emissiveFactor,
+                    pbrMetallicRoughness = baseColorTexture
+                });
+                materials.Add(materialsElement);
+
 
                 // define accessors
                 // 0+4*i = index(indices)
