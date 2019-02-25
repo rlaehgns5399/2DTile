@@ -1255,6 +1255,8 @@ namespace XDOErrorDetectorUI
                     }
                 }
 
+                worker.ReportProgress(1);
+
                 //var XDOFileList = new FileFinder(XDOPath).run(EXT.XDO);
 
                 //foreach(var xdofile in XDOFileList)

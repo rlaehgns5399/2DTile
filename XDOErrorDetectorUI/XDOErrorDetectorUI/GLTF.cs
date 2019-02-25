@@ -14,11 +14,34 @@ namespace XDOErrorDetectorUI
     {
         public JObject container;
         public ReadXDO xdo;
+
+        private List<int> checkLODTextureExist(string xdoFullPath, int maxImageLv)
+        {
+            return null;
+        }
+        private void create()
+        {
+
+        }
+        private void create(List<int> makeList)
+        {
+
+        }
         public GLTF(ReadXDO xdo, String savePath)
         {
             this.xdo = xdo;
             if (xdo.faceNum == 0) xdo.faceNum = 1;
-            
+
+            var maxImageLv = (int)xdo.mesh.Max(e => e.ImageLevel);
+
+            create();
+            create(checkLODTextureExist(xdo.url, maxImageLv));
+            for(int v = 0; v < maxImageLv; v++)
+            {
+
+            }
+
+
             // Skeleton
             this.container = JObject.Parse(@"{
              }");
@@ -34,7 +57,7 @@ namespace XDOErrorDetectorUI
             JArray faceElements = new JArray();
 
             bool debug = false;
-
+            
             var getFileNameWithoutExtension = Path.GetFileNameWithoutExtension(xdo.url);
             for (int i = 0; i < xdo.faceNum; i++)
             {
@@ -415,7 +438,7 @@ namespace XDOErrorDetectorUI
             //Console.WriteLine(container.ToString());
 
             StreamWriter sw = new StreamWriter(Path.Combine(savePath, getFileNameWithoutExtension) + ".gltf");
-            sw.Write(container.ToString());
+            sw.Write(container.ToString(Newtonsoft.Json.Formatting.None));
             
             sw.Close();
         }
