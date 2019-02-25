@@ -189,14 +189,14 @@ namespace XDOErrorDetectorUI
                 // JArray images = new JArray();
                 JToken imageToken = JToken.FromObject(new
                 {
-                    uri = xdo.mesh[i].imageName
+                    uri = xdo.mesh[i].imageName.ToLower()
                 });
                 images.Add(imageToken);
 
                 var imgOriginalPath = Path.Combine(new FileInfo(xdo.url).Directory.FullName, xdo.mesh[i].imageName);
                 var imgCheck = File.Exists(imgOriginalPath);
                 if (imgCheck) { 
-                    File.Copy(Path.Combine(new FileInfo(xdo.url).Directory.FullName, xdo.mesh[i].imageName), Path.Combine(savePath, xdo.mesh[i].imageName), true);
+                    File.Copy(Path.Combine(new FileInfo(xdo.url).Directory.FullName, xdo.mesh[i].imageName), Path.Combine(savePath, xdo.mesh[i].imageName.ToLower()), true);
                 } 
 
 
