@@ -39,6 +39,8 @@ namespace XDOErrorDetectorUI
             textBox_table.Text = "xdo2";
             textBox_port.Text = "5433";
             folder_path.Text = @"Z:\buildingTemp.del";
+
+            var b3dm_test = new b3dm_loader();
         }
         private void button_CreateTable_Click(object sender, RoutedEventArgs e)
         {

@@ -85,6 +85,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="b3dm_loader.cs" />
     <Compile Include="CheckVersionListItem.cs" />
     <Compile Include="GLTF.cs" />
     <Compile Include="PrintInformation.cs" />
