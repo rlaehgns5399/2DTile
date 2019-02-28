@@ -27,36 +27,58 @@ namespace XDOErrorDetectorUI
             var Watch = new Stopwatch();
             Watch.Restart();
 
+            // DB에 총 몇 개가 들어가는지 초기화
             xdoDBInsertCount = 0;
             xdoLogInsertCount = 0;
             datDBInsertCount = 0;
             datLogInsertCount = 0;
 
+            // DAT 파일이 들어있는 '폴더'만 찾음
             var DATdirectorySet = new DirectoryFinder(path, min, max).run(EXT.DAT);
+            // 총 조사할 폴더의 개수를 worker에게 전달
+            // worker는 이 수를 전달 받으면 로딩바(ProgressBar)의 Maximum을 설정함
             worker.ReportProgress(0, new ReportProgressItemClass(DATdirectorySet.Count));
+
+            // 폴더를 순회
             foreach (string DATFolderPath in DATdirectorySet)
             {
+                // 폴더에서 DAT 파일을 찾음
                 var DATFileList = new FileFinder(DATFolderPath).run(EXT.DAT);
 
+                // 폴더 별로 접근하여야 메모리 부족 예외를 방지할 수 있음
                 var hashMap = new Dictionary<string, DATDBItem>();
+
+                // 사용안되는 XDO를 모으기 위한 해시셋
                 var xdoSet = new HashSet<string>();
 
+                // DAT 파일의 에러를 수집하고, 고칠 때 쓰이는 딕셔너리
                 var repairDatDictionary = new Dictionary<LOG, HashSet<string>>();
 
-                // CAN REPAIR
+                /* 고칠 수 있는 것들
+                * 1. DAT이 참조하고 있는 XDO가 실제로 있는 xdo와 대소문자 차이가 있을 때
+                * 2. DAT이 한 XDO를 여러번 참조하고 있을 때
+                * 3. DAT이 참조하고 있는 XDO가 없는 경우
+                */
                 repairDatDictionary[LOG.WARN_CASE_SENSITIVE] = new HashSet<string>();
                 repairDatDictionary[LOG.DUPLICATE_XDO] = new HashSet<string>();
                 repairDatDictionary[LOG.ERR_NOT_EXIST] = new HashSet<string>();
 
-                // CANNOT REPAIR
+                /* 고칠 수 없음
+                 * 1. DAT이 Y_X\.xdo 를 참조하여야 하는데 해당 디렉토리에 윈도우에서 지원하지 않는 문자로 폴더 접근조차 되지 않을 때
+                 * 2. Y_X.DAT은 있으나. Y_X의 폴더가 없는 경우
+                 */
                 repairDatDictionary[LOG.DAT_CANNOT_PARSE_INVALID_XDONAME] = new HashSet<string>();
                 repairDatDictionary[LOG.DAT_CANNOT_PARSE_NOT_EXIST_DIRECTORY] = new HashSet<string>();
 
+                // dat 파일 리스트에서 하나 선택
                 foreach (string datFile in DATFileList)
                 {
+                    // dat 파싱
                     var dat = new ReadDAT(datFile);
                     var baseDirectory = new FileInfo(datFile).Directory.FullName;
 
+
+                    // DAT용 DB 아이템 클래스에 해당 내용들 기록
                     var dat_DBItem = new DATDBItem();
 
                     dat_DBItem.level = (int)dat.header.level;
@@ -67,6 +89,7 @@ namespace XDOErrorDetectorUI
                     for (int i = 0; i < dat_DBItem.objCount; i++)
                     {
                         var version = dat.body[i].version;
+                        // byte 배열(3, 0, 0, 1 or 3, 0, 0, 2)을 int로 변환
                         var version_string = Int32.Parse(string.Format("{0}{1}{2}{3}", version[0], version[1], version[2], version[3]));
                         dat_DBItem.version.Add(version_string);
                         dat_DBItem.key.Add(dat.body[i].key);
@@ -84,8 +107,11 @@ namespace XDOErrorDetectorUI
                         dat_DBItem.imgFileName.Add(dat.body[i].imgFileName);
                     }
 
+                    // dat파일 이름과 DB 아이템을 딕셔너리에 저장
                     hashMap.Add(datFile, dat_DBItem);
 
+                    // Y_X.DAT 파일의 이름을 가지고 Y_X 폴더 접근하여 xdo 이름을 모두 가져와 xdoSet에 추가
+                    // 이것을 하는 이유는 사용안되는 xdo들을 판별하기 위함
                     try
                     {
                         IEnumerable<string> temp = Directory.EnumerateFiles(Path.Combine(baseDirectory, Path.GetFileNameWithoutExtension(datFile)), "*", SearchOption.TopDirectoryOnly);
@@ -97,7 +123,9 @@ namespace XDOErrorDetectorUI
                             }
                         }
                     }
-                    catch (ArgumentException e)
+                    // 종종 알수없는 이유로 디렉터리 리스트를 가져오는 것 조차되지 않는데, 콘솔에 기록함
+                    // 이유는 xdo 파일 이름에 \r\n이 붙어있는 이상한 경우가 있음
+                    catch (ArgumentException e) 
                     {
                         var errorPath = Path.Combine(baseDirectory, Path.GetFileNameWithoutExtension(datFile));
                         Console.ForegroundColor = ConsoleColor.Yellow;
@@ -105,6 +133,7 @@ namespace XDOErrorDetectorUI
                         Console.ResetColor();
                         repairDatDictionary[LOG.DAT_CANNOT_PARSE_INVALID_XDONAME].Add(errorPath);
                     }
+                    // Y_X.dat은 있으나, Y_X 폴더가 없으면 발생하는 예외. 콘솔에 기록
                     catch (DirectoryNotFoundException e)
                     {
                         var errorPath = Path.Combine(baseDirectory, Path.GetFileNameWithoutExtension(datFile));
@@ -115,10 +144,14 @@ namespace XDOErrorDetectorUI
                     }
                 }
 
+                // DAT파일 정보와, xdo 리스트를 가지고 DAT 에러 목록을 만듬
                 var DATLogList = checkDATError(hashMap, xdoSet, repairDatDictionary);
+                // 자동 치료 옵션을 켰다면 수정 시도
                 this.repair(repairDatDictionary, DATLogList, isRepair);
+                // 최종적으로 DAT 오류들을 DB에 기록
                 writeDBwithDATinfo(hashMap, DATLogList, repairDatDictionary);
 
+                // worker에게 폴더 1개를 모두 처리했다고 보고(ProgressBar.Value를 1 증가시킴)
                 worker.ReportProgress(1);
 
                 /*
@@ -135,27 +168,21 @@ namespace XDOErrorDetectorUI
                 repairDatDictionary = null;
             }
 
+            // DAT을 조사한 총 시간을 기록함
             Watch.Stop();
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine(" ======================= \n DAT Analysis complete \n = " + Watch.ElapsedMilliseconds / 1000 + "s =\n" + " ======================= ");
             Console.ResetColor();
 
+
+            // XDO 조사 시작, DAT과 거의 동일함
             Watch.Restart();
             var XDOdirectorySet = new DirectoryFinder(path, min, max).run(EXT.XDO);
-
-            //var XDOdirectorySet = new HashSet<string>();
-            
-            //foreach ( var file in Directory.EnumerateDirectories(@"Z:\building\15\00112422", "*", SearchOption.TopDirectoryOnly))
-            //{
-            //    XDOdirectorySet.Add(file);
-            //}
-            
-                
             worker.ReportProgress(0, new ReportProgressItemClass(XDOdirectorySet.Count));
 
             foreach (string directory in XDOdirectorySet)
             {
-                
+
                 var repairXdoDictionary = new Dictionary<LOG, HashSet<RepairXDO>>();
 
                 // CAN REPAIR
@@ -164,7 +191,7 @@ namespace XDOErrorDetectorUI
                 repairXdoDictionary[LOG.ERR_NOT_EXIST] = new HashSet<RepairXDO>();
 
                 // CANNOT REPAIR
-                
+
 
                 // XDO 파일을 주어진 경로로 부터 모두 다 찾음
                 var xdoFileReader = new FileFinder(directory);
@@ -178,7 +205,6 @@ namespace XDOErrorDetectorUI
                 var LogHashSetForDuplicatedItem = new HashSet<string>();
                 // XDO(v3.0.0.2) Read -> 이미지 집합 및 1 DBItem row 생성
                 // 나중에 안쓰이는 그림 파일 찾을 때 쓰임
-                // 비효율적으로 제작
                 foreach (var xdoFile in xdoFileList)
                 {
                     if (xdoFile.Equals("###"))
@@ -295,16 +321,16 @@ namespace XDOErrorDetectorUI
                 var xy = DATName.Split('_'); // y : xy[0], x : xy[1]
 
                 var xdoSet_forRemove = new HashSet<string>();
-                
+
                 var duplicatedReferenceList = item.Value.dataFile.GroupBy(x => x).Where(g => g.Count() > 1).Select(y => y.Key).ToList();
-                if(duplicatedReferenceList.Count > 0)
+                if (duplicatedReferenceList.Count > 0)
                 {
                     // xdo 중복 사용
                     foreach (string duplicatedListItem in duplicatedReferenceList)
                         log.Add(new DATLogItem(level, xy[0], xy[1], LOG.DUPLICATE_XDO, new FileInfo(item.Key).Name, duplicatedListItem, "", ""));
                     repairDatDictionary[LOG.DUPLICATE_XDO].Add(item.Key);
                 }
-                for(int i = 0; i < item.Value.objCount; i++)
+                for (int i = 0; i < item.Value.objCount; i++)
                 {
                     var targetXDOURL = baseURL + @"\" + DATName + @"\" + item.Value.dataFile[i];
                     var DAT_xdo = Path.GetFullPath(targetXDOURL);
@@ -335,7 +361,7 @@ namespace XDOErrorDetectorUI
                 xdoSet.RemoveWhere(s => xdoSet_forRemove.Contains(s));
             }
 
-            foreach(string xdo in xdoSet)
+            foreach (string xdo in xdoSet)
             {
                 // 참조 안되는 XDO
                 var fileinfo = new FileInfo(xdo);
@@ -355,7 +381,7 @@ namespace XDOErrorDetectorUI
                     {
                         cmd.Connection = conn;
 
-                        cmd.CommandText = "INSERT INTO " + table_dat + 
+                        cmd.CommandText = "INSERT INTO " + table_dat +
                             "(\"level\",        \"IDX\",    \"IDY\",    \"filename\",   \"ObjCount\",   \"Version\",    \"Key\",    \"CenterPos_X\",    \"CenterPos_Y\",    \"Altitude\",   \"ImageLevel\", \"dataFile\",   \"imgFileName\",    \"boxMinX\",    \"boxMinY\",    \"boxMinZ\",    \"boxMaxX\",    \"boxMaxY\",    \"boxMaxZ\")" +
                             @"VALUES(@Level,    @IDX,       @IDY,       @fileName,      @ObjCount,      @Version,       @Key,       @CenterPos_X,       @CenterPos_Y,       @Altitude,      @ImageLevel,    @dataFile,      @imgFileName,       @boxMinX,       @boxMinY,       @boxMinZ,       @boxMaxX,       @boxMaxY,       @boxMaxZ)";
                         cmd.Parameters.Add(new NpgsqlParameter("Level", NpgsqlDbType.Integer));
@@ -451,7 +477,7 @@ namespace XDOErrorDetectorUI
         public List<XDOLogItem> checkXDOError(Dictionary<string, XDODBItem> hashMap, HashSet<string> imageSet, Dictionary<LOG, HashSet<RepairXDO>> repairXdoDictionary)
         {
             var log = new List<XDOLogItem>();
-            foreach(KeyValuePair<string, XDODBItem> key in hashMap)
+            foreach (KeyValuePair<string, XDODBItem> key in hashMap)
             {
                 var level = new FileInfo(key.Key).Directory.Parent.Parent.Name;
                 var xy = new FileInfo(key.Key).Directory.Name;
@@ -483,7 +509,7 @@ namespace XDOErrorDetectorUI
                             break;
                         }
                     }
-                    if(basecount == 0)
+                    if (basecount == 0)
                     {
                         // texture가 없음
                         log.Add(new XDOLogItem(level, name[0], name[1], LOG.ERR_NOT_EXIST, new FileInfo(key.Key).Name, i, key.Value.ImageName[i], ""));
@@ -497,12 +523,12 @@ namespace XDOErrorDetectorUI
                         // 기본 텍스쳐도 없는 경우는 1
                         imageNum -= 1;
                     }
-                    else if(key.Value.ImageLevel[i] == 2)
+                    else if (key.Value.ImageLevel[i] == 2)
                     {
                         // 기본 텍스쳐만 있는경우(레벨이 없는 이미지)
                         imageNum -= 2;
                     }
-                    else if(key.Value.ImageLevel[i] > 2)
+                    else if (key.Value.ImageLevel[i] > 2)
                     {
                         // 여러 레벨이 있는 텍스쳐라면 2를 빼줌
                         imageNum -= 2;
@@ -546,17 +572,18 @@ namespace XDOErrorDetectorUI
                         log.Add(new XDOLogItem(level, name[0], name[1], LOG.XDO_LEVEL_ERROR, new FileInfo(key.Key).Name, i, new FileInfo(imgURL).Name.Replace(".", "_?."), "", lv_checker));
                     }
                 }
-                foreach(string t in imageSet_forRemove) {
+                foreach (string t in imageSet_forRemove)
+                {
                     imageSet.Remove(t);
                 }
             }
-            foreach(string remainImage in imageSet)
+            foreach (string remainImage in imageSet)
             {
                 // 쓰이지 않는 것들 여기서 처리
                 // 이미지 경로가 xdo와 같이 있는 "정상적인 상황"이라면 잘 동작할 것이다
                 var fileinfo = new FileInfo(remainImage);
                 var y_x = fileinfo.Directory.Name.Split('_');
-                log.Add(new XDOLogItem(fileinfo.Directory.Parent.Parent.Name , y_x[0], y_x[1], LOG.NOT_USED, "", 0, "", new FileInfo(remainImage).Name));
+                log.Add(new XDOLogItem(fileinfo.Directory.Parent.Parent.Name, y_x[0], y_x[1], LOG.NOT_USED, "", 0, "", new FileInfo(remainImage).Name));
             }
             return log;
         }
@@ -679,8 +706,8 @@ namespace XDOErrorDetectorUI
                     {
                         cmd.Connection = conn;
                         cmd.CommandText = "select * from " + table_xdo;
-                        
-                        using(var reader = cmd.ExecuteReader())
+
+                        using (var reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
@@ -710,7 +737,7 @@ namespace XDOErrorDetectorUI
                             }
                         }
                     }
-                    
+
                 }
                 catch (Exception ex)
                 {
@@ -896,7 +923,7 @@ namespace XDOErrorDetectorUI
                             "\"IDX\" integer," +
                             "\"IDY\" integer," +
                             "\"filename\" text, " +
-                            "\"ObjCount\" integer   ," + 
+                            "\"ObjCount\" integer   ," +
                             "\"Version\" integer[]," +
                             "\"Key\" text[]," +
                             "\"CenterPos_X\" double precision[] ," +
@@ -998,8 +1025,8 @@ namespace XDOErrorDetectorUI
                 {
                     var dat = new ReadDAT(datFile);
                     var baseDirectory = new FileInfo(datFile).Directory.FullName;
-                    
-                    for(int i = 0; i < dat.body.Count; i++)
+
+                    for (int i = 0; i < dat.body.Count; i++)
                     {
                         var xdoFileName = dat.body[i].dataFile;
                         var xdoURL = baseDirectory + @"\" + Path.GetFileNameWithoutExtension(datFile) + @"\" + xdoFileName;
@@ -1021,7 +1048,7 @@ namespace XDOErrorDetectorUI
                                 list.Add(logItem);
                                 // repairXdoDictionary[LOG.XDO_VERSION_ERROR].Add(new RepairXDO(new ReadXDO(xdoURL), logItem.DATversion));
                             }
-                            else if(!xdo.isEnd && version == 3002)
+                            else if (!xdo.isEnd && version == 3002)
                             {
                                 logItem.XDOversion = 3001.ToString();
                                 list.Add(logItem);
@@ -1040,7 +1067,7 @@ namespace XDOErrorDetectorUI
             }
             Console.WriteLine(list.Count + "/" + count);
             return list;
-        } 
+        }
         public string connect()
         {
             using (var conn = connection())
@@ -1063,7 +1090,7 @@ namespace XDOErrorDetectorUI
             {
                 foreach (var readXDO in key.Value)
                 {
-                    if(isRepair == true)
+                    if (isRepair == true)
                     {
                         var xdo = readXDO.xdo;
                         switch (key.Key)
@@ -1129,7 +1156,7 @@ namespace XDOErrorDetectorUI
             {
                 foreach (var URL in key.Value)
                 {
-                    if(File.Exists(URL) && isRepair == true)
+                    if (File.Exists(URL) && isRepair == true)
                     {
                         var readDAT = new ReadDAT(URL);
                         var removeLater = new List<int>();
@@ -1221,12 +1248,12 @@ namespace XDOErrorDetectorUI
             var DATdirectorySet = new DirectoryFinder(path, min, max).run(EXT.DAT);
             var saveBasePath = new FileInfo(path).Directory.FullName;
             worker.ReportProgress(0, new ReportProgressItemClass(DATdirectorySet.Count));
-            
+
             foreach (string DATFolderPath in DATdirectorySet)
             {
                 var DATFileList = new FileFinder(DATFolderPath).run(EXT.DAT);
 
-                foreach(string datFile in DATFileList)
+                foreach (string datFile in DATFileList)
                 {
                     var dat = new ReadDAT(datFile);
                     var Y = Path.GetFileNameWithoutExtension(datFile).Split('_');
@@ -1234,12 +1261,12 @@ namespace XDOErrorDetectorUI
 
                     var di = Directory.CreateDirectory(savePath);
 
-                    for(int i = 0; i < dat.body.Count; i++)
+                    for (int i = 0; i < dat.body.Count; i++)
                     {
                         var xdoPath = Path.Combine(new FileInfo(datFile).Directory.FullName, Path.GetFileNameWithoutExtension(datFile), dat.body[i].dataFile);
                         if (File.Exists(xdoPath))
                         {
-                            
+
                             var version = dat.body[i].version;
                             var versionStr = Int32.Parse(string.Format("{0}{1}{2}{3}", version[0], version[1], version[2], version[3]));
                             try
@@ -1257,15 +1284,6 @@ namespace XDOErrorDetectorUI
 
                 worker.ReportProgress(1);
 
-                //var XDOFileList = new FileFinder(XDOPath).run(EXT.XDO);
-
-                //foreach(var xdofile in XDOFileList)
-                //{
-                //    var filename = new FileInfo(xdofile).Name;
-                //    var directory = new FileInfo(xdofile).Directory.FullName;
-                //    new GLTF(new ReadXDO(xdofile), filename, directory);
-                //    Console.WriteLine(Path.Combine(directory, filename));
-                //}
             }
         }
 
@@ -1281,7 +1299,7 @@ namespace XDOErrorDetectorUI
                     using (var cmd = new NpgsqlCommand())
                     {
                         cmd.Connection = conn;
-                        cmd.CommandText = "select * from " + table_xdo_log + " where detail='" + "Invalid filename in folder(carriage return or line feed)" +"';";
+                        cmd.CommandText = "select * from " + table_xdo_log + " where detail='" + "Invalid filename in folder(carriage return or line feed)" + "';";
 
                         using (var reader = cmd.ExecuteReader())
                         {
@@ -1315,5 +1333,4 @@ namespace XDOErrorDetectorUI
             return sb.ToString();
         }
     }
-    
 }

@@ -87,6 +87,7 @@
     </ApplicationDefinition>
     <Compile Include="b3dm_loader.cs" />
     <Compile Include="CheckVersionListItem.cs" />
+    <Compile Include="GLB_External.cs" />
     <Compile Include="GLTF.cs" />
     <Compile Include="PrintInformation.cs" />
     <Compile Include="ReadDAT.cs" />

@@ -94,7 +94,7 @@ namespace XDOErrorDetectorUI
             };
 
             worker.RunWorkerAsync();
-            }
+        }
 
         private void setTableName(postgreSQL sql, string table)
         {
@@ -147,7 +147,7 @@ namespace XDOErrorDetectorUI
             };
             worker.RunWorkerAsync();
         }
-        
+
         private void button_search_Click(object sender, RoutedEventArgs e)
         {
             setTableName(sql, textBox_table.Text);
@@ -160,7 +160,7 @@ namespace XDOErrorDetectorUI
 
             if (checkbox_tableClear.IsChecked == true)
             {
-                    this.button_ClearTable_Click(sender, e);
+                this.button_ClearTable_Click(sender, e);
             }
             pbStatus.Value = 0;
             var isRepair = checkbox_autoRecover.IsChecked;
@@ -174,14 +174,15 @@ namespace XDOErrorDetectorUI
                 try
                 {
                     args.Result = sql.search(folderPathText, min, max, worker, isRepair);
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                 }
             };
             worker.ProgressChanged += (s, args) =>
             {
-                if(args.UserState != null)
+                if (args.UserState != null)
                 {
                     var t = args.UserState.GetType();
                     if (t.Equals(typeof(ReportProgressItemClass)))
@@ -200,7 +201,7 @@ namespace XDOErrorDetectorUI
             };
             worker.RunWorkerCompleted += (s, args) =>
             {
-                if(args.Error != null)
+                if (args.Error != null)
                 {
                     Console.WriteLine(args.Error.ToString());
                 }
@@ -228,7 +229,7 @@ namespace XDOErrorDetectorUI
             };
             worker.RunWorkerAsync();
         }
-        
+
         private void button_changefolder(object sender, RoutedEventArgs e)
         {
             var folderDialog = new FolderBrowserDialog();
@@ -244,7 +245,7 @@ namespace XDOErrorDetectorUI
             listView_Log.Items.Clear();
             dat_info_listview.Items.Clear();
             dat_log_listview.Items.Clear();
-            
+
             var worker = new BackgroundWorker();
             worker.DoWork += (o, args) =>
             {
@@ -262,7 +263,7 @@ namespace XDOErrorDetectorUI
             {
                 var result = (BackgroundWorkerReturnClass)args.Result;
 
-                foreach(var key in result.xdoList)
+                foreach (var key in result.xdoList)
                 {
                     listView1.Items.Add(new myXDOItem
                     {
@@ -341,7 +342,7 @@ namespace XDOErrorDetectorUI
 
             var folderPathText = folder_path.Text;
             var worker = new BackgroundWorker();
-            
+
             worker.DoWork += (s, args) =>
             {
                 watch.Restart();
@@ -408,7 +409,7 @@ namespace XDOErrorDetectorUI
                 label1.Content = ms(watch);
             };
             worker.RunWorkerAsync();
-                
+
         }
 
         private void button_GLTF_GLB(object sender, RoutedEventArgs e)
@@ -463,7 +464,7 @@ namespace XDOErrorDetectorUI
                     {
                         foreach (var file in k)
                         {
-                            if(!file.Contains(".dat"))
+                            if (!file.Contains(".dat"))
                                 set.Add(file);
                         }
                     }

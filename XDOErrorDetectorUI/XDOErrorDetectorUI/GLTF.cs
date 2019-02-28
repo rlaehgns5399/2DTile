@@ -492,15 +492,11 @@ namespace XDOErrorDetectorUI
             this.xdo = xdo;
             this.savePath = savePath;
             if (xdo.faceNum == 0) xdo.faceNum = 1;
-
-
             var maxImageLv = (int)xdo.mesh.Max(e => e.ImageLevel);
 
             var baseJSON = create();
             create(baseJSON, maxImageLv, checkLODTextureExist(xdo.url, maxImageLv));
-
-
-            
+            var externalGLB = new GLB_External(Path.Combine(savePath, Path.GetFileNameWithoutExtension(xdo.url)));
         }
     }
 }
