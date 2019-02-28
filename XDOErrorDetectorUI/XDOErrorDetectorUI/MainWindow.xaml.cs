@@ -39,21 +39,19 @@ namespace XDOErrorDetectorUI
             textBox_table.Text = "xdo2";
             textBox_port.Text = "5433";
             folder_path.Text = @"Z:\buildingTemp.del";
-
-            var b3dm_test = new b3dm_loader();
         }
         private void button_CreateTable_Click(object sender, RoutedEventArgs e)
         {
             setTableName(sql, textBox_table.Text);
 
             var worker = new BackgroundWorker();
-            worker.DoWork += delegate (object o, DoWorkEventArgs args)
+            worker.DoWork += (o, args) =>
             {
                 watch.Restart();
                 args.Result = sql.createTable();
             };
 
-            worker.RunWorkerCompleted += delegate (object o, RunWorkerCompletedEventArgs args)
+            worker.RunWorkerCompleted += (o, args) =>
             {
                 watch.Stop();
                 label1.Content = args.Result;
