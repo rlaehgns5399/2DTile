@@ -1,28 +1,33 @@
 # 2DTile
 
-When the shape is given, I want to know which tile this shape belongs to
+2D 지도에서 도형이 주어질 때, 도형이 어떤 타일에 속하는지 구함
 
-## Problem description
+## 문제 예시
 
-![image](https://user-images.githubusercontent.com/26527826/48421740-6e882580-e7a0-11e8-816b-f76e8e1f7cbd.png)
+왼쪽 밑 부터 `0`번 타일이라고 가정하면 다음과 같다.
 
-Let's say zero from the bottom left.
+`(x, y)`는 타일의 왼쪽 밑의 좌표 값이다.
 
 <pre>
 2(0,1)	3(1,1)
 0(0,0)	1(1,0)
 </pre>
-[level 0 with shapes(set of points)]
+
+![image](https://user-images.githubusercontent.com/26527826/48421740-6e882580-e7a0-11e8-816b-f76e8e1f7cbd.png)
+
+주어진 도형은 다음과 같다.
 
 ![image](https://user-images.githubusercontent.com/26527826/48423325-bc525d00-e7a3-11e8-8c60-b0ac9d5390d9.png)
 
-In `level 0`, because the shape cover tile 1, it returns **`lv0-1-0`(tile 1)**. (lv0, x:0, y:1)
+`레벨 0` 타일 에서는, 도형이 1번 타일을 덮으므로, **`lv0-1-0`**(1번 타일)을 리턴한다. (레벨 0타일, x: 1, y: 1)
 
-but the remains exist, divide 0, 3 tiles into 4 tiles, and increase level 1
+그러나 나머지가 존재하므로, 0과 3번 타일을 각각 4타일씩 나눈다. 그리고 타일의 레벨은 1 증가한다.
 
 ![image](https://user-images.githubusercontent.com/26527826/48423332-c07e7a80-e7a3-11e8-82dc-e63ede80af63.png)
 
-Now, we have 8 tiles. Let's mark out with x, y coordinates, number.
+이제, 우리는 0, 3번 타일에 각각 4타일 씩, 총 8타일을 조사한다.
+
+이것을 x, y 좌표, 타일 번호를 매기면 다음과 같다.
 
 <pre>
 22(0,1.5)	23(0.5,1.5)	32(1,1.5)	33(1.5,1.5)
@@ -31,103 +36,154 @@ Now, we have 8 tiles. Let's mark out with x, y coordinates, number.
 00(0,0)		01(0.5,0)	10(1,0) 	11(1.5,0)
 </pre>
 
-The shape 01(0.5,0) & 31(1.5,1) cover its tile. so it returns **`lv1-0.5-0`, `lv1-1.5-1`**.
+도형이 01번 타일(x: 0.5, y: 0), 31번 타일(x: 1.5, y: 1)을 덮으므로, **`(lv1-0.5-0)`, `(lv1-1.5-1)`**을 리턴한다.
 
-but the remain exists. Let's divide 30(1,1) tile into 4 tiles
+역시나 나머지가 존재하므로, 30번 타일(x: 1, y: 1)을 4타일로 나눈다.
 
 ![image](https://user-images.githubusercontent.com/26527826/48423341-c4aa9800-e7a3-11e8-97ce-694cb7004491.png)
 
-the 30(1,1) will be like this:
+30번 타일(x: 1, y: 1)은 다음과 같이 된다. (나머지 타일들은 생략)
 
 <pre>
 302(1,1.25)	303(1.25,1.25)
 300(1,1)	301(1.25,1)
 </pre>
 
-the tile 301(1.25,1) is covered. so it returns **`lv2-1.25-1`**.
+도형이 301번 타일(x: 1.25, y: 1)을 덮으므로, **`lv2-1.25-1`**을 리턴한다.
 
-Finally, we find all tiles! so exit this algorithm.
+마침내 우리는 도형을 덮는 모든 타일들을 찾아냈다. 따라서 알고리즘을 종료한다.
 
 <hr>
 
-`level 0` has 50 tiles(5 x 10), and level is up to **15**.
+## 문제 정의
 
-As the  level increases, each tile is divided into **`4`** smaller tiles. (i.e, lv1 has 5x10x4 tiles, lv2 has 5x10x4^2)
+`레벨 0` 타일은 총 50개의 타일(0\~9, 0\~4)이 존재한다. 또한 레벨은 **15**까지 있다.
 
-When the point set is given, it will compose a shape.
+레벨이 증가함에 따라, 각 타일은 4개의 작은 타일들로 분할할 수 있다.
 
-When `level 0`, the shape can cover a tile perfectly, I will write somewhere with correct format.
+(레벨 1의 총 타일 수는 레벨 0타일의 4배, 50*4 = 200개)
 
-if the shape doesnt cover tile perfectly, it can be divide into 4 tiles(increasing **1** level). 
+그리고 점의 집합이나 리스트가 주어지면, 그것은 도형으로 만들 수 있다.
 
-and compare until shape covers perfectly a tile.
+또한 `레벨 0`에서, 도형이 `레벨 0` 타일의 어떤 것이라도 정확히 포함하면, 어딘가에 그 정보를 저장하고 나머지에 대해 계산한다.
 
-return the sets of tile's x,y(like `level_n_x_y`)
+만약 도형이 불완전하게 `레벨 0`타일을 덮는다면, 레벨 1을 증가시키고, 그 타일은 4 타일로 분할된다.
 
-### How to determine how many tiles the shape covers
+그리고 도형이 타일을 다 덮을 때까지 비교하고 진행한다.
 
-I will use straight equation and points of intersection(limited scope) 
+저장할 정보는 타일의 x, y 좌표, 그리고 레벨이다(**`LVn-x-y`**)
 
-## Reference
+### 어떤 타일이 도형을 덮는지 어떻게 계산할 것인지?
 
-- [flood fill](https://ko.wikipedia.org/wiki/%ED%94%8C%EB%9F%AC%EB%93%9C_%ED%95%84) (i think this is not good for this problem)
-- [QuadTree](https://en.wikipedia.org/wiki/Quadtree)
+제한된 범위의 직선의 방정식과 그의 교점을 통해 계산할 것이다.
+
+(2018. 12. 03) 타일은 네 꼭지점으로 이루어져 있다.
+
+<pre>
+P3(x, y+n)		P4(x+n, y+n)
+P1(x, y)		P2(x+n, y)
+</pre>
+
+특정 타일이 도형 안에 있는지 판별하는 것은, 이 네개의 점이 도형 안에 있는지 검사하면 된다.
+
+이 방법은 `Ray Casting`을 사용하여 검출한다.
+
+하지만 특정 모양에서는 이 방법에 문제가 있는데, 도형의 변과, 타일의 네 꼭지점으로 이루어진 선분끼리 교점이 있는지 비교한다.
+
+대략적인 알고리즘은 다음과 같다.
+
+<pre>
+*(레벨 0)*
+while(레벨 0의 모든 타일에 대해)
+	if(레벨 0 타일의 4 꼭지점이 도형 안에 있지만,
+	4 꼭지점으로 이루어진 선분들이 도형 변에 하나라도 겹쳐진다면)
+		타일을 4분할 하고, 레벨을 1 증가시키며, 큐에 넣는다.
+	else if(위의 if문에 걸리지 않고 타일의 4 꼭지점에 도형 안에 있다면)
+		해당 타일을 결과 리스트에 추가한다.
+	else if(네 점으로 이루어진 선분이 하나라도 도형의 변에 걸친다면)
+		타일을 4분할 하고, 레벨을 1 증가시키며, 큐에 넣는다.
+	// else가 없음에 주의하라
+
+*(레벨 1이상)*
+while(큐에 아이템이 있을 때)
+	타일 = 큐에서 아이템 하나를 빼낸다.
+	
+	if(현재 타일의 레벨이 16이상이면) 
+		continue
+	타일의 네 꼭지점을 구한다.
+	
+	if(현재 타일의 4 꼭지점이 도형 안에 있지만,
+	4 꼭지점으로 이루어진 선분들이 도형 변에 하나라도 겹쳐진다면)
+		타일을 4분할 하고, 레벨을 1 증가시키며, 큐에 넣는다.
+	else if(위의 if문에 걸리지 않고 타일의 4 꼭지점에 도형 안에 있다면)
+		해당 타일을 결과 리스트에 추가한다.
+	else if(네 점으로 이루어진 선분이 하나라도 도형의 변에 걸친다면)
+		타일을 4분할 하고, 레벨을 1 증가시키며, 큐에 넣는다.
+	// else가 없음에 주의하라
+	
+</pre>
+
+여기서 볼 수 있듯이, `레벨 0`에서는, `brute force`방식을 통해, 50개의 타일을 모두 검사한다.
+	
+그리고 나눌 타일에 대해서만 연산이 진행된다.
+
+
+## 참고
+
+- [Flood Fill](https://ko.wikipedia.org/wiki/%ED%94%8C%EB%9F%AC%EB%93%9C_%ED%95%84) (이 문제에 대해선 딱히 좋은 방법은 아닌 것 같음)
+- [QuadTree](https://en.wikipedia.org/wiki/Quadtree) (이 아이디어를 이용하긴 했음)
 - [Ray casting algorithm(Detect point in polygon)](https://en.wikipedia.org/wiki/Point_in_polygon)
-- [Convex hull](https://en.wikipedia.org/wiki/Convex_hull_algorithms)
+- [Convex hull](https://en.wikipedia.org/wiki/Convex_hull_algorithms) (도형을 만들 때, 이 방법을 통하면 넓이를 최대화한 도형을 얻을 수 있음)
 
 # QuadtreeUI
 
 ![image](https://user-images.githubusercontent.com/26527826/48673764-30b44400-eb88-11e8-8f62-f33f422e71a8.png)
 
-Imperfect quadtree & shape (ver1)
+완벽하지 않은 쿼드트리의 가시화(버전 1)
 
 ![image](https://user-images.githubusercontent.com/26527826/48693180-fbf1cc80-ec1b-11e8-9f93-ee299d3e8a7e.gif)
 
-Nice quadtree but there is something to be fixed
+쿼드트리를 수정했으나, 좀 더 수정할 것이 남아 있습니다.
 
 ![image](https://user-images.githubusercontent.com/26527826/48844184-76694a80-eddc-11e8-82f7-f1ae6cf0fd3f.png)
 
-Because there is an error when a line passes tile which is judged correct already
+2018.12.11) 분홍색 타일의 경우, 점 네개는 도형에 포함되어 있지만 초록색 타일로 인식되면 안 됩니다.
 
-So, with [an Article](http://bowbowbow.tistory.com/17), i fixed this error. Previosly, The pink tile was be perceived as correct. But not now(2018. 11. 21)
+[이 곳](http://bowbowbow.tistory.com/17)을 참조하여 에러를 고쳤습니다. 
+
+이전에는, 분홍색 타일이 초록색 타일로 인식되었었는데 이제는 그렇지 않게 되었습니다.
 
 ![honeycam 2018-11-23 20-41-37](https://user-images.githubusercontent.com/26527826/48941807-5cf10b80-ef60-11e8-9019-d8b7c5bdbf1f.gif)
 
-I completed this work. (I think), (2018. 11. 23)
+2018.11.23) 드디어 이 일을 끝낸 것 같습니다(2018. 11. 23).
 
-As you see, Each tile is represented by a different color with each level.
+위의 그림에서 각각의 타일은 레벨에 따라 다른 색깔로 표시됩니다.
 
-The request wanted to be represented to the level 15. 
+15레벨까지 표현되는 것을 원했으나, 제 컴퓨터에서 11레벨만 넘어가도 컴퓨터가 도형을 표현하는데 시간을 오래 잡아먹습니다.
 
-In my computer, beyond level 11, my computer slows down in representing shape.
+또한, 쿼드 트리를 구현은 했지만 그 코드 자체는 필요가 없었습니다(물론 이 아이디어 자체는 좋았고, 참고할만 했음).
 
-I made Quadtree, but it doesn't need(of course, there were good ideas to refer).
+도형을 만드는데, `컨벡스 헐` 알고리즘을 사용하지 않았습니다.
 
-For making shape, I havent use `Convex hull algorithm`.
-
-If you want to use, just modify `Point` class codes.
+만약에 `컨벡스 헐`을 사용하여 주어진 점에서 최대 넓이를 갖는 도형을 만들기 원한다면, `Point` 클래스 코드를 수정하여 점들의 집합을 재구성하면 됩니다.
 
 <hr>
 
 # XDOErrorDectectorUI
 
-This program's purposes are showing DAT, XDO's inner data & checking its referred texture files.
+이 프로그램은 DAT, XDO 내부의 데이터와 DAT파일이 참조하는 XDO 파일, 그 XDO가 참조하는 텍스쳐 파일들을 체크하고 그 결과를 가시화해줍니다.
 
-You can input information for connecting DB(using `PostgreSQL`). if the connection is successful, you can set table where you access.
+DB(`PostgreSQL`을 사용하는)에 연결하기 위해 정보를 입력할 수 있습니다. 만약 성공적으로 연결되었다면, 접근하고 싶은 테이블을 정할 수 있게 됩니다.
 
-you can create, delete, clear table you inputted.
+입력한 테이블 이름을 만들거나, 삭제하거나, 초기화할 수 있습니다. 
 
-`테이블 불러오기(Load Table)` does:
+`테이블 불러오기(Load Table)`:
 
-- load data into listview
+- DB에서 데이터를 불러와 리스트 뷰에 추가합니다.
 
-`검색 및 DB에 저장(DAT, XDO Search & Save at DB)` does:
+`검색 및 DB에 저장(DAT, XDO Search & Save at DB)`:
 
-- The program will find recursively DAT, XDO files in given folder(beware about out of memory)
-- The program will parse DAT, XDO files, check texture error, and make a note unused textures.
-- After above that, it will save data at DB
+- 프로그램이 주어진 폴더에 대해 재귀적으로 DAT, XDO 파일을 검색합니다.(메모리 부족이 발생할 수 있습니다)
+- 프로그램이 DAT, XDO 파일을 파싱하고 그에 해당하는 텍스쳐 에러, 참조하는 파일 유무를 할 것입니다. 또한 쓰이지 않는 텍스쳐에 대해서도 기록합니다.
+- 그 이후에, 결과들을 DB에 저장합니다.
 
-`DAT 치료(DAT Repair)` does:
-- The program will check DAT file having errors
-- It will try to repair DAT file & make backup files.
-- To repair is as follows: When DAT has duplicate xdo, When the XDO in DAT doesn't really exist(it will modify its list), When DAT has case-sensitive errors.
